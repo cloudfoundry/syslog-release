@@ -1,0 +1,25 @@
+---
+name: syslog
+templates:
+  pre-start.erb: bin/pre-start
+  rsyslog.conf.erb: bin/rsyslog.conf
+  ca_cert.pem.erb: bin/ca_cert.pem
+packages:
+
+properties:
+  destination:
+    description: IP or DNS address of the syslog drain
+  port:
+    description: Port of the syslog drain
+  transport:
+    default: udp
+    description: One of ["udp", "tcp", "relp"]
+  custom_rule:
+    default: ""
+    description: Custom rule for syslog event forwarder
+  permitted_peer:
+    default: ""
+    description: Accepted fingerprint (SHA1) or name of remote peer. Required if TLS is enabled
+  ca_cert:
+    default: ""
+    description: Trust these Certificate Authorities
