@@ -1,0 +1,38 @@
+---
+name: syslog_forwarder
+templates:
+  pre-start.erb: bin/pre-start
+  rsyslog.conf.erb: config/rsyslog.conf
+  ca_cert.pem.erb: config/ca_cert.pem
+
+properties:
+  destination_address:
+    description: IP or DNS address of the syslog drain
+    example: logs4.papertrail.com
+  port:
+    description: Port of the syslog drain
+    default: 514
+  transport:
+    default: udp
+    description: One of ["udp", "tcp", "relp"]. 
+
+  custom_rule:
+    default: ""
+    description: Custom rule for syslog event forwarder
+
+  tls_enabled:
+    default: false
+    description: Set this to true to enable TLS.
+  permitted_peer:
+    default: ""
+    description: Accepted fingerprint (SHA1) or name of remote peer. Required if TLS is enabled.
+    example: "*.papertrail.com"
+  ca_cert:
+    default: ""
+    description: Trust these Certificate Authorities. Required if TLS is enabled.
+      -----BEGIN CERTIFICATE-----
+      MIIClTCCAf4CCQDc6hJtvGB8RjANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMC
+      ...
+      ...
+      .............................KTg8=
+      -----END CERTIFICATE-----

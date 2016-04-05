@@ -1,8 +1,6 @@
-#This is taken from https://github.com/cloudfoundry/loggregator/blob/d648809112be62df9663ac82a7bd39babc47fa28/bosh/jobs/metron_agent/templates/syslog_forwarder.conf.erb
-
 $ModLoad imuxsock                       # local message reception (rsyslog uses a datagram socket)
 $MaxMessageSize 4k                      # default is 2k
-$WorkDirectory /var/vcap/sys/rsyslog/buffered # where messages should be buffered on disk
+$WorkDirectory /var/vcap/data/syslog_forwarder/buffered # where messages should be buffered on disk
 
 # Forward vcap messages to the aggregator
 #
@@ -29,31 +27,32 @@ constant(value=">")
 property(name="timestamp" dateFormat="rfc3339")
 constant(value=" <%= spec.address %> ")
 property(name="programname")
-constant(value=" [job=<%= spec.job.name %> index=<%= spec.index %>] ")
+constant(value=" <%= spec.job.name %>/<%= spec.id %> ")
 property(name="msg")
 }
 
 <%= p('custom_rule') %>
 
-<% if_p("destination", "port", "transport") do |destination, port, transport| %>
-
-# Keep filtered programname in sync with syslog_event_forwarder.rb
-    <% if transport == "relp" %>
-$ModLoad omrelp
-:omrelp:<%= destination %>:<%= port %>;BoshLogTemplate
-    <% elsif transport == "udp" %>
-@<%= destination %>:<%= port %>;BoshLogTemplate
-    <% elsif transport == "tcp" %>
-	<% if_p('ca_cert') do %>
-$DefaultNetstreamDriverCAFile /etc/rsyslog.d/ca_cert.pem # trust these CAs
+<% if p('tls_enabled') %>
+$DefaultNetstreamDriverCAFile /var/vcap/jobs/syslog_forwarder/config/ca_cert.pem # trust these CAs
 $ActionSendStreamDriver gtls # use gtls netstream driver
 $ActionSendStreamDriverMode 1 # require TLS
 $ActionSendStreamDriverAuthMode x509/name # authenticate by hostname
 $ActionSendStreamDriverPermittedPeer <%= p('permitted_peer') %>
-        <% end %>
-@@<%= destination %>:<%= port %>;BoshLogTemplate
+<% end %>
+
+<% if_p("destination_address", "port", "transport") do |destination_address, port, transport| %>
+
+# Keep filtered programname in sync with syslog_event_forwarder.rb
+    <% if transport == "relp" %>
+$ModLoad omrelp
+:omrelp:<%= destination_address %>:<%= port %>;BoshLogTemplate
+    <% elsif transport == "udp" %>
+@<%= destination_address %>:<%= port %>;BoshLogTemplate
+    <% elsif transport == "tcp" %>
+@@<%= destination_address %>:<%= port %>;BoshLogTemplate
     <% else %>
-        #only RELP, UDP, and TCP are supported
+        <% raise "only RELP, UDP, and TCP are supported" %>
     <% end %>
 
 <% end  %>
