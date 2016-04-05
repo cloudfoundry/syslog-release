@@ -30,6 +30,7 @@ properties:
   ca_cert:
     default: ""
     description: Trust these Certificate Authorities. Required if TLS is enabled.
+    example: |
       -----BEGIN CERTIFICATE-----
       MIIClTCCAf4CCQDc6hJtvGB8RjANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMC
       ...
