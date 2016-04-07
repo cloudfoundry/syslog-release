@@ -34,7 +34,13 @@ property(name="msg")
 <%= p('custom_rule') %>
 
 <% if p('tls_enabled') %>
-$DefaultNetstreamDriverCAFile /var/vcap/jobs/syslog_forwarder/config/ca_cert.pem # trust these CAs
+  <% ca_cert_path = '/etc/ssl/certs/ca-certificates.crt' 
+
+  if_p('ca_cert') do
+    ca_cert_path = '/var/vcap/jobs/syslog_forwarder/config/ca_cert.pem'
+  end %>
+
+$DefaultNetstreamDriverCAFile <%= ca_cert_path %> # trust these CAs
 $ActionSendStreamDriver gtls # use gtls netstream driver
 $ActionSendStreamDriverMode 1 # require TLS
 $ActionSendStreamDriverAuthMode x509/name # authenticate by hostname
@@ -44,16 +50,16 @@ $ActionSendStreamDriverPermittedPeer <%= p('permitted_peer') %>
 <% if_p("destination_address", "port", "transport") do |destination_address, port, transport| %>
 
 # Keep filtered programname in sync with syslog_event_forwarder.rb
-    <% if transport == "relp" %>
+  <% if transport == "relp" %>
 $ModLoad omrelp
 :omrelp:<%= destination_address %>:<%= port %>;BoshLogTemplate
-    <% elsif transport == "udp" %>
+  <% elsif transport == "udp" %>
 @<%= destination_address %>:<%= port %>;BoshLogTemplate
-    <% elsif transport == "tcp" %>
+  <% elsif transport == "tcp" %>
 @@<%= destination_address %>:<%= port %>;BoshLogTemplate
-    <% else %>
-        <% raise "only RELP, UDP, and TCP are supported" %>
-    <% end %>
+  <% else %>
+    <% raise "only RELP, UDP, and TCP are supported" %>
+  <% end %>
 
 <% end  %>
 

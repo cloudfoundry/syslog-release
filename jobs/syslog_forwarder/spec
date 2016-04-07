@@ -28,7 +28,6 @@ properties:
     description: Accepted fingerprint (SHA1) or name of remote peer. Required if TLS is enabled.
     example: "*.papertrail.com"
   ca_cert:
-    default: ""
     description: Trust these Certificate Authorities. Required if TLS is enabled.
     example: |
       -----BEGIN CERTIFICATE-----
