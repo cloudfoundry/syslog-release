@@ -1,0 +1,17 @@
+---
+name: syslog_storer
+templates:
+  pre-start.erb: bin/pre-start
+  rsyslog.conf.erb: config/rsyslog.conf
+
+properties:
+  port:
+    description: Port of the syslog drain
+    default: 514
+  transport:
+    default: udp
+    description: One of ["udp", "tcp", "relp"]. 
+
+  custom_rule:
+    default: ""
+    description: Custom rule for syslog event forwarder

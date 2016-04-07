@@ -1,0 +1,48 @@
+$ModLoad imuxsock                       # local message reception (rsyslog uses a datagram socket)
+$MaxMessageSize 4k                      # default is 2k
+$WorkDirectory /var/vcap/data/syslog_storer/buffered # where messages should be buffered on disk
+
+# Forward vcap messages to the aggregator
+#
+$ActionResumeRetryCount -1              # Try until the server becomes available
+$ActionQueueType LinkedList             # Allocate on-demand
+$ActionQueueFileName agg_backlog        # Spill to disk if queue is full
+$ActionQueueMaxDiskSpace 32m            # Max size for disk queue
+$ActionQueueLowWaterMark 2000           # Num messages. Assuming avg size of 512B, this is 1MiB.
+$ActionQueueHighWaterMark 8000          # Num messages. Assuming avg size of 512B, this is 4MiB. (If this is reached, messages will spill to disk until the low watermark is reached).
+$ActionQueueTimeoutEnqueue 0            # Discard messages if the queue + disk is full
+$ActionQueueSaveOnShutdown on           # Save in-memory data to disk if rsyslog shuts down
+
+<%= p('custom_rule') %>
+
+<% if_p("port", "transport") do |port, transport| %>
+
+# Keep filtered programname in sync with syslog_event_forwarder.rb
+    <% if transport == "relp" %>
+# Listen for logs over RELP
+$ModLoad imrelp
+$InputRELPServerRun <%= p('port') %>
+
+    <% elsif transport == "udp" %>
+# Listen for logs over UDP
+$ModLoad imudp
+$UDPServerRun <%= p('port') %>
+
+    <% elsif transport == "tcp" %>
+# Listen for logs over TCP
+$ModLoad imtcp
+$InputTCPMaxSessions 500
+$InputTCPServerRun <%= p('port') %>
+    <% else %>
+        <% raise "only RELP, UDP, and TCP are supported" %>
+    <% end %>
+
+<% end  %>
+
+# Prevent them from reaching anywhere else
+:programname, startswith, "vcap." ~
+
+$ModLoad omfile
+$DirCreateMode 0700
+$FileCreateMode 0644
+*.* /var/vcap/data/syslog_storer/buffered/log_syslog.txt
