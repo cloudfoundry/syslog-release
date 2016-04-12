@@ -3,12 +3,11 @@
 set -e
 
 TEST_DIR=`mktemp -d /tmp/syslog_test-$(date +%d%m%y-%H%M%S)-XXXXX`
-SYSLOG_FORWARDER_IP=10.244.0.34
 
-bosh scp --download syslog_forwarder 0 /etc/rsyslog.conf $TEST_DIR
+bosh ssh syslog_forwarder 0 'logger syslog-forwarder-test-msg'
 bosh scp --download syslog_storer 0 /var/vcap/store/syslog_storer/syslog.log $TEST_DIR
 
-LOGS_FROM_FORWARDER=`cat $TEST_DIR/syslog.log.syslog_storer.* | grep $SYSLOG_FORWARDER_IP`
+LOGS_FROM_FORWARDER=`cat $TEST_DIR/syslog.log.syslog_storer.* | grep 'syslog-forwarder-test-msg'`
 
 if [ -n "$LOGS_FROM_FORWARDER" ]; then
     # there are logs from the forwarder
@@ -16,5 +15,6 @@ if [ -n "$LOGS_FROM_FORWARDER" ]; then
 else
     # there are no logs from the forwarder
     echo tests failed
+
     exit 1
 fi

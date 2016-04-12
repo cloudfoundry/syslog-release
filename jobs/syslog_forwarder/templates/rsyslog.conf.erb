@@ -53,13 +53,6 @@ syslog_address = nil
 syslog_port = nil
 
 if_link('syslog_consumer') do |syslog_consumer|
-  %>
-  # in if_link('syslog_consumer')
-  # syslog_consumer.instances = <%= syslog_consumer.instances.pretty_inspect %>
-  # syslog_address = <%= syslog_consumer.instances[0].address %>
-  # syslog_port = <%= syslog_consumer.p('port') %>
-  # syslog_transport = <%= syslog_consumer.p('transport') %>
-  <%
   syslog_address = syslog_consumer.instances[0].address
   syslog_port = syslog_consumer.p('port')
   syslog_transport = syslog_consumer.p('transport')

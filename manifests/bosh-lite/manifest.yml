@@ -40,10 +40,6 @@ instance_groups:
       - name: default
         static_ips: [10.244.0.35]
 
-properties:
-  warden:
-    kernel_network_tuning_enabled: true
-
 update:
   canaries: 1
   max_in_flight: 3
