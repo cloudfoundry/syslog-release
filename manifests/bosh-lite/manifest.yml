@@ -35,6 +35,7 @@ instance_groups:
     stemcell: ubuntu
     azs: [z1]
     vm_type: default
+    persistent_disk_type: default
     networks:
       - name: default
         static_ips: [10.244.0.35]

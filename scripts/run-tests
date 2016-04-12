@@ -6,9 +6,9 @@ TEST_DIR=`mktemp -d /tmp/syslog_test-$(date +%d%m%y-%H%M%S)-XXXXX`
 SYSLOG_FORWARDER_IP=10.244.0.34
 
 bosh scp --download syslog_forwarder 0 /etc/rsyslog.conf $TEST_DIR
-bosh scp --download syslog_storer 0 /var/vcap/data/syslog_storer/buffered/log_syslog.txt $TEST_DIR
+bosh scp --download syslog_storer 0 /var/vcap/store/syslog_storer/syslog.log $TEST_DIR
 
-LOGS_FROM_FORWARDER=`cat $TEST_DIR/log_syslog.txt.syslog_storer.* | grep $SYSLOG_FORWARDER_IP`
+LOGS_FROM_FORWARDER=`cat $TEST_DIR/syslog.log.syslog_storer.* | grep $SYSLOG_FORWARDER_IP`
 
 if [ -n "$LOGS_FROM_FORWARDER" ]; then
     # there are logs from the forwarder
