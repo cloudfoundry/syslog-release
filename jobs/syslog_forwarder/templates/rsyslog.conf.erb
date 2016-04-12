@@ -47,21 +47,45 @@ $ActionSendStreamDriverAuthMode x509/name # authenticate by hostname
 $ActionSendStreamDriverPermittedPeer <%= p('permitted_peer') %>
 <% end %>
 
-<% if_p("destination_address", "port", "transport") do |destination_address, port, transport| %>
+<% 
+syslog_transport = nil
+syslog_address = nil
+syslog_port = nil
+
+if_link('syslog_consumer') do |syslog_consumer|
+  %>
+  # in if_link('syslog_consumer')
+  # syslog_consumer.instances = <%= syslog_consumer.instances.pretty_inspect %>
+  # syslog_address = <%= syslog_consumer.instances[0].address %>
+  # syslog_port = <%= syslog_consumer.p('port') %>
+  # syslog_transport = <%= syslog_consumer.p('transport') %>
+  <%
+  syslog_address = syslog_consumer.instances[0].address
+  syslog_port = syslog_consumer.p('port')
+  syslog_transport = syslog_consumer.p('transport')
+end %>
+
+<% if_p("destination_address", "port", "transport") do |destination_address, port, transport|
+  %>
+  # in if_p("destination_address", "port", "transport")
+  <%
+  syslog_address = destination_address
+  syslog_port = port
+  syslog_transport = transport
+end %>
 
 # Keep filtered programname in sync with syslog_event_forwarder.rb
-  <% if transport == "relp" %>
+<% if syslog_transport == 'relp' %>
 $ModLoad omrelp
-:omrelp:<%= destination_address %>:<%= port %>;BoshLogTemplate
-  <% elsif transport == "udp" %>
-@<%= destination_address %>:<%= port %>;BoshLogTemplate
-  <% elsif transport == "tcp" %>
-@@<%= destination_address %>:<%= port %>;BoshLogTemplate
-  <% else %>
-    <% raise "only RELP, UDP, and TCP are supported" %>
-  <% end %>
+:omrelp:<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+<% elsif syslog_transport == 'udp' %>
+@<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+<% elsif syslog_transport == 'tcp' %>
+@@<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+<% else %>
+  <% raise 'only RELP, UDP, and TCP are supported' %>
+<% end %>
 
-<% end  %>
 
 # Prevent them from reaching anywhere else
 :programname, startswith, "vcap." ~

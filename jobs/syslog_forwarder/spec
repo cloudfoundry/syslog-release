@@ -1,9 +1,15 @@
 ---
 name: syslog_forwarder
+
 templates:
   pre-start.erb: bin/pre-start
   rsyslog.conf.erb: config/rsyslog.conf
   ca_cert.pem.erb: config/ca_cert.pem
+
+consumes:
+- name: syslog_consumer
+  type: syslog_consumer
+  optional: true
 
 properties:
   destination_address:

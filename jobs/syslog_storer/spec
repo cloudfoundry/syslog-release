@@ -1,8 +1,16 @@
 ---
 name: syslog_storer
+
 templates:
   pre-start.erb: bin/pre-start
   rsyslog.conf.erb: config/rsyslog.conf
+
+provides:
+- name: syslog_consumer
+  type: syslog_consumer
+  properties:
+  - port
+  - transport
 
 properties:
   port:
