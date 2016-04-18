@@ -1,0 +1,19 @@
+---
+packages: []
+jobs:
+- name: syslog_forwarder
+  version: 23d004e848a5cc0ee1dee2c5b47dcfbac2a11568
+  fingerprint: 23d004e848a5cc0ee1dee2c5b47dcfbac2a11568
+  sha1: 482fe18dfa735a9284e4d25d59c6d2979f33019e
+- name: syslog_storer
+  version: 49d19cd9130ef92bdf5cbd7a95ad64197191df47
+  fingerprint: 49d19cd9130ef92bdf5cbd7a95ad64197191df47
+  sha1: fd51d3ce45863995b70a1a65cd8140f32f7f7fb6
+license:
+  version: 92d787bc0daf268049dde988188dfb323c2d110e
+  fingerprint: 92d787bc0daf268049dde988188dfb323c2d110e
+  sha1: 8974dd7c32c4592ee0a81767adb30a7e970852f9
+commit_hash: c0c82639
+uncommitted_changes: true
+name: syslog-release
+version: '1'
