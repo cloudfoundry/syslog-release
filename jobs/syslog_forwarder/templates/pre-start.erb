@@ -4,5 +4,6 @@ set -ex
 mkdir -p /var/vcap/data/syslog_forwarder/buffered
 chown -R syslog:adm /var/vcap/data/syslog_forwarder/buffered
 
-cp $(dirname $0)/../config/rsyslog.conf /etc/rsyslog.conf
+mkdir -p /etc/rsyslog.d
+cp $(dirname $0)/../config/rsyslog.conf /etc/rsyslog.d/rsyslog.conf
 service rsyslog restart
