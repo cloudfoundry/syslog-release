@@ -15,10 +15,10 @@ properties:
   destination_address:
     description: IP or DNS address of the syslog drain
     example: logs4.papertrail.com
-  port:
+  destination_port:
     description: Port of the syslog drain
     default: 514
-  transport:
+  destination_transport:
     default: udp
     description: One of ["udp", "tcp", "relp"].
   fallback_addresses:
