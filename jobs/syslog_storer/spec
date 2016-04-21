@@ -6,8 +6,8 @@ templates:
   rsyslog.conf.erb: config/rsyslog.conf
 
 provides:
-- name: syslog_consumer
-  type: syslog_consumer
+- name: syslog_storer
+  type: syslog_storer
   properties:
   - port
   - transport

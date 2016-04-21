@@ -58,14 +58,14 @@ syslog_transport = nil
 syslog_address = nil
 syslog_port = nil
 
-if_link('syslog_consumer') do |syslog_consumer|
-  syslog_address = syslog_consumer.instances[0].address
-  syslog_port = syslog_consumer.p('port')
-  syslog_transport = syslog_consumer.p('transport')
+if_link('syslog_storer') do |syslog_storer|
+  syslog_address = syslog_storer.instances[0].address
+  syslog_port = syslog_storer.p('port')
+  syslog_transport = syslog_storer.p('transport')
 end %>
 
-<% if_p('destination_address', 'port', 'transport') do |destination_address, port, transport|
-  syslog_address = destination_address
+<% if_p('destination_address', 'destination_port', 'destination_transport') do |address, port, transport|
+  syslog_address = address
   syslog_port = port
   syslog_transport = transport
 end %>
@@ -85,9 +85,9 @@ $ModLoad omrelp
 $ActionExecOnlyWhenPreviousIsSuspended on
     <% p('fallback_addresses', []).each do |fallback_address| %>
         <%
-          syslog_fallback_transport = fallback_address['transport']
           syslog_fallback_address = fallback_address['address']
           syslog_fallback_port = fallback_address['port']
+          syslog_fallback_transport = fallback_address['transport']
         %>
         <% if syslog_fallback_transport == 'relp' %>
 $ModLoad omrelp
