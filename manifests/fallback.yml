@@ -1,0 +1,65 @@
+name: fallback
+
+director_uuid: 879402dd-f9f8-4463-9f05-xxxxxxxxxx
+
+releases:
+- name: dummy
+  version: latest
+- name: syslog-release
+  version: latest
+stemcells:
+- alias: default_stemcell
+  name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+  version: "3215"
+
+update:
+  canaries: 10
+  max_in_flight: 10
+  canary_watch_time: 30000-600000
+  update_watch_time: 5000-600000
+  serial: false
+
+jobs:
+- name: dummy_with_package
+  templates:
+  - name: dummy_with_package
+    release: dummy
+  - name: syslog_forwarder
+    release: syslog-release
+  instances: 2
+  vm_type: default_vm_type
+  stemcell: default_stemcell
+  networks:
+  - name: default
+  properties:
+    destination_address: 10.10.0.102
+    destination_port: 514
+    destination_transport: tcp
+   fallback_addresses:
+   - transport: tcp
+     address: 10.10.0.103
+     port: 514
+- name: syslog_storer_primary
+ templates:
+ - name: syslog_storer
+   release: syslog-release
+ instances: 1
+ vm_type: default_vm_type
+ stemcell: default_stemcell
+ networks:
+ - name: default
+   static_ips: [10.10.0.102]
+ properties:
+   transport: tcp
+- name: syslog_storer_fallback
+ templates:
+ - name: syslog_storer
+   release: syslog-release
+ instances: 1
+ vm_type: default_vm_type
+ stemcell: default_stemcell
+ networks:
+ - name: default
+   static_ips: [10.10.0.103]
+ properties:
+   transport: tcp
