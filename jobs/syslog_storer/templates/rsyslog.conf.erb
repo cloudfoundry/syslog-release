@@ -21,18 +21,18 @@ $ActionQueueSaveOnShutdown on           # Save in-memory data to disk if rsyslog
     <% if transport == "relp" %>
 # Listen for logs over RELP
 $ModLoad imrelp
-$InputRELPServerRun <%= p('port') %>
+$InputRELPServerRun <%= port %>
 
     <% elsif transport == "udp" %>
 # Listen for logs over UDP
 $ModLoad imudp
-$UDPServerRun <%= p('port') %>
+$UDPServerRun <%= port %>
 
     <% elsif transport == "tcp" %>
 # Listen for logs over TCP
 $ModLoad imtcp
 $InputTCPMaxSessions 500
-$InputTCPServerRun <%= p('port') %>
+$InputTCPServerRun <%= port %>
     <% else %>
         <% raise "only RELP, UDP, and TCP are supported" %>
     <% end %>

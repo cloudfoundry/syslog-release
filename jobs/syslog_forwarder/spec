@@ -20,7 +20,10 @@ properties:
     default: 514
   transport:
     default: udp
-    description: One of ["udp", "tcp", "relp"]. 
+    description: One of ["udp", "tcp", "relp"].
+  fallback_addresses:
+    description: "Addresses of fallback servers to be used if the primary syslog server is down. Only tcp or relp are supported. Each list entry should consist of \"address\", \"transport\" and \"port\" keys. "
+    default: []
 
   custom_rule:
     default: ""

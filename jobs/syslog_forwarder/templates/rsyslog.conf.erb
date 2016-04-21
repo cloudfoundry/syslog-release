@@ -3,9 +3,15 @@ $MaxMessageSize 4k                      # default is 2k
 $WorkDirectory /var/vcap/data/syslog_forwarder/buffered # where messages should be buffered on disk
 
 # Forward vcap messages to the aggregator
-#
-$ActionResumeRetryCount -1              # Try until the server becomes available
-$ActionQueueType LinkedList             # Allocate on-demand
+
+<% if p('fallback_addresses').length > 0 %>
+$ActionResumeRetryCount 2              # Try with a fallback server after 2 retries
+$ActionQueueType Direct
+<% else %>
+$ActionResumeRetryCount -1             # Try until the server becomes available
+$ActionQueueType LinkedList            # Allocate on-demand
+<% end %>
+
 $ActionQueueFileName agg_backlog        # Spill to disk if queue is full
 $ActionQueueMaxDiskSpace 32m            # Max size for disk queue
 $ActionQueueLowWaterMark 2000           # Num messages. Assuming avg size of 512B, this is 1MiB.
@@ -34,7 +40,7 @@ property(name="msg")
 <%= p('custom_rule') %>
 
 <% if p('tls_enabled') %>
-  <% ca_cert_path = '/etc/ssl/certs/ca-certificates.crt' 
+  <% ca_cert_path = '/etc/ssl/certs/ca-certificates.crt'
 
   if_p('ca_cert') do
     ca_cert_path = '/var/vcap/jobs/syslog_forwarder/config/ca_cert.pem'
@@ -47,7 +53,7 @@ $ActionSendStreamDriverAuthMode x509/name # authenticate by hostname
 $ActionSendStreamDriverPermittedPeer <%= p('permitted_peer') %>
 <% end %>
 
-<% 
+<%
 syslog_transport = nil
 syslog_address = nil
 syslog_port = nil
@@ -58,27 +64,42 @@ if_link('syslog_consumer') do |syslog_consumer|
   syslog_transport = syslog_consumer.p('transport')
 end %>
 
-<% if_p("destination_address", "port", "transport") do |destination_address, port, transport|
-  %>
-  # in if_p("destination_address", "port", "transport")
-  <%
+<% if_p('destination_address', 'port', 'transport') do |destination_address, port, transport|
   syslog_address = destination_address
   syslog_port = port
   syslog_transport = transport
 end %>
 
-# Keep filtered programname in sync with syslog_event_forwarder.rb
 <% if syslog_transport == 'relp' %>
 $ModLoad omrelp
-:omrelp:<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+*.* :omrelp:<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
 <% elsif syslog_transport == 'udp' %>
-@<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+*.* @<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
 <% elsif syslog_transport == 'tcp' %>
-@@<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+*.* @@<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
 <% else %>
-  <% raise 'only RELP, UDP, and TCP are supported' %>
+<% raise 'only RELP, UDP, and TCP are supported' %>
 <% end %>
 
+<% if p('fallback_addresses').length > 0 %>
+$ActionExecOnlyWhenPreviousIsSuspended on
+    <% p('fallback_addresses', []).each do |fallback_address| %>
+        <%
+          syslog_fallback_transport = fallback_address['transport']
+          syslog_fallback_address = fallback_address['address']
+          syslog_fallback_port = fallback_address['port']
+        %>
+        <% if syslog_fallback_transport == 'relp' %>
+$ModLoad omrelp
+:omrelp:<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;BoshLogTemplate
+        <% elsif syslog_fallback_transport == 'tcp' %>
+& @@<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;BoshLogTemplate
+        <% else %>
+            <%raise 'only RELP, and TCP are supported for failover' %>
+        <% end %>
+    <% end %>
+$ActionExecOnlyWhenPreviousIsSuspended off
+<% end %>
 
 # Prevent them from reaching anywhere else
 :programname, startswith, "vcap." ~
