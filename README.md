@@ -88,8 +88,40 @@ properties:
     transport: tcp
 ```
 
+### Forward syslog messages over TLS
+
+In this example, we configure our RSYSLOG to forward syslog messages to papertrailapp.com,
+a popular log aggregation service. For brevity we truncated the SSL certificates; note that you must include the *entire* certificate chain for the forwarding to work. Also `destination_port` might be different for your papertrail account.
+
+```yml
+properties:
+  destination_address: logs4.papertrailapp.com
+  destination_port: 41120
+  destination_transport: tcp
+  tls_enabled: true
+  permitted_peer: "*.papertrailapp.com"
+  ca_cert: |
+    -----BEGIN CERTIFICATE-----
+    MIIFdDCCBFygAwIBAgIQJ2buVutJ846r13Ci/ITeIjANBgkqhkiG9w0BAQwFADBv
+    ...
+    pu/xO28QOG8=
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    MIIENjCCAx6gAwIBAgIBATANBgkqhkiG9w0BAQUFADBvMQswCQYDVQQGEwJTRTEU
+    ...
+    mnkPIAou1Z5jJh5VkpTYghdae9C8x49OhgQ=
+    -----END CERTIFICATE-----
+```
+
 ### Tech Notes
 
 The RSYSLOG server stores its syslog messages in `/var/vcap/store/syslog_storer/syslog.log`.
 
 The RSYSLOG configuration file is `/etc/rsyslog.conf`. The RSYSLOG forwarder's customizations are rendered into `/etc/rsyslog.d/rsyslog.conf`, which is included by the configuration file.
+
+Use the following command to extract the certificate information from the papertrailapp.com webserver; the
+certificates can be used for TLS.
+
+```bash
+openssl s_client -showcerts -servername logs4.papertrailapp.com -connect papertrailapp.com:443 < /dev/null
+```
