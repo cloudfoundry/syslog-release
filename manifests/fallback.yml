@@ -38,7 +38,7 @@ instance_groups:
     address: 10.10.0.102
     port: 514
     transport: tcp
-    fallback_addresses:
+    fallback_servers:
     - address: 10.10.0.103
       port: 514
       transport: tcp

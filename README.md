@@ -86,7 +86,7 @@ properties:
   address: 10.10.10.100
   port: 514
   transport: tcp
-  fallback_addresses:
+  fallback_servers:
   - address: 10.10.10.99
     port: 514
     transport: tcp
