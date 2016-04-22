@@ -1,6 +1,13 @@
 # RSYSLOG BOSH Release
 
-This is a BOSH release to deploy RSYSLOG. This release does *not* install RSYSLOG (it is already included by default in stemcells), it merely configures it.
+This is a BOSH release of [RSYSLOG](http://www.rsyslog.com/). This release does *not* install RSYSLOG (it is already included by default in stemcells), it merely configures it.
+
+RSYSLOG is system for log processing; it is a drop-in replacement for the UNIX's venerable
+[syslog](https://en.wikipedia.org/wiki/Syslog), which logs messages to various files and/or log hosts.
+RSYSLOG can be configured as a server (i.e. it receives log messages from other hosts)
+or a forwarder (i.e. it forwards system log messages to other hosts).
+
+RSYSLOG
 
 ### Upload Release to BOSH Director
 
@@ -69,11 +76,9 @@ to the RSYSLOG server on UDP port 514 (the default).
        destination_port: 514
     ```
 
-The release will configure rsyslog to use UDP with no encryption by default. If encryption is desired, provide the ca_cert and permitted_peer properties and specify TCP or RELP as transport.
-
 ### RSYSLOG Failover configuration
 
-In the event of a failure of a log server, the RSYSLOG forwarder instance group can be configured to forward syslog messages to a failover server. Note that the transport cannot be UDP (lossy protocol) for failover to work, but TCP and RELP will work.
+In the event of a failure of a log server, the RSYSLOG forwarder instance group can be configured to forward syslog messages to a failover server. Failover requires the use of a lossless protocol (i.e. TCP or RELP); UDP will not work with failover.
 
 In this example, we configure our primary log server to be 10.10.10.100, and our failover server to be 10.10.10.99:
 
@@ -91,7 +96,7 @@ properties:
 ### Forward syslog messages over TLS
 
 In this example, we configure our RSYSLOG to forward syslog messages to papertrailapp.com,
-a popular log aggregation service. For brevity we truncated the SSL certificates; note that you must include the *entire* certificate chain for the forwarding to work. Also `destination_port` might be different for your papertrail account.
+a popular log aggregation service. For brevity we truncated the SSL certificates; note that you must include the *entire* certificate chain for the forwarding to work. Also `destination_port` might be different for your *papertrail* account.
 
 ```yml
 properties:
@@ -119,8 +124,10 @@ The RSYSLOG server stores its syslog messages in `/var/vcap/store/syslog_storer/
 
 The RSYSLOG configuration file is `/etc/rsyslog.conf`. The RSYSLOG forwarder's customizations are rendered into `/etc/rsyslog.d/rsyslog.conf`, which is included by the configuration file.
 
-Use the following command to extract the certificate information from the papertrailapp.com webserver; the
-certificates can be used for TLS.
+To configure RSYSLOG to use TLS, you must populate the `ca_cert` section of the job's
+properties section with a valid
+certificate chain.
+Use the following command to extract the certificate chain from the papertrailapp.com webserver.
 
 ```bash
 openssl s_client -showcerts -servername logs4.papertrailapp.com -connect papertrailapp.com:443 < /dev/null
