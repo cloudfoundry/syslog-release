@@ -4,8 +4,8 @@ This is a BOSH release of [RSYSLOG](http://www.rsyslog.com/). This release does 
 
 RSYSLOG is system for log processing; it is a drop-in replacement for the UNIX's venerable
 [syslog](https://en.wikipedia.org/wiki/Syslog), which logs messages to various files and/or log hosts.
-RSYSLOG can be configured as a **server** (i.e. it receives log messages from other hosts)
-or a **forwarder** (i.e. it forwards system log messages to hosts or log aggregation services).
+RSYSLOG can be configured as a **storer** (i.e. it receives log messages from other hosts)
+or a **forwarder** (i.e. it forwards system log messages to RSYSLOG storers, syslog servers, or log aggregation services).
 
 ### Upload Release to BOSH Director
 
@@ -17,10 +17,10 @@ bosh create release --force
 bosh upload release
 ```
 
-### Create RSYSLOG Server
+### Create RSYSLOG Storer
 
-This is how to create an RSYSLOG server which receives
-syslog messages on UDP port 514 (the default). The RSYSLOG server job can be co-located with other jobs (e.g. Redis).
+This is how to create an RSYSLOG storer which receives
+syslog messages on UDP port 514 (the default). The RSYSLOG storer job can be co-located with other jobs (e.g. Redis).
 
 1. Include `syslog-release` in the `releases` section of the deployment manifest
 
@@ -51,7 +51,7 @@ Make sure that any packet filter (e.g. Amazon AWS security groups) allow inbound
 ### Create an RSYSLOG Forwarder
 
 This is how to configure an instance_group to forward syslog messages
-to the RSYSLOG server on UDP port 514 (the default).
+to the RSYSLOG storer on UDP port 514 (the default).
 Note that RSYSLOG Forwarders are almost always co-located with other jobs.
 
 1. Include `syslog-release` in the `releases` section of the deployment manifest
@@ -70,22 +70,22 @@ Note that RSYSLOG Forwarders are almost always co-located with other jobs.
      - name: syslog_forwarder
        release: syslog-release
      properties:
-       destination_address: <RSYSLOG server's IP address or fully-qualified domain name>
-       destination_transport: udp
-       destination_port: 514
+       address: <RSYSLOG storer's IP address or fully-qualified domain name>
+       transport: udp
+       port: 514
     ```
 
 ### Create an RSYSLOG Forwarder with Failover
 
-In the event of a failure of a log server, the RSYSLOG forwarder instance group can be configured to forward syslog messages to a failover server. Failover requires the use of a lossless transport (i.e. TCP or RELP); failover will not work with UDP.
+In the event of a failure of a log storer, the RSYSLOG forwarder instance group can be configured to forward syslog messages to a failover storer. Failover requires the use of a lossless transport (i.e. TCP or RELP); failover will not work with UDP.
 
-In this example, we configure our primary log server to be 10.10.10.100, and our failover server to be 10.10.10.99:
+In this example, we configure our primary log storer to be 10.10.10.100, and our failover storer to be 10.10.10.99:
 
 ```yml
 properties:
-  destination_address: 10.10.10.100
-  destination_port: 514
-  destination_transport: tcp
+  address: 10.10.10.100
+  port: 514
+  transport: tcp
   fallback_addresses:
   - address: 10.10.10.99
     port: 514
@@ -95,13 +95,13 @@ properties:
 ### Create an RSYSLOG Forwarder with TLS (Encryption)
 
 In this example, we configure our RSYSLOG to forward syslog messages to papertrailapp.com,
-a popular log aggregation service. For brevity we truncated the SSL certificates; note that you must include the *entire* certificate chain for the forwarding to work. Also `destination_port` will be different for your *papertrail* account.
+a popular log aggregation service. For brevity we truncated the SSL certificates; note that you must include the *entire* certificate chain for the forwarding to work. Also `port` will be different for your *papertrail* account.
 
 ```yml
 properties:
-  destination_address: logs4.papertrailapp.com
-  destination_port: 41120
-  destination_transport: tcp
+  address: logs4.papertrailapp.com
+  port: 41120
+  transport: tcp
   tls_enabled: true
   permitted_peer: "*.papertrailapp.com"
   ca_cert: |
@@ -119,7 +119,7 @@ properties:
 
 ### Tech Notes
 
-The RSYSLOG server stores its syslog messages in `/var/vcap/store/syslog_storer/syslog.log`.
+The RSYSLOG storer stores its syslog messages in `/var/vcap/store/syslog_storer/syslog.log`.
 
 The RSYSLOG configuration file is `/etc/rsyslog.conf`. The RSYSLOG forwarder's customizations are rendered into `/etc/rsyslog.d/rsyslog.conf`, which is included by the configuration file.
 

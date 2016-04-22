@@ -10,7 +10,7 @@ releases:
 
 stemcells:
 - alias: default
-  name: ubuntu-trusty
+  os: ubuntu-trusty
   version: latest
 
 update:
