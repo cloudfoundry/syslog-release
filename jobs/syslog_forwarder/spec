@@ -12,36 +12,37 @@ consumes:
   optional: true
 
 properties:
-  destination_address:
-    description: IP or DNS address of the syslog drain
+  address:
+    description: IP or DNS address of the syslog server.
     example: logs4.papertrail.com
-  destination_port:
-    description: Port of the syslog drain
+  port:
+    description: Port of the syslog server.
     default: 514
-  destination_transport:
+  transport:
     default: udp
     description: One of ["udp", "tcp", "relp"].
-  fallback_addresses:
-    description: "Addresses of fallback servers to be used if the primary syslog server is down. Only tcp or relp are supported. Each list entry should consist of \"address\", \"transport\" and \"port\" keys. "
+  fallback_servers:
+    description: "List of fallback servers to be used if the primary syslog server is down. Only tcp or relp protocols are supported. Each list entry should consist of \"address\", \"transport\" and \"port\" keys."
     default: []
+    example:
+    - address: logs5.papertrail.com
+      port: 44312
+      transport: tcp
 
   custom_rule:
+    description: Custom rule for syslog event forwarder.
     default: ""
-    description: Custom rule for syslog event forwarder
 
   tls_enabled:
-    default: false
     description: Set this to true to enable TLS.
+    default: false
   permitted_peer:
-    default: ""
     description: Accepted fingerprint (SHA1) or name of remote peer. Required if TLS is enabled.
+    default: ""
     example: "*.papertrail.com"
   ca_cert:
     description: Trust these Certificate Authorities. Required if TLS is enabled.
     example: |
       -----BEGIN CERTIFICATE-----
-      MIIClTCCAf4CCQDc6hJtvGB8RjANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMC
-      ...
-      ...
-      .............................KTg8=
+      MIIClTCCAf4CCQDc6hJtvGB8RjANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMC...
       -----END CERTIFICATE-----

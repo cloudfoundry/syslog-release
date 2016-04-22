@@ -7,10 +7,11 @@ releases:
   version: latest
 - name: syslog-release
   version: latest
+
 stemcells:
-- alias: default_stemcell
-  name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
-  version: "3215"
+- alias: default
+  os: ubuntu-trusty
+  version: latest
 
 update:
   canaries: 10
@@ -19,22 +20,23 @@ update:
   update_watch_time: 5000-600000
   serial: false
 
-jobs:
+instance_groups:
 - name: dummy_with_package
-  templates:
+  azs: [z1]
+  jobs:
   - name: dummy_with_package
     release: dummy
   - name: syslog_forwarder
     release: syslog-release
   instances: 2
-  vm_type: default_vm_type
-  stemcell: default_stemcell
+  vm_type: default
+  stemcell: default
   networks:
   - name: default
   properties:
-    destination_address: logs4.papertrailapp.com
-    destination_port: 41120
-    destination_transport: tcp
+    address: logs4.papertrailapp.com
+    port: 41120
+    transport: tcp
     tls_enabled: true
     permitted_peer: "*.papertrailapp.com"
     ca_cert: |

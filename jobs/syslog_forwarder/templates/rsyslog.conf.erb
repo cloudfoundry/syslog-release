@@ -1,10 +1,28 @@
-$ModLoad imuxsock                       # local message reception (rsyslog uses a datagram socket)
-$MaxMessageSize 4k                      # default is 2k
+<%
+
+syslog_address = nil
+syslog_port = nil
+syslog_transport = nil
+
+if_p('address', 'port', 'transport') do |address, port, transport|
+  syslog_address = address
+  syslog_port = port
+  syslog_transport = transport
+end.else do
+  syslog_storer = link('syslog_storer')
+  syslog_address = syslog_storer.instances[0].address
+  syslog_port = syslog_storer.p('port')
+  syslog_transport = syslog_storer.p('transport')
+end
+
+%>
+
+$ModLoad imuxsock                      # local message reception (rsyslog uses a datagram socket)
+$MaxMessageSize 4k                     # default is 2k
 $WorkDirectory /var/vcap/data/syslog_forwarder/buffered # where messages should be buffered on disk
 
-# Forward vcap messages to the aggregator
-
-<% if p('fallback_addresses').length > 0 %>
+<% if p('fallback_servers').length > 0 %>
+<% raise 'only RELP and TCP protocols are supported for fallback servers (was UDP)' if syslog_transport == 'udp' %>
 $ActionResumeRetryCount 2              # Try with a fallback server after 2 retries
 $ActionQueueType Direct
 <% else %>
@@ -12,19 +30,16 @@ $ActionResumeRetryCount -1             # Try until the server becomes available
 $ActionQueueType LinkedList            # Allocate on-demand
 <% end %>
 
-$ActionQueueFileName agg_backlog        # Spill to disk if queue is full
-$ActionQueueMaxDiskSpace 32m            # Max size for disk queue
-$ActionQueueLowWaterMark 2000           # Num messages. Assuming avg size of 512B, this is 1MiB.
-$ActionQueueHighWaterMark 8000          # Num messages. Assuming avg size of 512B, this is 4MiB. (If this is reached, messages will spill to disk until the low watermark is reached).
-$ActionQueueTimeoutEnqueue 0            # Discard messages if the queue + disk is full
-$ActionQueueSaveOnShutdown on           # Save in-memory data to disk if rsyslog shuts down
+$ActionQueueFileName agg_backlog       # Spill to disk if queue is full
+$ActionQueueMaxDiskSpace 32m           # Max size for disk queue
+$ActionQueueLowWaterMark 2000          # Num messages. Assuming avg size of 512B, this is 1MiB.
+$ActionQueueHighWaterMark 8000         # Num messages. Assuming avg size of 512B, this is 4MiB. (If this is reached, messages will spill to disk until the low watermark is reached).
+$ActionQueueTimeoutEnqueue 0           # Discard messages if the queue + disk is full
+$ActionQueueSaveOnShutdown on          # Save in-memory data to disk if rsyslog shuts down
 
-# Listen for logs over UDP
-#
 $ModLoad imudp
 $UDPServerAddress 127.0.0.1
 $UDPServerRun 514
-
 
 template(name="BoshLogTemplate" type="list") {
 constant(value="<")
@@ -40,35 +55,20 @@ property(name="msg")
 <%= p('custom_rule') %>
 
 <% if p('tls_enabled') %>
-  <% ca_cert_path = '/etc/ssl/certs/ca-certificates.crt'
+  <%
+    ca_cert_path = '/etc/ssl/certs/ca-certificates.crt'
 
-  if_p('ca_cert') do
-    ca_cert_path = '/var/vcap/jobs/syslog_forwarder/config/ca_cert.pem'
-  end %>
+    if_p('ca_cert') do
+      ca_cert_path = '/var/vcap/jobs/syslog_forwarder/config/ca_cert.pem'
+    end
+  %>
 
-$DefaultNetstreamDriverCAFile <%= ca_cert_path %> # trust these CAs
-$ActionSendStreamDriver gtls # use gtls netstream driver
-$ActionSendStreamDriverMode 1 # require TLS
-$ActionSendStreamDriverAuthMode x509/name # authenticate by hostname
+$DefaultNetstreamDriverCAFile <%= ca_cert_path %>                 # trust these CAs
+$ActionSendStreamDriver gtls                                      # use gtls netstream driver
+$ActionSendStreamDriverMode 1                                     # require TLS
+$ActionSendStreamDriverAuthMode x509/name                         # authenticate by hostname
 $ActionSendStreamDriverPermittedPeer <%= p('permitted_peer') %>
 <% end %>
-
-<%
-syslog_transport = nil
-syslog_address = nil
-syslog_port = nil
-
-if_link('syslog_storer') do |syslog_storer|
-  syslog_address = syslog_storer.instances[0].address
-  syslog_port = syslog_storer.p('port')
-  syslog_transport = syslog_storer.p('transport')
-end %>
-
-<% if_p('destination_address', 'destination_port', 'destination_transport') do |address, port, transport|
-  syslog_address = address
-  syslog_port = port
-  syslog_transport = transport
-end %>
 
 <% if syslog_transport == 'relp' %>
 $ModLoad omrelp
@@ -78,16 +78,16 @@ $ModLoad omrelp
 <% elsif syslog_transport == 'tcp' %>
 *.* @@<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
 <% else %>
-<% raise 'only RELP, UDP, and TCP are supported' %>
+<% raise "only RELP, UDP, and TCP protocols are supported (was '#{syslog_transport}')" %>
 <% end %>
 
-<% if p('fallback_addresses').length > 0 %>
+<% if p('fallback_servers').length > 0 %>
 $ActionExecOnlyWhenPreviousIsSuspended on
-    <% p('fallback_addresses', []).each do |fallback_address| %>
+    <% p('fallback_servers').each do |fallback_server| %>
         <%
-          syslog_fallback_address = fallback_address['address']
-          syslog_fallback_port = fallback_address['port']
-          syslog_fallback_transport = fallback_address['transport']
+          syslog_fallback_address = fallback_server.fetch('address')
+          syslog_fallback_port = fallback_server.fetch('port')
+          syslog_fallback_transport = fallback_server.fetch('transport')
         %>
         <% if syslog_fallback_transport == 'relp' %>
 $ModLoad omrelp
@@ -95,11 +95,11 @@ $ModLoad omrelp
         <% elsif syslog_fallback_transport == 'tcp' %>
 & @@<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;BoshLogTemplate
         <% else %>
-            <%raise 'only RELP, and TCP are supported for failover' %>
+          <% raise "only RELP, and TCP protocols are supported for fallback servers (was '#{syslog_fallback_transport}')" %>
         <% end %>
     <% end %>
 $ActionExecOnlyWhenPreviousIsSuspended off
 <% end %>
 
-# Prevent them from reaching anywhere else
+# Prevent vcap.* messsages from reaching anywhere else
 :programname, startswith, "vcap." ~
