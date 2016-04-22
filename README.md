@@ -7,20 +7,9 @@ RSYSLOG is system for log processing; it is a drop-in replacement for the UNIX's
 RSYSLOG can be configured as a **storer** (i.e. it receives log messages from other hosts)
 or a **forwarder** (i.e. it forwards system log messages to RSYSLOG storers, syslog servers, or log aggregation services).
 
-### Upload Release to BOSH Director
-
-Clone this repo, create the release, and upload the release to your BOSH director:
-```bash
-git clone https://github.com/cloudfoundry/syslog-release.git
-cd syslog-release
-bosh create release --force
-bosh upload release
-```
-
 ### Create RSYSLOG Storer
 
-This is how to create an RSYSLOG storer which receives
-syslog messages on UDP port 514 (the default). The RSYSLOG storer job can be co-located with other jobs (e.g. Redis).
+This is how to create an RSYSLOG storer which receives syslog messages on UDP port 514 (the default). The RSYSLOG storer job can be co-located with other jobs (e.g. Redis). This job is not meant to be used for a production storage of logs, but rather is included here for testing.
 
 1. Include `syslog-release` in the `releases` section of the deployment manifest
 
@@ -50,9 +39,7 @@ Make sure that any packet filter (e.g. Amazon AWS security groups) allow inbound
 
 ### Create an RSYSLOG Forwarder
 
-This is how to configure an instance_group to forward syslog messages
-to the RSYSLOG storer on UDP port 514 (the default).
-Note that RSYSLOG Forwarders are almost always co-located with other jobs.
+This is how to configure an instance_group to forward syslog messages to the RSYSLOG storer on UDP port 514 (the default). Note that RSYSLOG Forwarders are almost always co-located with other jobs.
 
 1. Include `syslog-release` in the `releases` section of the deployment manifest
 
