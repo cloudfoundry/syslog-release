@@ -46,3 +46,36 @@ properties:
       -----BEGIN CERTIFICATE-----
       MIIClTCCAf4CCQDc6hJtvGB8RjANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMC...
       -----END CERTIFICATE-----
+  queue_file_name:
+    description: Spill to disk if queue is full
+    default: agg_backlog
+  queue_max_disk_space:
+    description: Max size for disk queue
+    default: 128m
+  queue_size:
+    description: Store no more than this number syslog messages in memory
+    default: 100000
+  queue_discard_mark:
+    description: Purge messages of from memory whose severity is greater than or equal to DiscardSeverity
+    default: 97500
+  queue_discard_severity:
+    description: This discards every message as soon as the discard mark is reached
+    default: 0
+  queue_low_water_mark:
+    description: Num messages. Assuming avg size of 512B, this is 1MiB.
+    default: 2000
+  queue_high_water_mark:
+    description: Num messages. Assuming avg size of 512B, this is 4MiB. (If this is reached, messages will spill to disk until the low watermark is reached).
+    default: 80000
+  queue_timeout_enqueue:
+    description: Discard messages if the queue + disk is full
+    default: 0
+  queue_save_on_shutdown:
+    description: Save in-memory data to disk if rsyslog shuts down. Must be "on" or "off"
+    default: on
+  resume_interval:
+    description: When action is suspended (dest not connected), retry after this number of seconds
+    default: 10
+  queue_checkpoint_interval:
+    description: write bookkeeping information on checkpoints (every n records)
+    default: 100
