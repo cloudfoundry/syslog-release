@@ -28,7 +28,7 @@ instance_groups:
     release: dummy
   - name: syslog_forwarder
     release: syslog-release
-  instances: 2
+  instances: 1
   vm_type: default
   stemcell: default
   networks:

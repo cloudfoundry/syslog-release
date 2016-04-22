@@ -22,13 +22,14 @@ update:
 
 instance_groups:
 - name: dummy_with_package
-  azs: [z1]
   jobs:
   - name: dummy_with_package
     release: dummy
   - name: syslog_forwarder
     release: syslog-release
-  instances: 2
+    consumes:
+      syslog_storer: {from: primary_syslog_storer}
+  instances: 1
   vm_type: default
   stemcell: default
   networks:
@@ -43,10 +44,11 @@ instance_groups:
       transport: tcp
 
 - name: syslog_storer_primary
-  azs: [z1]
   jobs:
   - name: syslog_storer
     release: syslog-release
+    provides:
+      syslog_storer: {as: primary_syslog_storer}
   instances: 1
   vm_type: default
   stemcell: default
@@ -57,7 +59,6 @@ instance_groups:
     transport: tcp
 
 - name: syslog_storer_fallback
-  azs: [z1]
   jobs:
   - name: syslog_storer
     release: syslog-release
