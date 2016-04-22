@@ -5,7 +5,7 @@ director_uuid: 879402dd-f9f8-4463-9f05-xxxxxxxxxxx
 releases:
 - name: dummy
   version: latest
-- name: syslog-release
+- name: syslog
   version: latest
 
 stemcells:
@@ -27,7 +27,7 @@ instance_groups:
   - name: dummy_with_package
     release: dummy
   - name: syslog_forwarder
-    release: syslog-release
+    release: syslog
   instances: 1
   vm_type: default
   stemcell: default

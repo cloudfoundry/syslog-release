@@ -5,7 +5,7 @@ director_uuid: 879402dd-f9f8-4463-9f05-xxxxxxxxxx
 releases:
 - name: dummy
   version: latest
-- name: syslog-release
+- name: syslog
   version: latest
 
 stemcells:
@@ -26,7 +26,7 @@ instance_groups:
   - name: dummy_with_package
     release: dummy
   - name: syslog_forwarder
-    release: syslog-release
+    release: syslog
     consumes:
       syslog_storer: {from: primary_syslog_storer}
   instances: 1
@@ -46,7 +46,7 @@ instance_groups:
 - name: syslog_storer_primary
   jobs:
   - name: syslog_storer
-    release: syslog-release
+    release: syslog
     provides:
       syslog_storer: {as: primary_syslog_storer}
   instances: 1
@@ -61,7 +61,7 @@ instance_groups:
 - name: syslog_storer_fallback
   jobs:
   - name: syslog_storer
-    release: syslog-release
+    release: syslog
   instances: 1
   vm_type: default
   stemcell: default

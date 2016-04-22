@@ -5,7 +5,7 @@ name: storer
 director_uuid: DIRECTOR_UUID
 
 releases:
-- name: syslog-release
+- name: syslog
   version: latest
 
 stemcells:
@@ -17,7 +17,7 @@ instance_groups:
 - name: syslog_forwarder
   jobs: 
   - name: syslog_forwarder
-    release: syslog-release
+    release: syslog
   instances: 1
   stemcell: ubuntu
   azs: [z1]
@@ -28,7 +28,7 @@ instance_groups:
 - name: syslog_storer
   jobs: 
   - name: syslog_storer
-    release: syslog-release
+    release: syslog
     properties:
       port: 24173
       transport: relp

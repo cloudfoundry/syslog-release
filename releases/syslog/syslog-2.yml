@@ -15,5 +15,5 @@ license:
   sha1: 8974dd7c32c4592ee0a81767adb30a7e970852f9
 commit_hash: 07c2246a
 uncommitted_changes: true
-name: syslog-release
+name: syslog
 version: '2'
