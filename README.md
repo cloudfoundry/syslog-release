@@ -4,10 +4,8 @@ This is a BOSH release of [RSYSLOG](http://www.rsyslog.com/). This release does 
 
 RSYSLOG is system for log processing; it is a drop-in replacement for the UNIX's venerable
 [syslog](https://en.wikipedia.org/wiki/Syslog), which logs messages to various files and/or log hosts.
-RSYSLOG can be configured as a server (i.e. it receives log messages from other hosts)
-or a forwarder (i.e. it forwards system log messages to other hosts).
-
-RSYSLOG
+RSYSLOG can be configured as a **server** (i.e. it receives log messages from other hosts)
+or a **forwarder** (i.e. it forwards system log messages to hosts or log aggregation services).
 
 ### Upload Release to BOSH Director
 
@@ -50,10 +48,11 @@ syslog messages on UDP port 514 (the default). The RSYSLOG server job can be co-
 
 Make sure that any packet filter (e.g. Amazon AWS security groups) allow inbound traffic on UDP port 514.
 
-### Configure an *instance_group* to forward syslog messages to an RSYSLOG server.
+### Create an RSYSLOG Forwarder
 
 This is how to configure an instance_group to forward syslog messages
 to the RSYSLOG server on UDP port 514 (the default).
+Note that RSYSLOG Forwarders are almost always co-located with other jobs.
 
 1. Include `syslog-release` in the `releases` section of the deployment manifest
 
@@ -76,9 +75,9 @@ to the RSYSLOG server on UDP port 514 (the default).
        destination_port: 514
     ```
 
-### RSYSLOG Failover configuration
+### Create an RSYSLOG Forwarder with Failover
 
-In the event of a failure of a log server, the RSYSLOG forwarder instance group can be configured to forward syslog messages to a failover server. Failover requires the use of a lossless protocol (i.e. TCP or RELP); UDP will not work with failover.
+In the event of a failure of a log server, the RSYSLOG forwarder instance group can be configured to forward syslog messages to a failover server. Failover requires the use of a lossless transport (i.e. TCP or RELP); failover will not work with UDP.
 
 In this example, we configure our primary log server to be 10.10.10.100, and our failover server to be 10.10.10.99:
 
@@ -93,10 +92,10 @@ properties:
     transport: tcp
 ```
 
-### Forward syslog messages over TLS
+### Create an RSYSLOG Forwarder with TLS (Encryption)
 
 In this example, we configure our RSYSLOG to forward syslog messages to papertrailapp.com,
-a popular log aggregation service. For brevity we truncated the SSL certificates; note that you must include the *entire* certificate chain for the forwarding to work. Also `destination_port` might be different for your *papertrail* account.
+a popular log aggregation service. For brevity we truncated the SSL certificates; note that you must include the *entire* certificate chain for the forwarding to work. Also `destination_port` will be different for your *papertrail* account.
 
 ```yml
 properties:
