@@ -17,7 +17,7 @@ properties:
     description: Port of the syslog drain.
     default: 514
   syslog.transport:
-    default: udp
+    default: tcp
     description: One of `udp`, `tcp`, `relp`.
 
   syslog.custom_rule:

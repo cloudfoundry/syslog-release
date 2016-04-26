@@ -9,7 +9,7 @@ or a **forwarder** (i.e. it forwards system log messages to RSYSLOG storers, sys
 
 ### Create RSYSLOG Storer
 
-This is how to create an RSYSLOG storer which receives syslog messages on UDP port 514 (the default). The RSYSLOG storer job can be co-located with other jobs (e.g. Redis). This job is not meant to be used for a production storage of logs, but rather is included here for testing.
+This is how to create an RSYSLOG storer which receives syslog messages on TCP port 514. The RSYSLOG storer job can be co-located with other jobs (e.g. Redis). This job is not meant to be used for a production storage of logs, but rather is included here for testing.
 
 1. Include `syslog` in the `releases` section of the deployment manifest
 
@@ -27,7 +27,7 @@ This is how to create an RSYSLOG storer which receives syslog messages on UDP po
        release: syslog
      properties:
        syslog:
-         transport: udp
+         transport: tcp
          port: 514
    ```
 
@@ -36,11 +36,11 @@ This is how to create an RSYSLOG storer which receives syslog messages on UDP po
   bosh deploy
   ```
 
-Make sure that any packet filter (e.g. Amazon AWS security groups) allow inbound traffic on UDP port 514.
+Make sure that any packet filter (e.g. Amazon AWS security groups) allow inbound traffic on TCP port 514.
 
 ### Create an RSYSLOG Forwarder
 
-This is how to configure an instance_group to forward syslog messages to the RSYSLOG storer on UDP port 514 (the default). Note that RSYSLOG Forwarders are almost always co-located with other jobs.
+This is how to configure an instance_group to forward syslog messages to the RSYSLOG storer on TCP port 514. Note that RSYSLOG Forwarders are almost always co-located with other jobs.
 
 1. Include `syslog` in the `releases` section of the deployment manifest
 
@@ -60,7 +60,7 @@ This is how to configure an instance_group to forward syslog messages to the RSY
      properties:
        syslog:
          address: <RSYSLOG storer's IP address or fully-qualified domain name>
-         transport: udp
+         transport: tcp
          port: 514
     ```
 

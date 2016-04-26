@@ -19,7 +19,7 @@ properties:
     description: Port of the syslog server.
     default: 514
   syslog.transport:
-    default: udp
+    default: tcp
     description: One of `udp`, `tcp`, `relp`.
   syslog.fallback_servers:
     description: "List of fallback servers to be used if the primary syslog server is down. Only tcp or relp protocols are supported. Each list entry should consist of \"address\", \"transport\" and \"port\" keys."
