@@ -1,97 +1,52 @@
-# RSYSLOG BOSH Release
+# Syslog BOSH Release
 
-This is a BOSH release of [RSYSLOG](http://www.rsyslog.com/). This release does *not* install RSYSLOG (it is already included by default in stemcells), it merely configures it.
+This is a BOSH release to forward local syslog events to a remote syslog endpoint. It currently uses [rsyslog](http://www.rsyslog.com/) which is pre-installed by the stemcell.
 
-RSYSLOG is system for log processing; it is a drop-in replacement for the UNIX's venerable
-[syslog](https://en.wikipedia.org/wiki/Syslog), which logs messages to various files and/or log hosts.
-RSYSLOG can be configured as a **storer** (i.e. it receives log messages from other hosts)
-or a **forwarder** (i.e. it forwards system log messages to RSYSLOG storers, syslog servers, or log aggregation services).
 
-### Create RSYSLOG Storer
+## Usage
 
-This is how to create an RSYSLOG storer which receives syslog messages on TCP port 514. The RSYSLOG storer job can be co-located with other jobs (e.g. Redis). This job is not meant to be used for a production storage of logs, but rather is included here for testing.
+Download the latest release from [bosh.io](https://bosh.io/releases/github.com/cloudfoundry/syslog-release) and include it in your manifest:
 
-1. Include `syslog` in the `releases` section of the deployment manifest
+```yml
+releases:
+- name: syslog
+  version: latest
+```
 
-  ```yml
-  releases:
-  - name: syslog
-    version: latest
-  ```
-2. Create an `instance_group` with a `job` that has the `syslog`
-   ```yml
-   instance_groups:
-   - name: syslog_storer
-     jobs:
-     - name: syslog_storer
-       release: syslog
-     properties:
-       syslog:
-         transport: tcp
-         port: 514
-   ```
 
-3. Deploy
-  ```bash
-  bosh deploy
-  ```
+### Configure Forwarding
 
-Make sure that any packet filter (e.g. Amazon AWS security groups) allow inbound traffic on TCP port 514.
+Add the [`syslog_forwarder`](https://bosh.io/jobs/syslog_forwarder?source=github.com/cloudfoundry/syslog-release) job to forward all local syslog messages from an instance to a syslog endpoint. Configure `address` and, optionally, `port` and `transport`:
 
-### Create an RSYSLOG Forwarder
+```yml
+instance_groups:
+- name: some-instance-group
+  jobs:
+  - name: syslog_forwarder
+    release: syslog
+  properties:
+    syslog:
+      address: <IP or hostname>
+```
 
-This is how to configure an instance_group to forward syslog messages to the RSYSLOG storer on TCP port 514. Note that RSYSLOG Forwarders are almost always co-located with other jobs.
-
-1. Include `syslog` in the `releases` section of the deployment manifest
-
-  ```yml
-  releases:
-  - name: syslog
-    version: latest
-  ```
-2. Configure deployment manifest
-
-   ```yml
-   instance_groups:
-   - name: some-instance-group
-     jobs:
-     - name: syslog_forwarder
-       release: syslog
-     properties:
-       syslog:
-         address: <RSYSLOG storer's IP address or fully-qualified domain name>
-         transport: tcp
-         port: 514
-    ```
-
-### Create an RSYSLOG Forwarder with Failover
-
-In the event of a failure of a log storer, the RSYSLOG forwarder instance group can be configured to forward syslog messages to a failover storer. Failover requires the use of a lossless transport (i.e. TCP or RELP); failover will not work with UDP.
-
-In this example, we configure our primary log storer to be 10.10.10.100, and our failover storer to be 10.10.10.99:
+By default, if the syslog endpoint is unavailable messages will be queued. Alternatively, configure `fallback_servers` for higher availability. Only TCP or RELP are supported for fallback functionality:
 
 ```yml
 properties:
   syslog:
     address: 10.10.10.100
-    port: 514
-    transport: tcp
     fallback_servers:
-    - address: 10.10.10.99
-      port: 514
-      transport: tcp
+    - address: 10.10.10.101
+    - address: 10.10.10.102
 ```
 
-### Create an RSYSLOG Forwarder with TLS (Encryption)
-
-In this example, we configure our RSYSLOG to forward syslog messages to papertrailapp.com,
-a popular log aggregation service. For brevity we truncated the SSL certificates; note that you must include the *entire* certificate chain for the forwarding to work. Also `port` will be different for your *papertrail* account.
+TLS is supported with additional properties. The following example would forward syslog messages to [papertrailapp.com](https://papertrailapp.com/):
 
 ```yml
 properties:
   syslog:
     address: logs4.papertrailapp.com
-    port: 41120
+    port: 12345
     transport: tcp
     tls_enabled: true
     permitted_peer: "*.papertrailapp.com"
@@ -108,17 +63,35 @@ properties:
       -----END CERTIFICATE-----
 ```
 
-### Tech Notes
-
-The RSYSLOG storer stores its syslog messages in `/var/vcap/store/syslog_storer/syslog.log`.
-
-The RSYSLOG configuration file is `/etc/rsyslog.conf`. The RSYSLOG forwarder's customizations are rendered into `/etc/rsyslog.d/rsyslog.conf`, which is included by the configuration file.
-
-To configure RSYSLOG to use TLS, you must populate the `ca_cert` section of the job's
-properties section with a valid
-certificate chain.
-Use the following command to extract the certificate chain from the papertrailapp.com webserver.
+Note that you may need to include the *entire* certificate chain in `ca_cert` for the forwarding to work. The `openssl` command can be used to view an endpoint's certificate chain:
 
 ```bash
 openssl s_client -showcerts -servername logs4.papertrailapp.com -connect papertrailapp.com:443 < /dev/null
 ```
+
+
+### Test Store
+
+The [`syslog_storer`](https://bosh.io/jobs/syslog_storer?source=github.com/cloudfoundry/syslog-release) is meant for testing. Deploy it and configure your instances to forward logs to it. It should not be co-located with other jobs which also try to configure syslog. Received logs are stored in `/var/vcap/store/syslog_storer/syslog.log`.
+
+```yml
+instance_groups:
+- name: syslog_storer
+  jobs:
+  - name: syslog_storer
+    release: syslog
+```
+
+Remember to allow inbound traffic on TCP port 514 in your IaaS security groups.
+
+
+## Tech Notes
+
+RSYSLOG is system for log processing; it is a drop-in replacement for the UNIX's venerable [syslog](https://en.wikipedia.org/wiki/Syslog), which logs messages to various files and/or log hosts. RSYSLOG can be configured as a **storer** (i.e. it receives log messages from other hosts) or a **forwarder** (i.e. it forwards system log messages to RSYSLOG storers, syslog servers, or log aggregation services).
+
+The RSYSLOG configuration file is `/etc/rsyslog.conf`. The RSYSLOG forwarder's customizations are rendered into `/etc/rsyslog.d/rsyslog.conf`, which is included by the configuration file.
+
+
+## License
+
+[Apache License Version 2.0](./LICENSE)
