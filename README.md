@@ -19,16 +19,17 @@ This is how to create an RSYSLOG storer which receives syslog messages on UDP po
     version: latest
   ```
 2. Create an `instance_group` with a `job` that has the `syslog`
-  ```yml
-  instance_groups:
-  - name: syslog_storer
-    jobs:
-    - name: syslog_storer
-      release: syslog
-    properties:
-      transport: udp
-      port: 514
-  ```
+   ```yml
+   instance_groups:
+   - name: syslog_storer
+     jobs:
+     - name: syslog_storer
+       release: syslog
+     properties:
+       syslog:
+         transport: udp
+         port: 514
+   ```
 
 3. Deploy
   ```bash
@@ -57,9 +58,10 @@ This is how to configure an instance_group to forward syslog messages to the RSY
      - name: syslog_forwarder
        release: syslog
      properties:
-       address: <RSYSLOG storer's IP address or fully-qualified domain name>
-       transport: udp
-       port: 514
+       syslog:
+         address: <RSYSLOG storer's IP address or fully-qualified domain name>
+         transport: udp
+         port: 514
     ```
 
 ### Create an RSYSLOG Forwarder with Failover
@@ -70,13 +72,14 @@ In this example, we configure our primary log storer to be 10.10.10.100, and our
 
 ```yml
 properties:
-  address: 10.10.10.100
-  port: 514
-  transport: tcp
-  fallback_servers:
-  - address: 10.10.10.99
+  syslog:
+    address: 10.10.10.100
     port: 514
     transport: tcp
+    fallback_servers:
+    - address: 10.10.10.99
+      port: 514
+      transport: tcp
 ```
 
 ### Create an RSYSLOG Forwarder with TLS (Encryption)
@@ -86,22 +89,23 @@ a popular log aggregation service. For brevity we truncated the SSL certificates
 
 ```yml
 properties:
-  address: logs4.papertrailapp.com
-  port: 41120
-  transport: tcp
-  tls_enabled: true
-  permitted_peer: "*.papertrailapp.com"
-  ca_cert: |
-    -----BEGIN CERTIFICATE-----
-    MIIFdDCCBFygAwIBAgIQJ2buVutJ846r13Ci/ITeIjANBgkqhkiG9w0BAQwFADBv
-    ...
-    pu/xO28QOG8=
-    -----END CERTIFICATE-----
-    -----BEGIN CERTIFICATE-----
-    MIIENjCCAx6gAwIBAgIBATANBgkqhkiG9w0BAQUFADBvMQswCQYDVQQGEwJTRTEU
-    ...
-    mnkPIAou1Z5jJh5VkpTYghdae9C8x49OhgQ=
-    -----END CERTIFICATE-----
+  syslog:
+    address: logs4.papertrailapp.com
+    port: 41120
+    transport: tcp
+    tls_enabled: true
+    permitted_peer: "*.papertrailapp.com"
+    ca_cert: |
+      -----BEGIN CERTIFICATE-----
+      MIIFdDCCBFygAwIBAgIQJ2buVutJ846r13Ci/ITeIjANBgkqhkiG9w0BAQwFADBv
+      ...
+      pu/xO28QOG8=
+      -----END CERTIFICATE-----
+      -----BEGIN CERTIFICATE-----
+      MIIENjCCAx6gAwIBAgIBATANBgkqhkiG9w0BAQUFADBvMQswCQYDVQQGEwJTRTEU
+      ...
+      mnkPIAou1Z5jJh5VkpTYghdae9C8x49OhgQ=
+      -----END CERTIFICATE-----
 ```
 
 ### Tech Notes

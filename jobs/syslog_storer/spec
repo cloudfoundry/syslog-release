@@ -9,17 +9,17 @@ provides:
 - name: syslog_storer
   type: syslog_storer
   properties:
-  - port
-  - transport
+  - syslog.port
+  - syslog.transport
 
 properties:
-  port:
-    description: Port of the syslog drain
+  syslog.port:
+    description: Port of the syslog drain.
     default: 514
-  transport:
+  syslog.transport:
     default: udp
-    description: One of ["udp", "tcp", "relp"]. 
+    description: One of `udp`, `tcp`, `relp`.
 
-  custom_rule:
+  syslog.custom_rule:
     default: ""
-    description: Custom rule for syslog event forwarder
+    description: Custom rule for syslog event forwarder.

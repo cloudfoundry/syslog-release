@@ -15,7 +15,7 @@ stemcells:
 
 instance_groups:
 - name: syslog_forwarder
-  jobs: 
+  jobs:
   - name: syslog_forwarder
     release: syslog
   instances: 1
@@ -26,12 +26,13 @@ instance_groups:
   - name: default
 
 - name: syslog_storer
-  jobs: 
+  jobs:
   - name: syslog_storer
     release: syslog
     properties:
-      port: 24173
-      transport: relp
+      syslog:
+        port: 24173
+        transport: relp
   instances: 1
   stemcell: ubuntu
   azs: [z1]

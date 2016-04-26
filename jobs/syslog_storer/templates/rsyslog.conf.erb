@@ -13,28 +13,28 @@ $ActionQueueHighWaterMark 8000          # Num messages. Assuming avg size of 512
 $ActionQueueTimeoutEnqueue 0            # Discard messages if the queue + disk is full
 $ActionQueueSaveOnShutdown on           # Save in-memory data to disk if rsyslog shuts down
 
-<%= p('custom_rule') %>
+<%= p('syslog.custom_rule') %>
 
-<% if_p("port", "transport") do |port, transport| %>
+<% if_p('syslog.port', 'syslog.transport') do |port, transport| %>
 
 # Keep filtered programname in sync with syslog_event_forwarder.rb
-    <% if transport == "relp" %>
+    <% if transport == 'relp' %>
 # Listen for logs over RELP
 $ModLoad imrelp
 $InputRELPServerRun <%= port %>
 
-    <% elsif transport == "udp" %>
+    <% elsif transport == 'udp' %>
 # Listen for logs over UDP
 $ModLoad imudp
 $UDPServerRun <%= port %>
 
-    <% elsif transport == "tcp" %>
+    <% elsif transport == 'tcp' %>
 # Listen for logs over TCP
 $ModLoad imtcp
 $InputTCPMaxSessions 500
 $InputTCPServerRun <%= port %>
     <% else %>
-        <% raise "only RELP, UDP, and TCP are supported" %>
+        <% raise 'only RELP, UDP, and TCP are supported' %>
     <% end %>
 
 <% end  %>

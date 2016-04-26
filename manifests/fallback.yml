@@ -35,13 +35,14 @@ instance_groups:
   networks:
   - name: default
   properties:
-    address: 10.10.0.102
-    port: 514
-    transport: tcp
-    fallback_servers:
-    - address: 10.10.0.103
+    syslog:
+      address: 10.10.0.102
       port: 514
       transport: tcp
+      fallback_servers:
+      - address: 10.10.0.103
+        port: 514
+        transport: tcp
 
 - name: syslog_storer_primary
   jobs:
@@ -56,7 +57,8 @@ instance_groups:
   - name: default
     static_ips: [10.10.0.102]
   properties:
-    transport: tcp
+    syslog:
+      transport: tcp
 
 - name: syslog_storer_fallback
   jobs:
@@ -69,4 +71,5 @@ instance_groups:
   - name: default
     static_ips: [10.10.0.103]
   properties:
-    transport: tcp
+    syslog:
+      transport: tcp
