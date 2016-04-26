@@ -53,7 +53,7 @@ constant(value=">")
 property(name="timestamp" dateFormat="rfc3339")
 constant(value=" <%= spec.address %> ")
 property(name="programname")
-constant(value=" <%= spec.job.name %>/<%= spec.id %> ")
+constant(value=" <%= spec.deployment %>/<%= spec.job.name %>/<%= spec.id %> ")
 property(name="msg")
 }
 
