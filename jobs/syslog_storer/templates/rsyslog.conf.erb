@@ -39,10 +39,10 @@ $InputTCPServerRun <%= port %>
 
 <% end  %>
 
-# Prevent them from reaching anywhere else
-:programname, startswith, "vcap." ~
-
 $ModLoad omfile
 $DirCreateMode 0700
 $FileCreateMode 0644
 *.* /var/vcap/store/syslog_storer/syslog.log
+
+# Prevent them from reaching anywhere else
+:programname, startswith, "vcap." ~
