@@ -4,6 +4,7 @@ name: syslog_storer
 templates:
   pre-start.erb: bin/pre-start
   rsyslog.conf.erb: config/rsyslog.conf
+  drain-incoming-logs.erb: bin/drain
 
 provides:
 - name: syslog_storer

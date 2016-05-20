@@ -5,6 +5,7 @@ templates:
   pre-start.erb: bin/pre-start
   rsyslog.conf.erb: config/rsyslog.conf
   ca_cert.pem.erb: config/ca_cert.pem
+  drain-incoming-logs.erb: bin/drain
 
 consumes:
 - name: syslog_storer
