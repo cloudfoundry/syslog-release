@@ -1,0 +1,19 @@
+--- 
+name: blackbox
+dependencies: 
+  - golang
+files: 
+  - github.com/concourse/blackbox/*.go
+  - github.com/concourse/blackbox/cmd/blackbox/*.go
+  - github.com/concourse/blackbox/syslog/*.go
+  - github.com/hpcloud/tail/*.go
+  - github.com/hpcloud/tail/ratelimiter/*.go
+  - github.com/hpcloud/tail/util/*.go
+  - github.com/hpcloud/tail/vendor/gopkg.in/fsnotify.v1/*.go
+  - github.com/hpcloud/tail/vendor/gopkg.in/tomb.v1/*.go
+  - github.com/hpcloud/tail/watch/*.go
+  - github.com/papertrail/remote_syslog2/syslog/*.go
+  - github.com/tedsuo/ifrit/*.go
+  - github.com/tedsuo/ifrit/grouper/*.go
+  - github.com/tedsuo/ifrit/sigmon/*.go
+  - gopkg.in/yaml.v2/*.go

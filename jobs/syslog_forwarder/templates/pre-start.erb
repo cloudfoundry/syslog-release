@@ -1,6 +1,12 @@
 #!/bin/bash
 set -ex
 
+LOGDIR=/var/vcap/sys/log/syslog_forwarder
+
+mkdir -p ${LOGDIR}
+chown -R vcap:vcap ${LOGDIR}
+chmod 0755 ${LOGDIR}
+
 mkdir -p /var/vcap/data/syslog_forwarder/buffered
 chown -R syslog:adm /var/vcap/data/syslog_forwarder/buffered
 

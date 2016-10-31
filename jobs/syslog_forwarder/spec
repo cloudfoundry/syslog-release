@@ -5,13 +5,22 @@ templates:
   pre-start.erb: bin/pre-start
   rsyslog.conf.erb: config/rsyslog.conf
   ca_cert.pem.erb: config/ca_cert.pem
+  blackbox_ctl.erb: bin/blackbox_ctl
+  blackbox_config.yml.erb: config/blackbox_config.yml
+
+packages:
+  - pid_utils
+  - blackbox
 
 consumes:
-- name: syslog_storer
-  type: syslog_storer
-  optional: true
+  - name: syslog_storer
+    type: syslog_storer
+    optional: true
 
 properties:
+  syslog.forward_files:
+    description: If enabled, use BlackBox to forward logs.
+    default: false
   syslog.address:
     description: IP or DNS address of the syslog server.
     example: logs4.papertrail.com
@@ -81,3 +90,16 @@ properties:
   syslog.queue_checkpoint_interval:
     description: write bookkeeping information on checkpoints (every n records)
     default: 100
+
+  syslog.blackbox.destination.address:
+    description: "address for syslog drain (including port)"
+
+  syslog.blackbox.destination.transport:
+    description: "transport protocol for syslog drain (udp/tcp/tls)"
+    default: tls
+
+  syslog.blackbox.source_dir:
+    description: >
+      directory with subdirectories containing log files.
+      log lines will be tagged with subdirectory name.
+    default: /var/vcap/sys/log

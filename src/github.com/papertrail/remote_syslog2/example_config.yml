@@ -1,0 +1,8 @@
+files:
+  - locallog.txt
+destination:
+  host: logs.papertrailapp.com
+  port: 514
+  protocol: tls
+exclude_patterns:
+  - don't log on me
