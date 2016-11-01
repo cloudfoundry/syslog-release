@@ -47,14 +47,14 @@ $UDPServerAddress 127.0.0.1
 $UDPServerRun 514
 
 template(name="BoshLogTemplate" type="list") {
-constant(value="<")
-property(name="pri")
-constant(value=">")
-property(name="timestamp" dateFormat="rfc3339")
-constant(value=" <%= spec.address %> ")
-property(name="programname")
-constant(value=" <%= spec.deployment %>/<%= spec.job.name %>/<%= spec.id %> ")
-property(name="msg")
+  constant(value="<")
+  property(name="pri")
+  constant(value=">")
+  property(name="timestamp" dateFormat="rfc3339")
+  constant(value=" <%= spec.address %> ")
+  property(name="syslogtag")
+  constant(value=" <%= spec.deployment %>/<%= spec.job.name %>/<%= spec.id %> ")
+  property(name="msg")
 }
 
 <%= p('syslog.custom_rule') %>

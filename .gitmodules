@@ -1,0 +1,3 @@
+[submodule "src/github.com/concourse/blackbox"]
+	path = src/github.com/concourse/blackbox
+	url = https://github.com/concourse/blackbox.git
