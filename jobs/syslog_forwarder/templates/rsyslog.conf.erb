@@ -15,6 +15,7 @@ end.else do
   syslog_transport = syslog_storer.p('syslog.transport')
 end
 
+syslog_log_template = p('syslog.log_template')
 %>
 
 $ModLoad imuxsock                      # local message reception (rsyslog uses a datagram socket)
@@ -53,7 +54,15 @@ template(name="BoshLogTemplate" type="list") {
   property(name="timestamp" dateFormat="rfc3339")
   constant(value=" <%= spec.address %> ")
   property(name="syslogtag")
+<% if syslog_log_template == 'rfc5424' %>
   constant(value=" [bosh instance=\"<%= spec.deployment %>/<%= spec.job.name %>/<%= spec.id %>\"] ")
+<% elsif syslog_log_template == 'legacy' %>
+  constant(value=" <%= spec.deployment %>/<%= spec.job.name %>/<%= spec.id %> ")
+<% elsif syslog_log_template == 'metron_agent' %>
+  constant(value=" [job=<%= name %> index=<%= spec.index.to_i %>] ")
+<% else %>
+<% raise "only 'rfc5434', 'legacy' and 'metron_agent' log templates are supported (was '#{syslog_log_template}')" %>
+<% end %>
   property(name="msg")
 }
 
