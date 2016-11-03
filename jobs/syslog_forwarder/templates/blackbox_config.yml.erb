@@ -1,10 +1,8 @@
 hostname: <%= "#{name}-#{index}" %>
 
-<% if_p("syslog.blackbox.destination.address") do %>
 syslog:
   destination:
-    transport: <%= p("syslog.blackbox.destination.transport") %>
-    address: <%= p("syslog.blackbox.destination.address") %>
+    transport: udp
+    address: localhost:514
 
   source_dir: <%= p("syslog.blackbox.source_dir") %>
-<% end %>

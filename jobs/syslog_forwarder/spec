@@ -91,13 +91,6 @@ properties:
     description: write bookkeeping information on checkpoints (every n records)
     default: 100
 
-  syslog.blackbox.destination.address:
-    description: "address for syslog drain (including port)"
-
-  syslog.blackbox.destination.transport:
-    description: "transport protocol for syslog drain (udp/tcp/tls)"
-    default: tls
-
   syslog.blackbox.source_dir:
     description: >
       directory with subdirectories containing log files.
