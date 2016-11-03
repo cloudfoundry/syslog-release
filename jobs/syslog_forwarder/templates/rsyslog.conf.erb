@@ -49,11 +49,11 @@ $UDPServerRun 514
 template(name="BoshLogTemplate" type="list") {
   constant(value="<")
   property(name="pri")
-  constant(value=">")
+  constant(value=">1")
   property(name="timestamp" dateFormat="rfc3339")
   constant(value=" <%= spec.address %> ")
   property(name="syslogtag")
-  constant(value=" <%= spec.deployment %>/<%= spec.job.name %>/<%= spec.id %> ")
+  constant(value=" [bosh instance=\"<%= spec.deployment %>/<%= spec.job.name %>/<%= spec.id %>\"] ")
   property(name="msg")
 }
 
