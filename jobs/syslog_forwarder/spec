@@ -9,7 +9,6 @@ templates:
   blackbox_config.yml.erb: config/blackbox_config.yml
 
 packages:
-  - pid_utils
   - blackbox
 
 consumes:

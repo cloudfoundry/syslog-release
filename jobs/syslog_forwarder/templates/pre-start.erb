@@ -4,7 +4,7 @@ set -ex
 LOGDIR=/var/vcap/sys/log/syslog_forwarder
 
 mkdir -p ${LOGDIR}
-chown -R vcap:vcap ${LOGDIR}
+chown -R root:root ${LOGDIR}
 chmod 0755 ${LOGDIR}
 
 mkdir -p /var/vcap/data/syslog_forwarder/buffered
