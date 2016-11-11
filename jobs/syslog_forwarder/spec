@@ -95,3 +95,11 @@ properties:
       directory with subdirectories containing log files.
       log lines will be tagged with subdirectory name.
     default: /var/vcap/sys/log
+
+  syslog.log_template:
+    description: |
+        Syslog log template to use when sending the messages:
+        - rfc3424: rfc3424 format: ' [bosh instance="deployment/jobname/job_id" ]'
+        - legacy: Legacy syslog-release format: 'deployment/jobname/job_id'
+        - metron_agent: compatible with loggregator/metron_agent format '[job=foo index=0]'
+    default: "rfc5424"
