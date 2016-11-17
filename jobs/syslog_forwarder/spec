@@ -95,3 +95,7 @@ properties:
       directory with subdirectories containing log files.
       log lines will be tagged with subdirectory name.
     default: /var/vcap/sys/log
+
+  syslog.blackbox.limit_cpu:
+    description: limit goprocess to a single cpu via gomaxprocs
+    default: true
