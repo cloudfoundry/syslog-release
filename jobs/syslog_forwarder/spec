@@ -37,6 +37,10 @@ properties:
       port: 44312
       transport: tcp
 
+  syslog.action_parameters:
+    description: "Hash of custom parameters for rsyslog action. See http://www.rsyslog.com/doc/v8-stable/configuration/actions.html#general-action-parameters"
+    default: {}
+
   syslog.custom_rule:
     description: Custom rule for syslog event forwarder.
     default: ""

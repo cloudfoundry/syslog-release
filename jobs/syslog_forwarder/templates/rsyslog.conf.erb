@@ -15,6 +15,10 @@ end.else do
   syslog_transport = syslog_storer.p('syslog.transport')
 end
 
+def rendered_action_parameters
+  return p("syslog.action_parameters").map{|k,v| "#{k}=\"#{v}\""}.join(' ')
+end
+
 %>
 
 $ModLoad imuxsock                      # local message reception (rsyslog uses a datagram socket)
@@ -77,11 +81,25 @@ $ActionSendStreamDriverPermittedPeer <%= p('syslog.permitted_peer') %>
 
 <% if syslog_transport == 'relp' %>
 $ModLoad omrelp
-*.* :omrelp:<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+action(type="omrelp"
+       target="<%= syslog_address %>"
+       port="<%= syslog_port %>"
+       template="BoshLogTemplate"
+       <%= rendered_action_parameters() %>)
 <% elsif syslog_transport == 'udp' %>
-*.* @<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+action(type="omfwd"
+       Protocol="udp"
+       Target="<%= syslog_address %>"
+       Port="<%= syslog_port %>"
+       template="BoshLogTemplate"
+       <%= rendered_action_parameters() %>)
 <% elsif syslog_transport == 'tcp' %>
-*.* @@<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+action(type="omfwd"
+       Protocol="tcp"
+       Target="<%= syslog_address %>"
+       Port="<%= syslog_port %>"
+       template="BoshLogTemplate"
+       <%= rendered_action_parameters() %>)
 <% else %>
 <% raise "only RELP, UDP, and TCP protocols are supported (was '#{syslog_transport}')" %>
 <% end %>
@@ -96,9 +114,18 @@ $ActionExecOnlyWhenPreviousIsSuspended on
         %>
         <% if syslog_fallback_transport == 'relp' %>
 $ModLoad omrelp
-:omrelp:<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;BoshLogTemplate
+action(type="omrelp"
+       target="<%= syslog_fallback_address %>"
+       port="<%= syslog_fallback_port %>"
+       template="BoshLogTemplate"
+       <%= rendered_action_parameters() %>)
         <% elsif syslog_fallback_transport == 'tcp' %>
-& @@<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;BoshLogTemplate
+action(type="omfwd"
+       Protocol="tcp"
+       Target="<%= syslog_fallback_address %>"
+       Port="<%= syslog_fallback_port %>"
+       template="BoshLogTemplate"
+       <%= rendered_action_parameters() %>)
         <% else %>
           <% raise "only RELP, and TCP protocols are supported for fallback servers (was '#{syslog_fallback_transport}')" %>
         <% end %>
