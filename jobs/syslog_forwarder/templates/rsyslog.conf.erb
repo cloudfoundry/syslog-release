@@ -4,16 +4,22 @@ syslog_address = nil
 syslog_port = nil
 syslog_transport = nil
 
-if_p('syslog.address', 'syslog.port', 'syslog.transport') do |address, port, transport|
-  syslog_address = address
-  syslog_port = port
-  syslog_transport = transport
-end.else do
-  syslog_storer = link('syslog_storer')
+# use syslog_storer properties by default
+if_link('syslog_storer') do |syslog_storer|
   syslog_address = syslog_storer.instances[0].address
   syslog_port = syslog_storer.p('syslog.port')
   syslog_transport = syslog_storer.p('syslog.transport')
 end
+
+# overwrite with specific syslog properties if all properties set
+if_p('syslog.address', 'syslog.port', 'syslog.transport') do |address, port, transport|
+  syslog_address = address
+  syslog_port = port
+  syslog_transport = transport
+end
+
+# if transport nil, use the spec default value
+syslog_transport ||= p('syslog.transport')
 
 %>
 
@@ -75,15 +81,17 @@ $ActionSendStreamDriverAuthMode x509/name                         # authenticate
 $ActionSendStreamDriverPermittedPeer <%= p('syslog.permitted_peer') %>
 <% end %>
 
-<% if syslog_transport == 'relp' %>
-$ModLoad omrelp
-*.* :omrelp:<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
-<% elsif syslog_transport == 'udp' %>
-*.* @<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
-<% elsif syslog_transport == 'tcp' %>
-*.* @@<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
-<% else %>
-<% raise "only RELP, UDP, and TCP protocols are supported (was '#{syslog_transport}')" %>
+<% if !!syslog_address && !!syslog_port %>
+  <% if syslog_transport == 'relp' %>
+  $ModLoad omrelp
+  *.* :omrelp:<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+  <% elsif syslog_transport == 'udp' %>
+  *.* @<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+  <% elsif syslog_transport == 'tcp' %>
+  *.* @@<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+  <% else %>
+  <% raise "only RELP, UDP, and TCP protocols are supported (was '#{syslog_transport}')" %>
+  <% end %>
 <% end %>
 
 <% if p('syslog.fallback_servers').length > 0 %>

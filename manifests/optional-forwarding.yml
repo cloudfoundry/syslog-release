@@ -1,0 +1,35 @@
+name: optional-forwarding
+
+director_uuid: <%= `bosh status --uuid` %>
+
+releases:
+- name: syslog
+  version: latest
+
+stemcells:
+- alias: trusty
+  os: ubuntu-trusty
+  version: latest
+
+update:
+  canaries: 10
+  max_in_flight: 10
+  canary_watch_time: 30000-600000
+  update_watch_time: 5000-600000
+  serial: false
+
+instance_groups:
+- name: optional-forwarding
+  jobs:
+  - name: syslog_forwarder
+    release: syslog
+  instances: 1
+  azs: [eu-west-1a]
+  vm_type: m3.medium
+  stemcell: trusty
+  networks:
+  - name: services
+  properties:
+    syslog:
+      address:
+      port:
