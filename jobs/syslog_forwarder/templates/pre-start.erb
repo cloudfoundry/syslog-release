@@ -1,15 +1,21 @@
 #!/bin/bash
 set -ex
 
-LOGDIR=/var/vcap/sys/log/syslog_forwarder
+enabled=<%= p('syslog.enabled') %>
 
-mkdir -p ${LOGDIR}
-chown -R root:root ${LOGDIR}
-chmod 0755 ${LOGDIR}
+if $enabled; then
 
-mkdir -p /var/vcap/data/syslog_forwarder/buffered
-chown -R syslog:adm /var/vcap/data/syslog_forwarder/buffered
+  LOGDIR=/var/vcap/sys/log/syslog_forwarder
 
-mkdir -p /etc/rsyslog.d
-cp $(dirname $0)/../config/rsyslog.conf /etc/rsyslog.d/rsyslog.conf
-service rsyslog restart
+  mkdir -p ${LOGDIR}
+  chown -R root:root ${LOGDIR}
+  chmod 0755 ${LOGDIR}
+
+  mkdir -p /var/vcap/data/syslog_forwarder/buffered
+  chown -R syslog:adm /var/vcap/data/syslog_forwarder/buffered
+
+  mkdir -p /etc/rsyslog.d
+  cp $(dirname $0)/../config/rsyslog.conf /etc/rsyslog.d/rsyslog.conf
+  service rsyslog restart
+
+fi

@@ -17,6 +17,9 @@ consumes:
     optional: true
 
 properties:
+  syslog.enabled:
+    description: If enabled, rsyslog will be configured
+    default: true
   syslog.forward_files:
     description: If enabled, use BlackBox to forward logs.
     default: false
