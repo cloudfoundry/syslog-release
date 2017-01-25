@@ -17,6 +17,9 @@ consumes:
     optional: true
 
 properties:
+  syslog.director:
+    description: "BOSH director name"
+
   syslog.forward_files:
     description: If enabled, use BlackBox to forward logs.
     default: false
