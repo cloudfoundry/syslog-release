@@ -13,6 +13,11 @@ $ActionQueueHighWaterMark 8000          # Num messages. Assuming avg size of 512
 $ActionQueueTimeoutEnqueue 0            # Discard messages if the queue + disk is full
 $ActionQueueSaveOnShutdown on           # Save in-memory data to disk if rsyslog shuts down
 
+template(name="SyslogStorerTemplate" type="list") {
+  property(name="rawmsg")
+  constant(value="\n")
+}
+
 <%= p('syslog.custom_rule') %>
 
 <% if_p('syslog.port', 'syslog.transport') do |port, transport| %>
@@ -42,7 +47,7 @@ $InputTCPServerRun <%= port %>
 $ModLoad omfile
 $DirCreateMode 0700
 $FileCreateMode 0644
-*.* /var/vcap/store/syslog_storer/syslog.log
+*.* /var/vcap/store/syslog_storer/syslog.log;SyslogStorerTemplate
 
 # Prevent them from reaching anywhere else
 :programname, startswith, "vcap." ~
