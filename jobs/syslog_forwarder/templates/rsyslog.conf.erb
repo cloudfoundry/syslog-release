@@ -79,7 +79,13 @@ $ActionSendStreamDriver gtls                                      # use gtls net
 $ActionSendStreamDriverMode 1                                     # require TLS
 $ActionSendStreamDriverAuthMode x509/name                         # authenticate by hostname
 $ActionSendStreamDriverPermittedPeer <%= p('syslog.permitted_peer') %>
-<% end %>
+<%
+  else
+    if_p('syslog.ca_cert') do
+      raise "A ca cert was provided but tls is not enabled. Set 'syslog.tls_enabled' to true"
+    end
+  end
+%>
 
 <% if syslog_transport == 'relp' %>
 $ModLoad omrelp
