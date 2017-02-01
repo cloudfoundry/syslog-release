@@ -46,14 +46,20 @@ $ModLoad imudp
 $UDPServerAddress 127.0.0.1
 $UDPServerRun 514
 
-template(name="BoshLogTemplate" type="list") {
+# following https://tools.ietf.org/html/rfc5424#section-6
+template(name="SyslogForwarderTemplate" type="list") {
   constant(value="<")
   property(name="pri")
-  constant(value=">1")
+  constant(value=">1 ")
   property(name="timestamp" dateFormat="rfc3339")
   constant(value=" <%= spec.address %> ")
-  property(name="syslogtag")
-  constant(value=" [bosh instance=\"<%= spec.deployment %>/<%= spec.job.name %>/<%= spec.id %>\"] ")
+  property(name="app-name")
+  constant(value=" ")
+  property(name="procid")
+  constant(value=" ")
+  property(name="msgid")
+  # 47450 is CFF in https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
+  constant(value=" [instance@47450 director=\"<%= p('syslog.director') %>\" deployment=\"<%= spec.deployment %>\" group=\"<%= spec.job.name %>\" az=\"<%= spec.az %>\" id=\"<%= spec.id %>\"] ")
   property(name="msg")
 }
 
@@ -77,11 +83,11 @@ $ActionSendStreamDriverPermittedPeer <%= p('syslog.permitted_peer') %>
 
 <% if syslog_transport == 'relp' %>
 $ModLoad omrelp
-*.* :omrelp:<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+*.* :omrelp:<%= syslog_address %>:<%= syslog_port %>;SyslogForwarderTemplate
 <% elsif syslog_transport == 'udp' %>
-*.* @<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+*.* @<%= syslog_address %>:<%= syslog_port %>;SyslogForwarderTemplate
 <% elsif syslog_transport == 'tcp' %>
-*.* @@<%= syslog_address %>:<%= syslog_port %>;BoshLogTemplate
+*.* @@<%= syslog_address %>:<%= syslog_port %>;SyslogForwarderTemplate
 <% else %>
 <% raise "only RELP, UDP, and TCP protocols are supported (was '#{syslog_transport}')" %>
 <% end %>
@@ -96,9 +102,9 @@ $ActionExecOnlyWhenPreviousIsSuspended on
         %>
         <% if syslog_fallback_transport == 'relp' %>
 $ModLoad omrelp
-:omrelp:<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;BoshLogTemplate
+:omrelp:<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;SyslogForwarderTemplate
         <% elsif syslog_fallback_transport == 'tcp' %>
-& @@<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;BoshLogTemplate
+& @@<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;SyslogForwarderTemplate
         <% else %>
           <% raise "only RELP, and TCP protocols are supported for fallback servers (was '#{syslog_fallback_transport}')" %>
         <% end %>
