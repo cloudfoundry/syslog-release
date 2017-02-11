@@ -63,12 +63,7 @@ properties:
       -----END CERTIFICATE-----
 ```
 
-Note that you may need to include the *entire* certificate chain in `ca_cert` for the forwarding to work. The `openssl` command can be used to view an endpoint's certificate chain:
-
-```bash
-openssl s_client -showcerts -servername logs4.papertrailapp.com -connect papertrailapp.com:443 < /dev/null
-```
-
+Note that you may need to include the *entire* certificate chain in `ca_cert` for the forwarding to work.
 
 ### Test Store
 
@@ -104,8 +99,3 @@ A sample logstash config with additional filters to extract instance metadata is
 RSYSLOG is system for log processing; it is a drop-in replacement for the UNIX's venerable [syslog](https://en.wikipedia.org/wiki/Syslog), which logs messages to various files and/or log hosts. RSYSLOG can be configured as a **storer** (i.e. it receives log messages from other hosts) or a **forwarder** (i.e. it forwards system log messages to RSYSLOG storers, syslog servers, or log aggregation services).
 
 The RSYSLOG configuration file is `/etc/rsyslog.conf`. The RSYSLOG forwarder's customizations are rendered into `/etc/rsyslog.d/rsyslog.conf`, which is included by the configuration file.
-
-
-## License
-
-[Apache License Version 2.0](./LICENSE)
