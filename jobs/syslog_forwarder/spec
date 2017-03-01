@@ -23,7 +23,7 @@ properties:
 
   syslog.forward_files:
     description: If enabled, use BlackBox to forward logs.
-    default: false
+    default: true
   syslog.address:
     description: IP or DNS address of the syslog server.
     example: logs4.papertrail.com
