@@ -1,0 +1,9 @@
+forwarder_id=$( echo -n "$( basename "$( bosh instances | grep forwarder | cut -f1 )" )" )
+forwarder_ip=$( echo -n "$( basename "$( bosh instances | grep forwarder | cut -f4 )" )" )
+
+REM emit a test message we can track
+bosh ssh forwarder "logger test-rfc5424"
+
+REM test our message has rfc5424 formatting
+bosh ssh storer -c "grep -E '<13>1 [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]+\\+00:00 $forwarder_ip bosh_[^ ]+ \\- \\- \\[instance@47450 director=\"\" deployment=\"$BOSH_DEPLOYMENT\" group=\"forwarder\" az=\"z1\" id=\"$forwarder_id\"\\]  test-rfc5424' /var/vcap/store/syslog_storer/syslog.log" \
+  || failed 'Finding rfc5424-formatted log message'

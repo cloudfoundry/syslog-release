@@ -13,5 +13,5 @@ blobs
 *.swp
 *~
 *#
-#*
+.envrc
 

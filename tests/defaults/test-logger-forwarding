@@ -1,0 +1,8 @@
+REM emit a test message to syslog that we can track
+bosh ssh forwarder "logger test-logger-forwarding"
+
+sleep 7
+
+REM test our message arrived
+bosh ssh storer -c 'grep test-logger-forwarding /var/vcap/store/syslog_storer/syslog.log | grep bosh_' \
+  || failed 'Finding test message on syslog storer'
