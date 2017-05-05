@@ -1,0 +1,6 @@
+REM wait for mark messages
+sleep 7
+
+REM check to see that MARK messages arrived
+bosh ssh storer -c 'test $(grep MARK /var/vcap/store/syslog_storer/syslog.log | wc -l) -gt 1' \
+  || failed 'Finding mark message on syslog storer'

@@ -1,0 +1,12 @@
+- type: replace
+  path: /instance_groups/name=forwarder/jobs/name=syslog_forwarder/properties?/syslog/enable_mark_messages
+  value: true
+
+- type: replace
+  path: /instance_groups/name=forwarder/jobs/name=syslog_forwarder/properties?/syslog/mark_message_period
+  value: 1
+
+- type: replace
+  path: /instance_groups/name=storer/jobs/name=syslog_storer/properties?/syslog/custom_rule
+  value: "$RepeatedMsgReduction           off"
+

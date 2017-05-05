@@ -41,6 +41,13 @@ properties:
       port: 44312
       transport: tcp
 
+  syslog.enable_mark_messages:
+    description: Send mark messages; useful for keeping the connection to the server open. This option also turns log message reduction off, so duplicate messages are all sent individually; this is likely to make your logs noisier.
+    default: false
+  syslog.mark_message_period:
+    description: How often to send mark messages, in seconds. Ignored if enable_mark_messages is false.
+    default: 300
+
   syslog.custom_rule:
     description: Custom rule for syslog event forwarder.
     default: ""

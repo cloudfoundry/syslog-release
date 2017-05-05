@@ -63,6 +63,15 @@ template(name="SyslogForwarderTemplate" type="list") {
   property(name="msg")
 }
 
+<% if p('syslog.enable_mark_messages') %>
+# Write mark messages to keep the connection from being idle
+global(processInternalMessages="on")
+$ActionWriteAllMarkMessages     on
+$RepeatedMsgReduction           off
+$ModLoad                        immark
+$MarkMessagePeriod              <%= p('syslog.mark_message_period') %>
+<% end %>
+
 <%= p('syslog.custom_rule') %>
 
 <% if p('syslog.tls_enabled') %>
