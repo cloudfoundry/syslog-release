@@ -78,9 +78,7 @@ $DefaultNetstreamDriverCAFile <%= ca_cert_path %>                 # trust these 
 $ActionSendStreamDriver gtls                                      # use gtls netstream driver
 $ActionSendStreamDriverMode 1                                     # require TLS
 $ActionSendStreamDriverAuthMode x509/name                         # authenticate by hostname
-<% if_p('syslog.permitted_peer') do |permitted_peer| %>
-$ActionSendStreamDriverPermittedPeer <%= permitted_peer %>
-<% end %>
+$ActionSendStreamDriverPermittedPeer <%= p('syslog.permitted_peer') %>
 <%
   else
     if_p('syslog.ca_cert') do
