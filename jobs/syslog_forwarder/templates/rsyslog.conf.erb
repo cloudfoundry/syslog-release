@@ -9,10 +9,21 @@ if_p('syslog.address', 'syslog.port', 'syslog.transport') do |address, port, tra
   syslog_port = port
   syslog_transport = transport
 end.else do
-  syslog_storer = link('syslog_storer')
-  syslog_address = syslog_storer.instances[0].address
-  syslog_port = syslog_storer.p('syslog.port')
-  syslog_transport = syslog_storer.p('syslog.transport')
+  syslog_link = link('syslog')
+  syslog_address = syslog_link.instances[0].address
+  syslog_port = syslog_link.p('port')
+  syslog_transport = syslog_link.p('transport')
+end
+
+fallback_servers = nil
+respond_to?(:if_link) && if_link('syslog') do |syslog_link|
+  fallback_servers = syslog_link.instances.reject{ |instance| instance.address == syslog_address }.map { |instance|
+    { 'address' => instance.address,
+      'port' => link('syslog').p('port'),
+      'transport' => link('syslog').p('transport') }
+  }
+end.else do
+  fallback_servers = p('syslog.fallback_servers')
 end
 
 %>
@@ -21,7 +32,7 @@ $ModLoad imuxsock                      # local message reception (rsyslog uses a
 $MaxMessageSize 4k                     # default is 2k
 $WorkDirectory /var/vcap/data/syslog_forwarder/buffered # where messages should be buffered on disk
 
-<% if p('syslog.fallback_servers').length > 0 %>
+<% if fallback_servers.length > 0 %>
 <% raise 'only RELP and TCP protocols are supported for fallback servers (was UDP)' if syslog_transport == 'udp' %>
 $ActionResumeRetryCount 2              # Try with a fallback server after 2 retries
 $ActionQueueType Direct
@@ -98,9 +109,9 @@ $ModLoad omrelp
 <% raise "only RELP, UDP, and TCP protocols are supported (was '#{syslog_transport}')" %>
 <% end %>
 
-<% if p('syslog.fallback_servers').length > 0 %>
+<% if fallback_servers.length > 0 %>
 $ActionExecOnlyWhenPreviousIsSuspended on
-    <% p('syslog.fallback_servers').each do |fallback_server| %>
+    <% fallback_servers.each do |fallback_server| %>
         <%
           syslog_fallback_address = fallback_server.fetch('address')
           syslog_fallback_port = fallback_server.fetch('port')

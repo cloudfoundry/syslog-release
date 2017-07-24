@@ -12,8 +12,8 @@ packages:
   - blackbox
 
 consumes:
-  - name: syslog_storer
-    type: syslog_storer
+  - name: syslog
+    type: syslog
     optional: true
 
 properties:

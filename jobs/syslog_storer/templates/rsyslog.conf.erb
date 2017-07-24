@@ -20,7 +20,7 @@ template(name="SyslogStorerTemplate" type="list") {
 
 <%= p('syslog.custom_rule') %>
 
-<% if_p('syslog.port', 'syslog.transport') do |port, transport| %>
+<% if_p('port', 'transport') do |port, transport| %>
 
 # Keep filtered programname in sync with syslog_event_forwarder.rb
     <% if transport == 'relp' %>

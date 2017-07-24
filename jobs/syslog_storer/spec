@@ -6,17 +6,17 @@ templates:
   rsyslog.conf.erb: config/rsyslog.conf
 
 provides:
-- name: syslog_storer
-  type: syslog_storer
+- name: syslog
+  type: syslog
   properties:
-  - syslog.port
-  - syslog.transport
+  - port
+  - transport
 
 properties:
-  syslog.port:
+  port:
     description: Port of the syslog drain.
     default: 514
-  syslog.transport:
+  transport:
     default: tcp
     description: One of `udp`, `tcp`, `relp`.
 
