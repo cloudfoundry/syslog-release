@@ -1,5 +1,8 @@
 # Syslog BOSH Release
 
+* Documentation: [bosh.io/docs](https://bosh.io/docs)
+* Slack: #bosh on <https://slack.cloudfoundry.org>
+
 This is a BOSH release to forward local syslog events in [RFC5424](https://tools.ietf.org/html/rfc5424) format to a remote syslog endpoint. It currently uses [rsyslog](http://www.rsyslog.com/) which is pre-installed by the stemcell.
 
 
