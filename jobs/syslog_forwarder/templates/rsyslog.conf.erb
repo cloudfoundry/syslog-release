@@ -59,7 +59,8 @@ template(name="SyslogForwarderTemplate" type="list") {
   constant(value=" ")
   property(name="msgid")
   # 47450 is CFF in https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
-  constant(value=" [instance@47450 director=\"<%= p('syslog.director') %>\" deployment=\"<%= spec.deployment %>\" group=\"<%= spec.job.name %>\" az=\"<%= spec.az %>\" id=\"<%= spec.id %>\"] ")
+  constant(value=" [instance@47450 director=\"<%= p('syslog.director') %>\" deployment=\"<%= spec.deployment %>\" group=\"<%= spec.job.name %>\" az=\"<%= spec.az %>\" id=\"<%= spec.id %>\"]")
+  property(name="msg" spifno1stsp="on" )
   property(name="msg")
 }
 
