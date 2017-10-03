@@ -50,7 +50,6 @@ properties:
     default: false
   syslog.permitted_peer:
     description: Accepted fingerprint (SHA1) or name of remote peer. Required if TLS is enabled.
-    default: ""
     example: "*.papertrail.com"
   syslog.ca_cert:
     description: Trust these Certificate Authorities. Required if TLS is enabled.
