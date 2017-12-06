@@ -1,13 +1,11 @@
 # Syslog BOSH Release
-
 * Documentation: [bosh.io/docs](https://bosh.io/docs)
 * Slack: #bosh on <https://slack.cloudfoundry.org>
 
-This is a BOSH release to forward local syslog events in [RFC5424](https://tools.ietf.org/html/rfc5424) format to a remote syslog endpoint. It currently uses [rsyslog](http://www.rsyslog.com/) which is pre-installed by the stemcell.
+This is a BOSH release to forward local syslog events in [RFC5424](https://tools.ietf.org/html/rfc5424) format to a remote syslog endpoint. It currently uses [RSYSLOG](http://www.rsyslog.com/) which is pre-installed by the stemcell.
 
 
 ## Usage
-
 Download the latest release from [bosh.io](https://bosh.io/releases/github.com/cloudfoundry/syslog-release) and include it in your manifest:
 
 ```yml
@@ -16,9 +14,7 @@ releases:
   version: latest
 ```
 
-
 ### Configure Forwarding
-
 Add the [`syslog_forwarder`](https://bosh.io/jobs/syslog_forwarder?source=github.com/cloudfoundry/syslog-release) job to forward all local syslog messages from an instance to a syslog endpoint. Configure `address` and, optionally, `port` and `transport`:
 
 ```yml
@@ -69,7 +65,6 @@ properties:
 Note that you may need to include the *entire* certificate chain in `ca_cert` for the forwarding to work.
 
 ### Test Store
-
 The [`syslog_storer`](https://bosh.io/jobs/syslog_storer?source=github.com/cloudfoundry/syslog-release) is meant for testing. Deploy it and configure your instances to forward logs to it. It should not be co-located with other jobs which also try to configure syslog. Received logs are stored in `/var/vcap/store/syslog_storer/syslog.log`.
 
 ```yml
@@ -82,9 +77,7 @@ instance_groups:
 
 Remember to allow inbound traffic on TCP port 514 in your IaaS security groups.
 
-
 ## Format
-
 This release forwards messages using the [RFC5424](https://tools.ietf.org/html/rfc5424) standard (natively supported by most log platforms). Forwarded messages are annotated with structured data (instance@[47450](https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)) that identify the originating BOSH instance (director, deployment, availability zone, instance group, and instance ID).
 
     <$PRI>$VERSION $TIMESTAMP $HOST $APP_NAME $PROC_ID $MSG_ID [instance@47450 director="$DIRECTOR" deployment="$DEPLOYMENT" group="$INSTANCE_GROUP" az="$AVAILABILITY_ZONE" id="$ID"] $MESSAGE
@@ -96,9 +89,7 @@ An example message from diego is transmitted as...
 
 A sample logstash config with additional filters to extract instance metadata is in [`scripts/logstash-filters.conf`](scripts/logstash-filters.conf).
 
-
 ## Tech Notes
-
-RSYSLOG is system for log processing; it is a drop-in replacement for the UNIX's venerable [syslog](https://en.wikipedia.org/wiki/Syslog), which logs messages to various files and/or log hosts. RSYSLOG can be configured as a **storer** (i.e. it receives log messages from other hosts) or a **forwarder** (i.e. it forwards system log messages to RSYSLOG storers, syslog servers, or log aggregation services).
+RSYSLOG is a system for log processing; it is a drop-in replacement for the UNIX's venerable [syslog](https://en.wikipedia.org/wiki/Syslog), which logs messages to various files and/or log hosts. RSYSLOG can be configured as a **storer** (i.e. it receives log messages from other hosts) or a **forwarder** (i.e. it forwards system log messages to RSYSLOG storers, syslog servers, or log aggregation services).
 
 The RSYSLOG configuration file is `/etc/rsyslog.conf`. The RSYSLOG forwarder's customizations are rendered into `/etc/rsyslog.d/rsyslog.conf`, which is included by the configuration file.
