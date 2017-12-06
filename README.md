@@ -64,6 +64,22 @@ properties:
 
 Note that you may need to include the *entire* certificate chain in `ca_cert` for the forwarding to work.
 
+### Custom Rule
+This release allows a custom rule
+to be inserted before the rule
+that accomplishes log forwarding.
+This can be useful if you only wish
+to forward certain logs,
+or if there is a certain type of log
+you wish to exclude from forwarding.
+
+We have some simple documentation
+with a few example rules in
+[`example-custom-rules.md`](example-custom-rules.md).
+
+**Please note:** if your custom rule is invalid,
+no logs will be forwarded.
+
 ### Test Store
 The [`syslog_storer`](https://bosh.io/jobs/syslog_storer?source=github.com/cloudfoundry/syslog-release) is meant for testing. Deploy it and configure your instances to forward logs to it. It should not be co-located with other jobs which also try to configure syslog. Received logs are stored in `/var/vcap/store/syslog_storer/syslog.log`.
 
