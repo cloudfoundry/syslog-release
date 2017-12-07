@@ -119,5 +119,12 @@ $ModLoad omrelp
 $ActionExecOnlyWhenPreviousIsSuspended off
 <% end %>
 
+<% if_p('syslog.tcp_rebind_interval') do |rebind| %>
+$ActionSendTCPRebindInterval <%= rebind %>
+<% end %>
+<% if_p('syslog.udp_rebind_interval') do |rebind| %>
+$ActionSendUDPRebindInterval <%= rebind %>
+<% end %>
+
 # Prevent vcap.* messsages from reaching anywhere else
 :programname, startswith, "vcap." ~

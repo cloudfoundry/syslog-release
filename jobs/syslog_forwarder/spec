@@ -93,6 +93,10 @@ properties:
   syslog.queue_checkpoint_interval:
     description: write bookkeeping information on checkpoints (every n records)
     default: 100
+  syslog.tcp_rebind_interval:
+    description: Instructs the TCP send action to close and re-open the connection to the remote host every nbr of messages sent. If not set, TCP connections are never closed.
+  syslog.udp_rebind_interval:
+    description: Instructs the UDP send action to close and re-open the connection to the remote host every nbr of messages sent. If net set, UDP connections are never closed.
 
   syslog.blackbox.source_dir:
     description: >
