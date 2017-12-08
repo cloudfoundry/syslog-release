@@ -1,6 +1,6 @@
 # Syslog BOSH Release
-* Documentation: [bosh.io/docs](https://bosh.io/docs)
-* Slack: #bosh on <https://slack.cloudfoundry.org>
+* Slack: #syslog on <https://slack.cloudfoundry.org>
+* Tracker: [CF Platform Logging Improvements][tracker]
 
 This is a BOSH release
 to forward local syslog events
