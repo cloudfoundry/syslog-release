@@ -42,7 +42,12 @@ properties:
       transport: tcp
 
   syslog.custom_rule:
-    description: Custom rule for syslog event forwarder.
+    description: |
+      Custom rsyslog rule for event forwarder.
+      This will be inserted before the forwarding rule.
+      See further discussion and examples in
+      example-custom-rules.md
+      at the top level of the release repo.
     default: ""
 
   syslog.tls_enabled:
