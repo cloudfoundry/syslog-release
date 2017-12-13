@@ -58,7 +58,10 @@ properties:
     default: ""
     example: "*.papertrail.com"
   syslog.ca_cert:
-    description: Trust these Certificate Authorities. Required if TLS is enabled.
+    description: |
+      Trusted CAs. Necessary if TLS is enabled
+      AND signing CA is not present in instance cert store.
+      Overrides instance cert store if set.
     example: |
       -----BEGIN CERTIFICATE-----
       MIIClTCCAf4CCQDc6hJtvGB8RjANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMC...

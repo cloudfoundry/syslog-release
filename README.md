@@ -94,9 +94,17 @@ properties:
       -----END CERTIFICATE-----
 ```
 
-Note that you may need
-to include the *entire* certificate chain
-in `ca_cert` for the forwarding to work.
+Alternatively, if the intended syslog recipient's certificate
+is signed by any Certificate Authority
+in the BOSH instances' cert store
+(most common CAs are included on the stemcell),
+you can omit the `ca_cert` field entirely.
+
+If you do include `ca_cert`,
+please note that the standard
+cert store will no longer be referenced.
+This necessitates including
+the _entire_ certificate chain.
 
 ### Custom Rule
 This release allows a custom rule
