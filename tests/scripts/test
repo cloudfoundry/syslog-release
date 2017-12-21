@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -eux
+
+export BOSH_ENVIRONMENT=vbox
+
+pushd $(dirname $0)/../..
+  bosh create-release --force
+  bosh upload-release
+popd
+
+pushd $(dirname $0)/..
+  go get -u -a github.com/jtarchie/syslog
+  ginkgo -r -p -nodes=3 "$@"
+popd
