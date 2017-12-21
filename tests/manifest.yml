@@ -1,11 +1,11 @@
 ---
 name: ((deployment))
 releases:
-  - name: ((release))
-    version: "latest"
+  - name: syslog
+    version: latest
 stemcells:
   - alias: "default"
-    os: ((stemcell_os))
+    os: ubuntu-trusty
     version: "latest"
 instance_groups:
   - name: "forwarder"
@@ -18,7 +18,7 @@ instance_groups:
       - "z1"
     jobs:
       - name: "syslog_forwarder"
-        release: "((release))"
+        release: syslog
   - name: "storer"
     instances: 1
     vm_type: "default"
@@ -29,7 +29,7 @@ instance_groups:
       - "z1"
     jobs:
       - name: "syslog_storer"
-        release: "((release))"
+        release: syslog
 update:
   canaries: 1
   max_in_flight: 1
