@@ -16,7 +16,7 @@ import (
 	"github.com/onsi/gomega/gexec"
 )
 
-var _ = Describe("Acceptance", func() {
+var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() {
 	DeploymentName := func() string {
 		return "syslog"
 	}
@@ -29,6 +29,14 @@ var _ = Describe("Acceptance", func() {
 		session, err := gexec.Start(boshCmd, GinkgoWriter, GinkgoWriter)
 		Expect(err).ToNot(HaveOccurred())
 		return session
+	}
+
+	type LogOutput struct {
+		Tables []struct {
+			Rows []struct {
+				Stdout string
+			}
+		}
 	}
 
 	Deploy := func(manifest string) *gexec.Session {
@@ -47,45 +55,39 @@ var _ = Describe("Acceptance", func() {
 		session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("logger %s", msg))
 		Eventually(session, 15*time.Second).Should(gexec.Exit(0))
 	}
-
 	BeforeEach(func() {
 		session := BoshCmd("delete-deployment")
 		Eventually(session, 1*time.Minute).Should(gexec.Exit())
 		Deploy("manifest.yml")
 	})
 
-	type LogOutput struct {
-		Tables []struct {
-			Rows []struct {
-				Stdout string
-			}
-		}
-	}
+	Context("When a message is written to the default watch dir", func() {
 
-	It("sends messages in rfc5424 messages", func() {
-		SendLogMessage("test-rfc5424")
-		Eventually(ForwarderLog, 30*time.Second).Should(gbytes.Say("test-rfc5424"))
+		It("is received in rfc5424 format on the configured drain", func() {
+			SendLogMessage("test-rfc5424")
+			Eventually(ForwarderLog, 30*time.Second).Should(gbytes.Say("test-rfc5424"))
 
-		output := LogOutput{}
-		err := json.Unmarshal(ForwarderLog().Out.Contents(), &output)
-		Expect(err).ToNot(HaveOccurred())
-
-		logs := bytes.NewBufferString(output.Tables[0].Rows[0].Stdout)
-		reader := bufio.NewReader(logs)
-
-		for {
-			line, _, err := reader.ReadLine()
+			output := LogOutput{}
+			err := json.Unmarshal(ForwarderLog().Out.Contents(), &output)
 			Expect(err).ToNot(HaveOccurred())
-			if len(line) == 0 {
-				break
+
+			logs := bytes.NewBufferString(output.Tables[0].Rows[0].Stdout)
+			reader := bufio.NewReader(logs)
+
+			for {
+				line, _, err := reader.ReadLine()
+				Expect(err).ToNot(HaveOccurred())
+				if len(line) == 0 {
+					break
+				}
+				logLine, err := syslog.Parse(line)
+				Expect(err).ToNot(HaveOccurred())
+				if string(logLine.Message()) == "test-rfc5424" {
+					sdata := logLine.StructureData()
+					Expect(string(sdata.ID())).To(Equal("instance@47450"))
+					break
+				}
 			}
-			logLine, err := syslog.Parse(line)
-			Expect(err).ToNot(HaveOccurred())
-			if string(logLine.Message()) == "test-rfc5424" {
-				sdata := logLine.StructureData()
-				Expect(string(sdata.ID())).To(Equal("instance@47450"))
-				break
-			}
-		}
+		})
 	})
 })
