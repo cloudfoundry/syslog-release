@@ -55,6 +55,7 @@ var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() 
 		session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("logger %s", msg))
 		Eventually(session, 15*time.Second).Should(gexec.Exit(0))
 	}
+
 	BeforeEach(func() {
 		session := BoshCmd("delete-deployment")
 		Eventually(session, 1*time.Minute).Should(gexec.Exit())

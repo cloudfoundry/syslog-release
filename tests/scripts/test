@@ -1,8 +1,26 @@
 #!/bin/bash
 
-set -eux
+set -euxo pipefail
 
-export BOSH_ENVIRONMENT=vbox
+env_arg=local
+
+set +u
+if [ ! -z $1 ]; then
+  env_arg=$1
+fi
+set -u
+
+if [ $env_arg == "local" ]; then
+  export BOSH_ENVIRONMENT=vbox
+  export BOSH_CLIENT=admin
+  export BOSH_CLIENT_SECRET=`bosh int ~/deployments/vbox/creds.yml --path /admin_password`
+fi
+
+if [ $env_arg == "use-bbl-env" ]; then
+  set +ux
+  eval "$(bbl print-env --state-dir=$2)"
+  set -ux
+fi
 
 pushd $(dirname $0)/../..
   bosh create-release --force
@@ -11,5 +29,5 @@ popd
 
 pushd $(dirname $0)/..
   go get -u -a github.com/jtarchie/syslog
-  ginkgo -r -p -nodes=3 "$@"
+  ginkgo -r -v #"$@"
 popd
