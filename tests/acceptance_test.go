@@ -18,7 +18,7 @@ import (
 
 var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() {
 	DeploymentName := func() string {
-		return "syslog"
+		return "syslog-tests"
 	}
 
 	BoshCmd := func(args ...string) *gexec.Session {
