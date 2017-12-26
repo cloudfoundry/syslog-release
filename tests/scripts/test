@@ -2,32 +2,30 @@
 
 set -euxo pipefail
 
-env_arg=local
+env_dir="vbox"
 
-set +u
-if [ ! -z $1 ]; then
-  env_arg=$1
-fi
-set -u
+while getopts ":e:" opt; do
+  case $opt in
+    e)
+      env_dir=$OPTARG;;
+    :)
+      echo "Usage: $0 [-e /state-dir]" >&2
+      exit 1;;
+  esac
+done
 
-if [ $env_arg == "local" ]; then
+if [ -d $env_dir ]; then
+  eval "$(bbl print-env --state-dir="$env_dir")"
+else
   export BOSH_ENVIRONMENT=vbox
-  export BOSH_CLIENT=admin
-  export BOSH_CLIENT_SECRET=`bosh int ~/deployments/vbox/creds.yml --path /admin_password`
 fi
 
-if [ $env_arg == "use-bbl-env" ]; then
-  set +ux
-  eval "$(bbl print-env --state-dir=$2)"
-  set -ux
-fi
-
-pushd $(dirname $0)/../..
+pushd "$(dirname "$0")/../.."
   bosh create-release --force
   bosh upload-release
 popd
 
-pushd $(dirname $0)/..
+pushd "$(dirname "$0")/.."
   go get -u -a github.com/jtarchie/syslog
-  ginkgo -r -v #"$@"
+  ginkgo -r "$@"
 popd
