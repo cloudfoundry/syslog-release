@@ -46,8 +46,8 @@ var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() 
 	}
 
 	ForwarderLog := func() *gexec.Session {
-		session := BoshCmd("ssh", "storer", "-c", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'", "--json", "-r")
-		Eventually(session, 15*time.Second).Should(gexec.Exit(0))
+		session := BoshCmd("ssh", "storer", fmt.Sprintf("--command=%q", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'"), "--json", "-r")
+		Eventually(session, 15*time.Second).Should(gexec.Exit())
 		return session
 	}
 
@@ -56,17 +56,23 @@ var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() 
 		Eventually(session, 15*time.Second).Should(gexec.Exit(0))
 	}
 
-	BeforeEach(func() {
+	Cleanup := func() {
 		session := BoshCmd("delete-deployment")
-		Eventually(session, 1*time.Minute).Should(gexec.Exit())
+		Eventually(session, 1*time.Minute).Should(gexec.Exit(0))
+	}
+
+	BeforeEach(func() {
+		Cleanup()
 		Deploy("manifest.yml")
 	})
 
 	Context("When a message is written to the default watch dir", func() {
 
 		It("is received in rfc5424 format on the configured drain", func() {
-			SendLogMessage("test-rfc5424")
-			Eventually(ForwarderLog, 30*time.Second).Should(gbytes.Say("test-rfc5424"))
+			Eventually(func() *gexec.Session {
+				SendLogMessage("test-rfc5424")
+				return ForwarderLog()
+			}, time.Minute).Should(gbytes.Say("test-rfc5424"))
 
 			output := LogOutput{}
 			err := json.Unmarshal(ForwarderLog().Out.Contents(), &output)
