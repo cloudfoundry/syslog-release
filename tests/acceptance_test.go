@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
-	"time"
 
 	"github.com/jtarchie/syslog/pkg/log"
 	. "github.com/onsi/ginkgo"
@@ -41,24 +40,24 @@ var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() 
 
 	Deploy := func(manifest string) *gexec.Session {
 		session := BoshCmd("deploy", manifest, "-v", fmt.Sprintf("deployment=%s", DeploymentName()))
-		Eventually(session, 2*time.Minute).Should(gexec.Exit(0))
+		Eventually(session).Should(gexec.Exit(0))
 		return session
 	}
 
 	ForwarderLog := func() *gexec.Session {
 		session := BoshCmd("ssh", "storer", fmt.Sprintf("--command=%q", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'"), "--json", "-r")
-		Eventually(session, 15*time.Second).Should(gexec.Exit())
+		Eventually(session).Should(gexec.Exit())
 		return session
 	}
 
 	SendLogMessage := func(msg string) {
 		session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("logger %s", msg))
-		Eventually(session, 15*time.Second).Should(gexec.Exit(0))
+		Eventually(session).Should(gexec.Exit(0))
 	}
 
 	Cleanup := func() {
 		session := BoshCmd("delete-deployment")
-		Eventually(session, 1*time.Minute).Should(gexec.Exit(0))
+		Eventually(session).Should(gexec.Exit(0))
 	}
 
 	BeforeEach(func() {
@@ -72,7 +71,7 @@ var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() 
 			Eventually(func() *gexec.Session {
 				SendLogMessage("test-rfc5424")
 				return ForwarderLog()
-			}, time.Minute).Should(gbytes.Say("test-rfc5424"))
+			}).Should(gbytes.Say("test-rfc5424"))
 
 			output := LogOutput{}
 			err := json.Unmarshal(ForwarderLog().Out.Contents(), &output)
