@@ -22,7 +22,7 @@ else
 fi
 
 pushd "$(dirname "$0")/../.."
-  bosh create-release --force
+  bosh create-release --force --version="$(date "+%s")"
   bosh upload-release
 popd
 
