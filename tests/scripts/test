@@ -15,7 +15,7 @@ while getopts ":e:" opt; do
 done
 shift $((OPTIND -1))
 
-if [ -d $env_dir ]; then
+if [ -d "$env_dir" ]; then
   eval "$(bbl print-env --state-dir="$env_dir")"
 else
   export BOSH_ENVIRONMENT=$env_dir
