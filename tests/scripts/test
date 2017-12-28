@@ -27,6 +27,7 @@ pushd "$(dirname "$0")/../.."
 popd
 
 pushd "$(dirname "$0")/.."
+  glide install
   go install github.com/onsi/ginkgo/ginkgo
   ginkgo -r "$@"
 popd
