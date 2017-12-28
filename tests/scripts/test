@@ -27,6 +27,6 @@ pushd "$(dirname "$0")/../.."
 popd
 
 pushd "$(dirname "$0")/.."
-  go get -u -a github.com/jtarchie/syslog
+  go install github.com/onsi/ginkgo/ginkgo
   ginkgo -r "$@"
 popd
