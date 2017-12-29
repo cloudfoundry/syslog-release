@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/jtarchie/syslog/pkg/log"
@@ -109,5 +110,39 @@ var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() 
 				return ForwarderLog()
 			}).Should(gbytes.Say("test-blackbox-forwarding"))
 		})
+
+		XIt("fowards messages of 1KB", func() {
+			message := counterString(1025, "A")
+			session := BoshCmd("ssh", "forwarder", "-c", "sudo touch /var/vcap/sys/log/syslog_forwarder/file.log")
+			Eventually(session).Should(gexec.Exit(0))
+
+			By("Wait for the new file to be detected")
+			Eventually(func() *gexec.Session {
+				session = BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("echo %s | sudo tee /var/vcap/sys/log/syslog_forwarder/file.log", message))
+				Eventually(session).Should(gexec.Exit(0))
+
+				return ForwarderLog()
+			}).Should(gbytes.Say(message))
+		})
+	})
+
+	Context("when a message is over 1KB from standard syslog delivery", func() {
+		It("sends the message successfully", func() {
+			message := counterString(1025, "A")
+			Eventually(func() *gexec.Session {
+				SendLogMessage(message)
+				return ForwarderLog()
+			}).Should(gbytes.Say(message))
+		})
 	})
 })
+
+func counterString(l int, s string) string {
+	counterstring := ""
+	for len(counterstring) < l {
+		counterstring += s
+		counterstring += strconv.Itoa(len(counterstring))
+	}
+
+	return counterstring[:l]
+}
