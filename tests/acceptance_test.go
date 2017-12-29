@@ -104,7 +104,7 @@ var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() 
 
 			By("Wait for the new file to be detected")
 			Eventually(func() *gexec.Session {
-				session = BoshCmd("ssh", "forwarder", "-c", "echo test-blackbox-forwarding | sudo tee /var/vcap/sys/log/syslog_forwarder/file.log")
+				session = BoshCmd("ssh", "forwarder", "-c", "echo test-blackbox-forwarding | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log")
 				Eventually(session).Should(gexec.Exit(0))
 
 				return ForwarderLog()
@@ -118,7 +118,7 @@ var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() 
 
 			By("Wait for the new file to be detected")
 			Eventually(func() *gexec.Session {
-				session = BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("echo %s | sudo tee /var/vcap/sys/log/syslog_forwarder/file.log", message))
+				session = BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
 				Eventually(session).Should(gexec.Exit(0))
 
 				return ForwarderLog()
