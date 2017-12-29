@@ -17,7 +17,7 @@ import (
 
 var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() {
 	DeploymentName := func() string {
-		return "syslog-tests"
+		return fmt.Sprintf("syslog-tests-%d", GinkgoParallelNode())
 	}
 
 	BoshCmd := func(args ...string) *gexec.Session {
@@ -66,7 +66,6 @@ var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() 
 	})
 
 	Context("When a message is written to the default watch dir", func() {
-
 		It("is received in rfc5424 format on the configured drain", func() {
 			Eventually(func() *gexec.Session {
 				SendLogMessage("test-rfc5424")
@@ -94,6 +93,21 @@ var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() 
 					break
 				}
 			}
+		})
+	})
+
+	Context("when a file is created in the /var/vcap/sys/log directory", func() {
+		It("forwards the contents of the file through syslog", func() {
+			session := BoshCmd("ssh", "forwarder", "-c", "sudo touch /var/vcap/sys/log/syslog_forwarder/file.log")
+			Eventually(session).Should(gexec.Exit(0))
+
+			By("Wait for the new file to be detected")
+			Eventually(func() *gexec.Session {
+				session = BoshCmd("ssh", "forwarder", "-c", "echo test-blackbox-forwarding | sudo tee /var/vcap/sys/log/syslog_forwarder/file.log")
+				Eventually(session).Should(gexec.Exit(0))
+
+				return ForwarderLog()
+			}).Should(gbytes.Say("test-blackbox-forwarding"))
 		})
 	})
 })

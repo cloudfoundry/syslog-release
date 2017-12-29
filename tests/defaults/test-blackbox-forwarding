@@ -1,9 +1,0 @@
-REM emit a test message to file that we can track
-# touch + delay + write because blackbox polls new files every 5 seconds and then starts at the end of the file
-bosh ssh forwarder "sudo touch /var/vcap/sys/log/syslog_forwarder/file.log ; sleep 12 ; echo test-blackbox-forwarding | sudo tee /var/vcap/sys/log/syslog_forwarder/file.log"
-
-sleep 7
-
-REM test our message arrived
-bosh ssh storer -c 'grep test-blackbox-forwarding /var/vcap/store/syslog_storer/syslog.log | grep syslog_forwarder' \
-  || failed 'Finding test message on syslog storer'
