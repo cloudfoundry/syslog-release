@@ -16,7 +16,7 @@ import (
 	"github.com/onsi/gomega/gexec"
 )
 
-var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() {
+var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	DeploymentName := func() string {
 		return fmt.Sprintf("syslog-tests-%d", GinkgoParallelNode())
 	}
@@ -66,7 +66,7 @@ var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() 
 		Deploy("manifest.yml")
 	})
 
-	Context("When a message is written to the default watch dir", func() {
+	Context("When a message is written to UDP with logger", func() {
 		It("is received in rfc5424 format on the configured drain", func() {
 			Eventually(func() *gexec.Session {
 				SendLogMessage("test-rfc5424")
@@ -97,28 +97,28 @@ var _ = Describe("Forwarding loglines from files to a TCP syslog drain", func() 
 		})
 	})
 
-	Context("when a file is created in the /var/vcap/sys/log directory", func() {
-		It("forwards the contents of the file through syslog", func() {
+	Context("when a file is created in the watched directory", func() {
+		BeforeEach(func() {
 			session := BoshCmd("ssh", "forwarder", "-c", "sudo touch /var/vcap/sys/log/syslog_forwarder/file.log")
 			Eventually(session).Should(gexec.Exit(0))
+		})
 
+		It("forwards the contents of the file through syslog", func() {
 			By("Wait for the new file to be detected")
 			Eventually(func() *gexec.Session {
-				session = BoshCmd("ssh", "forwarder", "-c", "echo test-blackbox-forwarding | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log")
+				session := BoshCmd("ssh", "forwarder", "-c", "echo test-blackbox-forwarding | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log")
 				Eventually(session).Should(gexec.Exit(0))
 
 				return ForwarderLog()
 			}).Should(gbytes.Say("test-blackbox-forwarding"))
 		})
 
-		XIt("fowards messages of 1KB", func() {
+		XIt("fowards messages of over 1KB", func() {
 			message := counterString(1025, "A")
-			session := BoshCmd("ssh", "forwarder", "-c", "sudo touch /var/vcap/sys/log/syslog_forwarder/file.log")
-			Eventually(session).Should(gexec.Exit(0))
 
 			By("Wait for the new file to be detected")
 			Eventually(func() *gexec.Session {
-				session = BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
+				session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
 				Eventually(session).Should(gexec.Exit(0))
 
 				return ForwarderLog()
