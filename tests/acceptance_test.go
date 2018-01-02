@@ -75,10 +75,10 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		Deploy("manifest.yml")
 	})
 
-	Context("When a message is written to UDP with logger", func() {
-		It("is received in rfc5424 format on the configured drain", func() {
+	Context("When messages are written to UDP with logger", func() {
+		It("receives messages in rfc5424 format on the configured drain", func() {
+			SendLogMessage("test-rfc5424")
 			Eventually(func() *gexec.Session {
-				SendLogMessage("test-rfc5424")
 				return ForwarderLog()
 			}).Should(gbytes.Say("test-rfc5424"))
 
@@ -104,6 +104,14 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 				}
 			}
 		})
+
+		It("recieves messages over 1k long on the configured drain", func() {
+			message := counterString(1025, "A")
+			SendLogMessage(message)
+			Eventually(func() *gexec.Session {
+				return ForwarderLog()
+			}).Should(gbytes.Say(message))
+		})
 	})
 
 	Context("when a file is created in the watched directory structure", func() {
@@ -121,16 +129,6 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 
 			By("Wait for the new file to be detected")
 			Eventually(WriteToTestFile(message)).Should(gbytes.Say(message))
-		})
-	})
-
-	Context("when a message is over 1KB from standard syslog delivery", func() {
-		It("sends the message successfully", func() {
-			message := counterString(1025, "A")
-			Eventually(func() *gexec.Session {
-				SendLogMessage(message)
-				return ForwarderLog()
-			}).Should(gbytes.Say(message))
 		})
 	})
 })
