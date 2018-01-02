@@ -46,6 +46,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	}
 
 	ForwarderLog := func() *gexec.Session {
+		// 47450 is CF's "enterprise ID" and uniquely identifies messages sent by our system
 		session := BoshCmd("ssh", "storer", fmt.Sprintf("--command=%q", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'"), "--json", "-r")
 		Eventually(session).Should(gexec.Exit())
 		return session
