@@ -133,7 +133,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	XContext("when file forwarding is configured to use TCP", func() {
 		BeforeEach(func() {
 			Cleanup()
-			Deploy("manifest.yml")
+			Deploy("manifests/tcp-blackbox.yml")
 		})
 		TestSharedBehavior()
 		It("fowards messages of over 1KB", func() {
