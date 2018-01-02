@@ -56,6 +56,14 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		Eventually(session).Should(gexec.Exit(0))
 	}
 
+	WriteToTestFile := func(message string) func() *gexec.Session {
+		return func() *gexec.Session {
+			session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
+			Eventually(session).Should(gexec.Exit(0))
+			return ForwarderLog()
+		}
+	}
+
 	Cleanup := func() {
 		session := BoshCmd("delete-deployment")
 		Eventually(session).Should(gexec.Exit(0))
@@ -97,32 +105,21 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		})
 	})
 
-	Context("when a file is created in the watched directory", func() {
+	Context("when a file is created in the watched directory structure", func() {
 		BeforeEach(func() {
 			session := BoshCmd("ssh", "forwarder", "-c", "sudo touch /var/vcap/sys/log/syslog_forwarder/file.log")
 			Eventually(session).Should(gexec.Exit(0))
 		})
 
-		It("forwards the contents of the file through syslog", func() {
-			By("Wait for the new file to be detected")
-			Eventually(func() *gexec.Session {
-				session := BoshCmd("ssh", "forwarder", "-c", "echo test-blackbox-forwarding | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log")
-				Eventually(session).Should(gexec.Exit(0))
-
-				return ForwarderLog()
-			}).Should(gbytes.Say("test-blackbox-forwarding"))
+		It("forwards new lines written to the file through syslog", func() {
+			Eventually(WriteToTestFile("test-blackbox-forwarding")).Should(gbytes.Say("test-blackbox-forwarding"))
 		})
 
 		XIt("fowards messages of over 1KB", func() {
 			message := counterString(1025, "A")
 
 			By("Wait for the new file to be detected")
-			Eventually(func() *gexec.Session {
-				session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
-				Eventually(session).Should(gexec.Exit(0))
-
-				return ForwarderLog()
-			}).Should(gbytes.Say(message))
+			Eventually(WriteToTestFile(message)).Should(gbytes.Say(message))
 		})
 	})
 
