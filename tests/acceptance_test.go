@@ -130,12 +130,12 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		TestSharedBehavior()
 	})
 
-	XContext("when file forwarding is configured to use TCP", func() {
+	Context("when file forwarding is configured to use TCP", func() {
 		BeforeEach(func() {
 			Cleanup()
 			Deploy("manifests/tcp-blackbox.yml")
 		})
-		TestSharedBehavior()
+		// TestSharedBehavior()
 		It("fowards messages of over 1KB", func() {
 			message := counterString(1025, "A")
 

@@ -46,6 +46,9 @@ $ModLoad imudp
 $UDPServerAddress 127.0.0.1
 $UDPServerRun 514
 
+$ModLoad imtcp
+$InputTCPServerRun 514
+
 # following https://tools.ietf.org/html/rfc5424#section-6
 template(name="SyslogForwarderTemplate" type="list") {
   constant(value="<")

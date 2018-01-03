@@ -2,7 +2,11 @@ hostname: "-"
 
 syslog:
   destination:
+<% if p('syslog.use_tcp_for_file_forwarding_local_transport') %>
+    transport: tcp
+<% else %>
     transport: udp
+<% end %>
     address: 127.0.0.1:514
 
   source_dir: <%= p("syslog.blackbox.source_dir") %>
