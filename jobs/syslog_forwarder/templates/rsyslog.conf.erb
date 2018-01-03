@@ -46,8 +46,10 @@ $ModLoad imudp
 $UDPServerAddress 127.0.0.1
 $UDPServerRun 514
 
+<% if p('syslog.use_tcp_for_file_forwarding_local_transport') %>
 $ModLoad imtcp
 $InputTCPServerRun 514
+<% end %>
 
 # following https://tools.ietf.org/html/rfc5424#section-6
 template(name="SyslogForwarderTemplate" type="list") {
