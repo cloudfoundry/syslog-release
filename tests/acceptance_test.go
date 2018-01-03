@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/jtarchie/syslog/pkg/log"
 	. "github.com/onsi/ginkgo"
@@ -41,7 +42,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 
 	Deploy := func(manifest string) *gexec.Session {
 		session := BoshCmd("deploy", manifest, "-v", fmt.Sprintf("deployment=%s", DeploymentName()))
-		Eventually(session).Should(gexec.Exit(0))
+		Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
 		return session
 	}
 
@@ -67,7 +68,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 
 	Cleanup := func() {
 		session := BoshCmd("delete-deployment")
-		Eventually(session).Should(gexec.Exit(0))
+		Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
 	}
 
 	TestSharedBehavior := func() {

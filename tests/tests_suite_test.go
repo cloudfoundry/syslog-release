@@ -15,8 +15,8 @@ func TestTests(t *testing.T) {
 }
 
 var _ = BeforeEach(func() {
-	SetDefaultEventuallyTimeout(5 * time.Minute)
-	SetDefaultEventuallyPollingInterval(time.Second)
+	SetDefaultEventuallyTimeout(3 * time.Minute)
+	SetDefaultEventuallyPollingInterval(5 * time.Second)
 	SetDefaultConsistentlyDuration(time.Minute)
 	SetDefaultConsistentlyPollingInterval(time.Second)
 })
