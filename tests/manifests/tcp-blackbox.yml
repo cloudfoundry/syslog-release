@@ -20,7 +20,8 @@ instance_groups:
       - name: "syslog_forwarder"
         release: syslog
     properties:
-      use_tcp_for_file_forwarding_local_transport: true
+      syslog:
+        use_tcp_for_file_forwarding_local_transport: true
   - name: "storer"
     instances: 1
     vm_type: "default"
