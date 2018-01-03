@@ -127,6 +127,10 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 			Cleanup()
 			Deploy("manifest.yml")
 		})
+		AfterEach(func() {
+			Cleanup()
+		})
+
 		TestSharedBehavior()
 	})
 
@@ -135,7 +139,11 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 			Cleanup()
 			Deploy("manifests/tcp-blackbox.yml")
 		})
-		// TestSharedBehavior()
+		AfterEach(func() {
+			Cleanup()
+		})
+
+		TestSharedBehavior()
 		It("fowards messages of over 1KB", func() {
 			message := counterString(1025, "A")
 
