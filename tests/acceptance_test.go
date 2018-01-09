@@ -126,7 +126,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	Context("when file forwarding is configured to use UDP", func() {
 		BeforeEach(func() {
 			Cleanup()
-			Deploy("manifest.yml")
+			Deploy("manifests/udp-blackbox.yml")
 		})
 		AfterEach(func() {
 			Cleanup()
