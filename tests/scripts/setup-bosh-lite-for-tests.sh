@@ -8,7 +8,7 @@ set -eux
 
 export VBOX_DEPLOYMENT_DIR=~/deployments/vbox
 
-mkdir -p VBOX_DEPLOYMENT_DIR
+mkdir -p "${VBOX_DEPLOYMENT_DIR}"
 
 pushd "${VBOX_DEPLOYMENT_DIR}"
 	bosh -n create-env ~/workspace/bosh-deployment/bosh.yml \
