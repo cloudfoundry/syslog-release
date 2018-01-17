@@ -12,6 +12,7 @@ mkdir -p "${VBOX_DEPLOYMENT_DIR}"
 
 pushd "${VBOX_DEPLOYMENT_DIR}"
 	bosh -n create-env ~/workspace/bosh-deployment/bosh.yml \
+	        --recreate \
 		--state ./state.json \
 		-o ~/workspace/bosh-deployment/virtualbox/cpi.yml \
 		-o ~/workspace/bosh-deployment/virtualbox/outbound-network.yml \
