@@ -74,12 +74,23 @@ template(name="SyslogForwarderTemplate" type="list") {
 <% if p('syslog.tls_enabled') %>
   <%
     ca_cert_path = '/etc/ssl/certs/ca-certificates.crt'
-
+    cert_path = nil
+    key_path = nil
     if_p('syslog.ca_cert') do
       ca_cert_path = '/var/vcap/jobs/syslog_forwarder/config/ca_cert.pem'
     end
+    if_p('syslog.cert') do
+      cert_path = '/var/vcap/jobs/syslog_forwarder/config/cert.pem'
+    end
+    if_p('syslog.key') do
+      key_path = '/var/vcap/jobs/syslog_forwarder/config/key.pem'
+    end
   %>
 
+<% if key_path && cert_path %>
+$DefaultNetstreamDriverCertFile <%= cert_path %>
+$DefaultNetstreamDriverKeyFile <%= key_path %>
+<% end %>
 $DefaultNetstreamDriverCAFile <%= ca_cert_path %>                 # trust these CAs
 $ActionSendStreamDriver gtls                                      # use gtls netstream driver
 $ActionSendStreamDriverMode 1                                     # require TLS

@@ -7,6 +7,8 @@ templates:
   ca_cert.pem.erb: config/ca_cert.pem
   blackbox_ctl.erb: bin/blackbox_ctl
   blackbox_config.yml.erb: config/blackbox_config.yml
+  cert.pem.erb: config/cert.pem
+  key.pem.erb: config/key.pem
 
 packages:
   - blackbox
@@ -75,6 +77,18 @@ properties:
       -----BEGIN CERTIFICATE-----
       MIIClTCCAf4CCQDc6hJtvGB8RjANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMC...
       -----END CERTIFICATE-----
+  syslog.cert:
+    description: Client Certificate if required.
+    example: |
+      -----BEGIN CERTIFICATE-----
+      MIIClTCCAf4CCQDc6hJtvGB8RjANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMC...
+      -----END CERTIFICATE-----
+  syslog.key:
+    description: Client Certificate Key if required.
+    example: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIClTCCAf4CCQDc6hJtvGB8RjANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMC...
+      -----END RSA PRIVATE KEY-----
   syslog.queue_file_name:
     description: Spill to disk if queue is full.
     default: agg_backlog
