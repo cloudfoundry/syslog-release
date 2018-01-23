@@ -102,7 +102,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 				}
 			})
 
-			It("recieves messages over 1k long on the configured drain", func() {
+			It("receives messages over 1k long on the configured drain", func() {
 				message := counterString(1025, "A")
 				SendLogMessage(message)
 				Eventually(func() *gexec.Session {
