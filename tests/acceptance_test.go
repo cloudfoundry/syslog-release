@@ -33,7 +33,7 @@ var _ = Describe("Impact on the local VM", func() {
 	}
 
 	SendLogMessage := func(msg string) {
-		session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("logger %s", msg))
+		session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("logger %s -t vcap.", msg))
 		Eventually(session).Should(gexec.Exit(0))
 	}
 
@@ -92,7 +92,7 @@ var _ = Describe("Impact on the local VM", func() {
 		})
 	})
 
-	PContext("When processing forwarded logs from jobs using logger", func() {
+	Context("When processing forwarded logs from jobs using logger", func() {
 		BeforeEach(func() {
 			Cleanup()
 			Deploy("manifests/udp-blackbox.yml")
@@ -149,7 +149,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	}
 
 	SendLogMessage := func(msg string) {
-		session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("logger %s", msg))
+		session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("logger %s -t vcap.", msg))
 		Eventually(session).Should(gexec.Exit(0))
 	}
 
