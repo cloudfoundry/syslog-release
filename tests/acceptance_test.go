@@ -17,6 +17,101 @@ import (
 	"github.com/onsi/gomega/gexec"
 )
 
+var _ = Describe("Impact on the local VM", func() {
+	DeploymentName := func() string {
+		return fmt.Sprintf("syslog-tests-%d", GinkgoParallelNode())
+	}
+
+	BoshCmd := func(args ...string) *gexec.Session {
+		boshArgs := []string{"-n", "-d", DeploymentName()}
+		boshArgs = append(boshArgs, args...)
+		boshCmd := exec.Command("bosh", boshArgs...)
+		By("Performing command: bosh " + strings.Join(boshArgs, " "))
+		session, err := gexec.Start(boshCmd, GinkgoWriter, GinkgoWriter)
+		Expect(err).ToNot(HaveOccurred())
+		return session
+	}
+
+	SendLogMessage := func(msg string) {
+		session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("logger %s", msg))
+		Eventually(session).Should(gexec.Exit(0))
+	}
+
+	Cleanup := func() {
+		session := BoshCmd("delete-deployment")
+		Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
+	}
+
+	Deploy := func(manifest string) *gexec.Session {
+		session := BoshCmd("deploy", manifest, "-v", fmt.Sprintf("deployment=%s", DeploymentName()))
+		Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
+		return session
+	}
+
+	ForwarderLog := func() *gexec.Session {
+		// 47450 is CF's "enterprise ID" and uniquely identifies messages sent by our system
+		session := BoshCmd("ssh", "storer", fmt.Sprintf("--command=%q", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'"), "--json", "-r")
+		Eventually(session).Should(gexec.Exit())
+		return session
+	}
+
+	WriteToTestFile := func(message string) func() *gexec.Session {
+		return func() *gexec.Session {
+			session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
+			Eventually(session).Should(gexec.Exit(0))
+			return ForwarderLog()
+		}
+	}
+
+	DefaultLogfiles := func() *gexec.Session {
+		session := BoshCmd("ssh", "forwarder", fmt.Sprintf("--command=%q", "sudo cat /var/log/{messages,syslog,user.log}"), "--json", "-r")
+		Eventually(session).Should(gexec.Exit())
+		return session
+	}
+
+	PContext("When starting up", func() {
+		It("Cleans up any file at the old config file location", func() {
+		})
+	})
+
+	PContext("When processing logs from blackbox", func() {
+		BeforeEach(func() {
+			Cleanup()
+			Deploy("manifests/udp-blackbox.yml")
+			WriteToTestFile("test-logger-isolation")
+		})
+
+		It("doesn't write them to any of the standard linux logfiles", func() {
+			By("waiting for logs to be forwarded")
+			Eventually(func() *gexec.Session {
+				return ForwarderLog()
+			}).Should(gbytes.Say("test-logger-isolation"))
+
+			By("checking that the logs don't appear in local logfiles")
+			Expect(DefaultLogfiles()).NotTo(gbytes.Say("test-logger-isolation"))
+		})
+	})
+
+	PContext("When processing forwarded logs from jobs using logger", func() {
+		BeforeEach(func() {
+			Cleanup()
+			Deploy("manifests/udp-blackbox.yml")
+			SendLogMessage("test-logger-isolation")
+		})
+
+		It("doesn't write them to the logfiles specified in the stemcell config", func() {
+
+			By("waiting for logs to be forwarded")
+			Eventually(func() *gexec.Session {
+				return ForwarderLog()
+			}).Should(gbytes.Say("test-logger-isolation"))
+
+			By("checking that the logs don't appear in local logfiles")
+			Expect(DefaultLogfiles()).NotTo(gbytes.Say("test-logger-isolation"))
+		})
+	})
+})
+
 var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	DeploymentName := func() string {
 		return fmt.Sprintf("syslog-tests-%d", GinkgoParallelNode())
