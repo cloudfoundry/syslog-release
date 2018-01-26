@@ -12,11 +12,11 @@ import (
 	"github.com/onsi/gomega/gexec"
 )
 
-var DeploymentName = func() string {
+func DeploymentName() string {
 	return fmt.Sprintf("syslog-tests-%d", GinkgoParallelNode())
 }
 
-var BoshCmd = func(args ...string) *gexec.Session {
+func BoshCmd(args ...string) *gexec.Session {
 	boshArgs := []string{"-n", "-d", DeploymentName()}
 	boshArgs = append(boshArgs, args...)
 	boshCmd := exec.Command("bosh", boshArgs...)
@@ -26,43 +26,43 @@ var BoshCmd = func(args ...string) *gexec.Session {
 	return session
 }
 
-var ForwarderSshCmd = func(command string) *gexec.Session {
+func ForwarderSshCmd(command string) *gexec.Session {
 	return BoshCmd("ssh", "forwarder", "-c", command)
 }
 
-var SendLogMessage = func(msg string) {
+func SendLogMessage(msg string) {
 	session := ForwarderSshCmd(fmt.Sprintf("logger %s -t vcap.", msg))
 	Eventually(session).Should(gexec.Exit(0))
 }
 
-var Cleanup = func() {
+func Cleanup() {
 	BoshCmd("locks")
 	session := BoshCmd("delete-deployment")
 	Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
 	Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
 }
 
-var Deploy = func(manifest string) *gexec.Session {
+func Deploy(manifest string) *gexec.Session {
 	session := BoshCmd("deploy", manifest, "-v", fmt.Sprintf("deployment=%s", DeploymentName()))
 	Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
 	Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
 	return session
 }
 
-var ForwarderLog = func() *gexec.Session {
+func ForwarderLog() *gexec.Session {
 	// 47450 is CF's "enterprise ID" and uniquely identifies messages sent by our system
 	session := BoshCmd("ssh", "storer", fmt.Sprintf("--command=%q", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'"), "--json", "-r")
 	Eventually(session).Should(gexec.Exit())
 	return session
 }
 
-var AddFakeOldConfig = func() {
+func AddFakeOldConfig() {
 	By("Adding a file where the config used to live")
 	session := ForwarderSshCmd("sudo bash -c 'echo fakeConfig=true > /etc/rsyslog.d/rsyslog.conf'")
 	Eventually(session).Should(gexec.Exit(0))
 }
 
-var WriteToTestFile = func(message string) func() *gexec.Session {
+func WriteToTestFile(message string) func() *gexec.Session {
 	return func() *gexec.Session {
 		session := ForwarderSshCmd(fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
 		Eventually(session).Should(gexec.Exit(0))
@@ -70,7 +70,7 @@ var WriteToTestFile = func(message string) func() *gexec.Session {
 	}
 }
 
-var DefaultLogfiles = func() *gexec.Session {
+func DefaultLogfiles() *gexec.Session {
 	session := BoshCmd("ssh", "forwarder", fmt.Sprintf("--command=%q", "sudo cat /var/log/{messages,syslog,user.log}"), "--json", "-r")
 	Eventually(session).Should(gexec.Exit())
 	return session
