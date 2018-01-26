@@ -32,8 +32,12 @@ var _ = Describe("Impact on the local VM", func() {
 		return session
 	}
 
+	ForwarderSshCmd := func(command string) *gexec.Session {
+		return BoshCmd("ssh", "forwarder", "-c", command)
+	}
+
 	SendLogMessage := func(msg string) {
-		session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("logger %s -t vcap.", msg))
+		session := ForwarderSshCmd(fmt.Sprintf("logger %s -t vcap.", msg))
 		Eventually(session).Should(gexec.Exit(0))
 	}
 
@@ -57,7 +61,7 @@ var _ = Describe("Impact on the local VM", func() {
 
 	WriteToTestFile := func(message string) func() *gexec.Session {
 		return func() *gexec.Session {
-			session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
+			session := ForwarderSshCmd(fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
 			Eventually(session).Should(gexec.Exit(0))
 			return ForwarderLog()
 		}
@@ -127,6 +131,10 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		return session
 	}
 
+	ForwarderSshCmd := func(command string) *gexec.Session {
+		return BoshCmd("ssh", "forwarder", "-c", command)
+	}
+
 	type LogOutput struct {
 		Tables []struct {
 			Rows []struct {
@@ -149,13 +157,13 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	}
 
 	SendLogMessage := func(msg string) {
-		session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("logger %s -t vcap.", msg))
+		session := ForwarderSshCmd(fmt.Sprintf("logger %s -t vcap.", msg))
 		Eventually(session).Should(gexec.Exit(0))
 	}
 
 	WriteToTestFile := func(message string) func() *gexec.Session {
 		return func() *gexec.Session {
-			session := BoshCmd("ssh", "forwarder", "-c", fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
+			session := ForwarderSshCmd(fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
 			Eventually(session).Should(gexec.Exit(0))
 			return ForwarderLog()
 		}
@@ -208,7 +216,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 
 		Context("when a file is created in the watched directory structure", func() {
 			BeforeEach(func() {
-				session := BoshCmd("ssh", "forwarder", "-c", "sudo touch /var/vcap/sys/log/syslog_forwarder/file.log")
+				session := ForwarderSshCmd("sudo touch /var/vcap/sys/log/syslog_forwarder/file.log")
 				Eventually(session).Should(gexec.Exit(0))
 			})
 
