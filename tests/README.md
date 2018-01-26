@@ -21,6 +21,15 @@ To then run the tests locally:
 ```sh
 BOSH_ENVIRONMENT=vbox scripts/test
 ```
+Note that this will run tests in parallel
+(with the `-p` ginkgo flag).
+Any arguments passed to `scripts/test`
+will be passed on to Ginkgo;
+if you wish to run with only a single node,
+you can override the `-p` with `-nodes=1`.
+
+To run only a specific test,
+see https://onsi.github.io/ginkgo/#focused-specs.
 
 ## Notes
 Because this release is almost entirely composed of bosh templates,
