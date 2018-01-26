@@ -59,6 +59,12 @@ var _ = Describe("Impact on the local VM", func() {
 		return session
 	}
 
+	AddFakeOldConfig := func() {
+		By("Adding a file where the config used to live")
+		session := ForwarderSshCmd("sudo bash -c 'echo fakeConfig=true > /etc/rsyslog.d/rsyslog.conf'")
+		Eventually(session).Should(gexec.Exit(0))
+	}
+
 	WriteToTestFile := func(message string) func() *gexec.Session {
 		return func() *gexec.Session {
 			session := ForwarderSshCmd(fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
@@ -74,7 +80,16 @@ var _ = Describe("Impact on the local VM", func() {
 	}
 
 	PContext("When starting up", func() {
+		BeforeEach(func() {
+			Cleanup()
+			Deploy("manifests/udp-blackbox.yml")
+			AddFakeOldConfig()
+			BoshCmd("restart", "forwarder")
+		})
+
 		It("Cleans up any file at the old config file location", func() {
+			session := ForwarderSshCmd("stat /etc/rsyslog.d/rsyslog.conf")
+			Eventually(session).Should(gbytes.Say("stat: cannot stat ‘/etc/rsyslog.d/rsyslogconf’: No such file or directory"))
 		})
 	})
 
