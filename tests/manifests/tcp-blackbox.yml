@@ -4,34 +4,34 @@ releases:
   - name: syslog
     version: latest
 stemcells:
-  - alias: "default"
+  - alias: default
     os: ubuntu-trusty
-    version: "latest"
+    version: latest
 instance_groups:
-  - name: "forwarder"
+  - name: forwarder
     instances: 1
-    vm_type: "default"
-    stemcell: "default"
+    vm_type: default
+    stemcell: default
     networks:
-      - name: "default"
+      - name: default
     azs:
-      - "z1"
+      - z1
     jobs:
-      - name: "syslog_forwarder"
+      - name: syslog_forwarder
         release: syslog
     properties:
       syslog:
         use_tcp_for_file_forwarding_local_transport: true
-  - name: "storer"
+  - name: storer
     instances: 1
-    vm_type: "default"
-    stemcell: "default"
+    vm_type: default
+    stemcell: default
     networks:
-      - name: "default"
+      - name: default
     azs:
-      - "z1"
+      - z1
     jobs:
-      - name: "syslog_storer"
+      - name: syslog_storer
         release: syslog
 update:
   canaries: 1
