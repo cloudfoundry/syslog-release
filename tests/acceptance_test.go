@@ -4,11 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
-	"os/exec"
 	"strconv"
-	"strings"
-	"time"
 
 	"github.com/jtarchie/syslog/pkg/log"
 	. "github.com/onsi/ginkgo"
@@ -18,69 +14,6 @@ import (
 )
 
 var _ = Describe("Impact on the local VM", func() {
-	DeploymentName := func() string {
-		return fmt.Sprintf("syslog-tests-%d", GinkgoParallelNode())
-	}
-
-	BoshCmd := func(args ...string) *gexec.Session {
-		boshArgs := []string{"-n", "-d", DeploymentName()}
-		boshArgs = append(boshArgs, args...)
-		boshCmd := exec.Command("bosh", boshArgs...)
-		By("Performing command: bosh " + strings.Join(boshArgs, " "))
-		session, err := gexec.Start(boshCmd, GinkgoWriter, GinkgoWriter)
-		Expect(err).ToNot(HaveOccurred())
-		return session
-	}
-
-	ForwarderSshCmd := func(command string) *gexec.Session {
-		return BoshCmd("ssh", "forwarder", "-c", command)
-	}
-
-	SendLogMessage := func(msg string) {
-		session := ForwarderSshCmd(fmt.Sprintf("logger %s -t vcap.", msg))
-		Eventually(session).Should(gexec.Exit(0))
-	}
-
-	Cleanup := func() {
-		BoshCmd("locks")
-		session := BoshCmd("delete-deployment")
-		Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
-		Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
-	}
-
-	Deploy := func(manifest string) *gexec.Session {
-		session := BoshCmd("deploy", manifest, "-v", fmt.Sprintf("deployment=%s", DeploymentName()))
-		Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
-		Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
-		return session
-	}
-
-	ForwarderLog := func() *gexec.Session {
-		// 47450 is CF's "enterprise ID" and uniquely identifies messages sent by our system
-		session := BoshCmd("ssh", "storer", fmt.Sprintf("--command=%q", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'"), "--json", "-r")
-		Eventually(session).Should(gexec.Exit())
-		return session
-	}
-
-	AddFakeOldConfig := func() {
-		By("Adding a file where the config used to live")
-		session := ForwarderSshCmd("sudo bash -c 'echo fakeConfig=true > /etc/rsyslog.d/rsyslog.conf'")
-		Eventually(session).Should(gexec.Exit(0))
-	}
-
-	WriteToTestFile := func(message string) func() *gexec.Session {
-		return func() *gexec.Session {
-			session := ForwarderSshCmd(fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
-			Eventually(session).Should(gexec.Exit(0))
-			return ForwarderLog()
-		}
-	}
-
-	DefaultLogfiles := func() *gexec.Session {
-		session := BoshCmd("ssh", "forwarder", fmt.Sprintf("--command=%q", "sudo cat /var/log/{messages,syslog,user.log}"), "--json", "-r")
-		Eventually(session).Should(gexec.Exit())
-		return session
-	}
 
 	AfterEach(func() {
 		Cleanup()
@@ -140,69 +73,18 @@ var _ = Describe("Impact on the local VM", func() {
 })
 
 var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
-	DeploymentName := func() string {
-		return fmt.Sprintf("syslog-tests-%d", GinkgoParallelNode())
-	}
-
-	BoshCmd := func(args ...string) *gexec.Session {
-		boshArgs := []string{"-n", "-d", DeploymentName()}
-		boshArgs = append(boshArgs, args...)
-		boshCmd := exec.Command("bosh", boshArgs...)
-		By("Performing command: bosh " + strings.Join(boshArgs, " "))
-		session, err := gexec.Start(boshCmd, GinkgoWriter, GinkgoWriter)
-		Expect(err).ToNot(HaveOccurred())
-		return session
-	}
-
-	ForwarderSshCmd := func(command string) *gexec.Session {
-		return BoshCmd("ssh", "forwarder", "-c", command)
-	}
-
-	type LogOutput struct {
-		Tables []struct {
-			Rows []struct {
-				Stdout string
-			}
-		}
-	}
-
-	Deploy := func(manifest string) *gexec.Session {
-		session := BoshCmd("deploy", manifest, "-v", fmt.Sprintf("deployment=%s", DeploymentName()))
-		Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
-		Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
-		return session
-	}
-
-	ForwarderLog := func() *gexec.Session {
-		// 47450 is CF's "enterprise ID" and uniquely identifies messages sent by our system
-		session := BoshCmd("ssh", "storer", fmt.Sprintf("--command=%q", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'"), "--json", "-r")
-		Eventually(session).Should(gexec.Exit())
-		return session
-	}
-
-	SendLogMessage := func(msg string) {
-		session := ForwarderSshCmd(fmt.Sprintf("logger %s -t vcap.", msg))
-		Eventually(session).Should(gexec.Exit(0))
-	}
-
-	WriteToTestFile := func(message string) func() *gexec.Session {
-		return func() *gexec.Session {
-			session := ForwarderSshCmd(fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/syslog_forwarder/file.log", message))
-			Eventually(session).Should(gexec.Exit(0))
-			return ForwarderLog()
-		}
-	}
-
-	Cleanup := func() {
-		BoshCmd("locks")
-		session := BoshCmd("delete-deployment")
-		Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
-		Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
-	}
-
 	TestSharedBehavior := func() {
 		Context("When messages are written to UDP with logger", func() {
 			It("receives messages in rfc5424 format on the configured drain", func() {
+
+				type LogOutput struct {
+					Tables []struct {
+						Rows []struct {
+							Stdout string
+						}
+					}
+				}
+
 				SendLogMessage("test-rfc5424")
 				Eventually(func() *gexec.Session {
 					return ForwarderLog()
