@@ -79,6 +79,10 @@ var _ = Describe("Impact on the local VM", func() {
 		return session
 	}
 
+	AfterEach(func() {
+		Cleanup()
+	})
+
 	Context("When starting up", func() {
 		BeforeEach(func() {
 			Cleanup()
