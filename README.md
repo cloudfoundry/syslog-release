@@ -181,11 +181,25 @@ The RSYSLOG forwarder's customizations
 are rendered into `/etc/rsyslog.d/rsyslog.conf`,
 which is included by the configuration file.
 
+## Development
+There's a suite of acceptance tests
+in the `tests/` directory.
+To use them, you will need to [install Go][go-installation].
+
+The tests can be run from the top of the repo with
+`./scripts/test`.
+
+For more details, see [`tests/README.md`][test-readme].
+
+We are unlikely to merge PRs that add features without tests.
+
 [cf-d]: https://github.com/cloudfoundry/cf-deployment
 [forwarder-spec-page]: https://bosh.io/jobs/syslog_forwarder?source=github.com/cloudfoundry/syslog-release
 [p-ent-num]: https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
+[go-installation]: https://golang.org/doc/install
 [RFC]: https://tools.ietf.org/html/rfc5424
 [storer-spec-page]: https://bosh.io/jobs/syslog_storer?source=github.com/cloudfoundry/syslog-release
 [syslog-addon-ops]: https://github.com/cloudfoundry/cf-deployment/tree/master/operations/addons
 [syslog-bosh-io]: https://bosh.io/releases/github.com/cloudfoundry/syslog-release
+[test-readme]: tests/README.md
 [tracker]: https://www.pivotaltracker.com/n/projects/2126318
