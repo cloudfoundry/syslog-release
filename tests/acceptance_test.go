@@ -42,6 +42,7 @@ var _ = Describe("Impact on the local VM", func() {
 	}
 
 	Cleanup := func() {
+		BoshCmd("locks")
 		session := BoshCmd("delete-deployment")
 		Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
 	}
@@ -190,6 +191,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	}
 
 	Cleanup := func() {
+		BoshCmd("locks")
 		session := BoshCmd("delete-deployment")
 		Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
 	}
