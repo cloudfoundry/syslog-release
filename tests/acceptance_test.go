@@ -1,4 +1,4 @@
-package tests_test
+package syslog_acceptance_test
 
 import (
 	"bufio"

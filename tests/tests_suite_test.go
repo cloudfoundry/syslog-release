@@ -1,4 +1,4 @@
-package tests_test
+package syslog_acceptance_test
 
 import (
 	"time"
@@ -11,7 +11,7 @@ import (
 
 func TestTests(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Tests Suite")
+	RunSpecs(t, "Syslog Acceptance Test Suite")
 }
 
 var _ = BeforeEach(func() {
