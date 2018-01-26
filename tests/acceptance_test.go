@@ -38,14 +38,11 @@ var _ = Describe("Impact on the local VM", func() {
 		BeforeEach(func() {
 			Cleanup()
 			Deploy("manifests/udp-blackbox.yml")
-			WriteToTestFile("test-logger-isolation")
 		})
 
 		It("doesn't write them to any of the standard linux logfiles", func() {
 			By("waiting for logs to be forwarded")
-			Eventually(func() *gexec.Session {
-				return ForwarderLog()
-			}).Should(gbytes.Say("test-logger-isolation"))
+			Eventually(WriteToTestFile("test-logger-isolation")).Should(gbytes.Say("test-logger-isolation"))
 
 			By("checking that the logs don't appear in local logfiles")
 			Expect(DefaultLogfiles()).NotTo(gbytes.Say("test-logger-isolation"))
