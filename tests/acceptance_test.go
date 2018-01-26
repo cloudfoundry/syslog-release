@@ -79,17 +79,18 @@ var _ = Describe("Impact on the local VM", func() {
 		return session
 	}
 
-	PContext("When starting up", func() {
+	Context("When starting up", func() {
 		BeforeEach(func() {
 			Cleanup()
 			Deploy("manifests/udp-blackbox.yml")
 			AddFakeOldConfig()
-			BoshCmd("restart", "forwarder")
+			restartsession := BoshCmd("restart", "forwarder")
+			Eventually(restartsession).Should(gexec.Exit(0))
 		})
 
 		It("Cleans up any file at the old config file location", func() {
 			session := ForwarderSshCmd("stat /etc/rsyslog.d/rsyslog.conf")
-			Eventually(session).Should(gbytes.Say("stat: cannot stat ‘/etc/rsyslog.d/rsyslogconf’: No such file or directory"))
+			Eventually(session).Should(gbytes.Say("stat: cannot stat ‘/etc/rsyslog.d/rsyslog.conf’: No such file or directory"))
 		})
 	})
 
