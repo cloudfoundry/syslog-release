@@ -2,12 +2,12 @@
 
 set -euxo pipefail
 
-pushd "$(dirname "$0")/../.."
+pushd "$(dirname "$0")/.."
   bosh create-release --force --version="$(date "+%s")"
   bosh upload-release
 popd
 
-pushd "$(dirname "$0")/.."
+pushd "$(dirname "$0")/../tests"
   go get github.com/Masterminds/glide
   glide install
   ginkgo -r "$@"
