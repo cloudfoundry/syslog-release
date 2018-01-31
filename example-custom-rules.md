@@ -22,6 +22,12 @@ other configuration syntaxes supported by RSYSLOG.
 They probably work, but,
 our testing and examples focus on rainerscript.
 
+Note: when specifying these rules
+in the bosh manifest, you'll need to use either single quotes,
+or the yaml "pipe" (`|`) syntax for multi-line strings.
+Double quotes or default/detected strings are likely to be invalid yaml,
+because of the characters used in the rules.
+
 ## Examples
 ### Dropping `DEBUG` Logs
 ```
