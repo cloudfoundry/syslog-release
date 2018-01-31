@@ -2,7 +2,9 @@
 
 ## Development
 The following commands assume you are operating
-from the top level of the repo.
+from the top level of the repo, have go inistalled,
+and have initialized and updated the blackbox submodule
+as described in the main [README](../README.md).
 
 First, you'll need to setup a bosh-lite and login to it.
 If you don't have a bosh-lite running

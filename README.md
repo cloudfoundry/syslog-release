@@ -182,6 +182,12 @@ are rendered into `/etc/rsyslog.d/rsyslog.conf`,
 which is included by the configuration file.
 
 ## Development
+In order to build releases or run tests,
+you will need to initialize and update the blackbox submodule:
+```
+git submodule init && git submodule update
+```
+
 There's a suite of acceptance tests
 in the `tests/` directory.
 To use them, you will need to [install Go][go-installation].
