@@ -1,3 +1,4 @@
+<% unless p('syslog.migration.disabled') %>
 <%
 
 syslog_address = nil
@@ -126,3 +127,4 @@ $ActionExecOnlyWhenPreviousIsSuspended off
 
 # Prevent vcap.* messsages from reaching anywhere else
 :programname, startswith, "vcap." ~
+<% end %>

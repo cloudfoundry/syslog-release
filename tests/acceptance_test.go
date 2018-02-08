@@ -162,25 +162,34 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 })
 
 var _ = Describe("When syslog is disabled", func() {
-	BeforeEach(func() {
-		Cleanup()
-		Deploy("manifests/disabled.yml")
+	Context("when the storer is configured to accept logs", func() {
+		BeforeEach(func() {
+			Cleanup()
+			Deploy("manifests/disabled.yml")
+		})
+
+		It("does not forward logs", func() {
+			SendLogMessage("test-logger-isolation")
+			Consistently(func() string {
+				return ForwardedLogs()
+			}).Should(HaveLen(0))
+		})
+
+		PIt("doesn't start blackbox", func() {
+		})
+
+		PIt("doesn't restart rsyslog", func() {
+		})
 	})
 
-	It("does not forward logs", func() {
-		SendLogMessage("test-logger-isolation")
-		Consistently(func() string {
-			return ForwardedLogs()
-		}).Should(HaveLen(0))
-	})
+	Context("when there is not configuration provided via links or properties", func() {
+		BeforeEach(func() {
+			Cleanup()
+		})
 
-	PIt("doesn't start blackbox", func() {
-	})
-
-	PIt("doesn't restart rsyslog", func() {
-	})
-
-	PIt("doesn't require any other configuration", func() {
+		It("starts successfully", func() {
+			Deploy("manifests/disabled-no-config.yml")
+		})
 	})
 })
 
