@@ -57,16 +57,12 @@ func ForwarderLog() *gexec.Session {
 	return session
 }
 
-type BoshSShTableOutput struct {
-	Tables []BoshTable `json:"Tables"`
-}
-
-type BoshTable struct {
-	Rows []BoshRow `json:"Rows"`
-}
-
-type BoshRow struct {
-	StdOut string `json:"stdout"`
+type LogOutput struct {
+	Tables []struct {
+		Rows []struct {
+			Stdout string
+		}
+	}
 }
 
 func ForwardedLogs() string {
@@ -74,10 +70,10 @@ func ForwardedLogs() string {
 	session := BoshCmd("ssh", "storer", fmt.Sprintf("--command=%q", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'"), "--json", "-r")
 	Eventually(session).Should(gexec.Exit())
 	stdoutContents := session.Out.Contents()
-	var tableOutput BoshSShTableOutput
-	err := json.Unmarshal(stdoutContents, &tableOutput)
+	var logOutput LogOutput
+	err := json.Unmarshal(stdoutContents, &logOutput)
 	Expect(err).ToNot(HaveOccurred())
-	return tableOutput.Tables[0].Rows[0].StdOut
+	return logOutput.Tables[0].Rows[0].Stdout
 }
 
 func AddFakeOldConfig() {

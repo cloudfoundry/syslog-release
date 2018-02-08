@@ -3,7 +3,6 @@ package syslog_acceptance_test
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"strconv"
 
 	"github.com/jtarchie/syslog/pkg/log"
@@ -59,9 +58,9 @@ var _ = Describe("Impact on the local VM", func() {
 		It("doesn't write them to the logfiles specified in the stemcell config", func() {
 
 			By("waiting for logs to be forwarded")
-			Eventually(func() *gexec.Session {
-				return ForwarderLog()
-			}).Should(gbytes.Say("test-logger-isolation"))
+			Eventually(func() string {
+				return ForwardedLogs()
+			}).Should(ContainSubstring("test-logger-isolation"))
 
 			By("checking that the logs don't appear in local logfiles")
 			Expect(DefaultLogfiles()).NotTo(gbytes.Say("test-logger-isolation"))
@@ -73,25 +72,12 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	TestSharedBehavior := func() {
 		Context("When messages are written to UDP with logger", func() {
 			It("receives messages in rfc5424 format on the configured drain", func() {
-
-				type LogOutput struct {
-					Tables []struct {
-						Rows []struct {
-							Stdout string
-						}
-					}
-				}
-
 				SendLogMessage("test-rfc5424")
-				Eventually(func() *gexec.Session {
-					return ForwarderLog()
-				}).Should(gbytes.Say("test-rfc5424"))
+				Eventually(func() string {
+					return ForwardedLogs()
+				}).Should(ContainSubstring("test-rfc5424"))
 
-				output := LogOutput{}
-				err := json.Unmarshal(ForwarderLog().Out.Contents(), &output)
-				Expect(err).ToNot(HaveOccurred())
-
-				logs := bytes.NewBufferString(output.Tables[0].Rows[0].Stdout)
+				logs := bytes.NewBufferString(ForwardedLogs())
 				reader := bufio.NewReader(logs)
 
 				for {
@@ -113,9 +99,9 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 			It("receives messages over 1k long on the configured drain", func() {
 				message := counterString(1025, "A")
 				SendLogMessage(message)
-				Eventually(func() *gexec.Session {
-					return ForwarderLog()
-				}).Should(gbytes.Say(message))
+				Eventually(func() string {
+					return ForwardedLogs()
+				}).Should(ContainSubstring(message))
 			})
 		})
 
