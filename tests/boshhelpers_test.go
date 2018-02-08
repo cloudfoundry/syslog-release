@@ -1,6 +1,7 @@
 package syslog_acceptance_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -54,6 +55,29 @@ func ForwarderLog() *gexec.Session {
 	session := BoshCmd("ssh", "storer", fmt.Sprintf("--command=%q", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'"), "--json", "-r")
 	Eventually(session).Should(gexec.Exit())
 	return session
+}
+
+type BoshSShTableOutput struct {
+	Tables []BoshTable `json:"Tables"`
+}
+
+type BoshTable struct {
+	Rows []BoshRow `json:"Rows"`
+}
+
+type BoshRow struct {
+	StdOut string `json:"stdout"`
+}
+
+func ForwardedLogs() string {
+	// 47450 is CF's "enterprise ID" and uniquely identifies messages sent by our system
+	session := BoshCmd("ssh", "storer", fmt.Sprintf("--command=%q", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'"), "--json", "-r")
+	Eventually(session).Should(gexec.Exit())
+	stdoutContents := session.Out.Contents()
+	var tableOutput BoshSShTableOutput
+	err := json.Unmarshal(stdoutContents, &tableOutput)
+	Expect(err).ToNot(HaveOccurred())
+	return tableOutput.Tables[0].Rows[0].StdOut
 }
 
 func AddFakeOldConfig() {

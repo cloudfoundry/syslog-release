@@ -161,6 +161,29 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	})
 })
 
+var _ = Describe("When syslog is disabled", func() {
+	BeforeEach(func() {
+		Cleanup()
+		Deploy("manifests/disabled.yml")
+	})
+
+	It("does not forward logs", func() {
+		SendLogMessage("test-logger-isolation")
+		Consistently(func() string {
+			return ForwardedLogs()
+		}).Should(HaveLen(0))
+	})
+
+	PIt("doesn't start blackbox", func() {
+	})
+
+	PIt("doesn't restart rsyslog", func() {
+	})
+
+	PIt("doesn't require any other configuration", func() {
+	})
+})
+
 func counterString(l int, s string) string {
 	counterstring := ""
 	for len(counterstring) < l {

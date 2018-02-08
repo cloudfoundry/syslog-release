@@ -7,6 +7,8 @@ mkdir -p ${LOGDIR}
 chown -R root:root ${LOGDIR}
 chmod 0755 ${LOGDIR}
 
+<% unless p('syslog.migration.disabled') %>
+
 mkdir -p /var/vcap/data/syslog_forwarder/buffered
 chown -R syslog:adm /var/vcap/data/syslog_forwarder/buffered
 
@@ -14,3 +16,5 @@ mkdir -p /etc/rsyslog.d
 cp $(dirname $0)/../config/syslog-release.conf /etc/rsyslog.d/20-syslog-release.conf
 rm -f /etc/rsyslog.d/rsyslog.conf
 service rsyslog restart
+
+<% end %>

@@ -120,3 +120,14 @@ properties:
   syslog.blackbox.limit_cpu:
     description: limit goprocess to a single cpu via gomaxprocs
     default: true
+
+  syslog.migration.disabled:
+    default: false
+    description: |
+      Deprecated.
+      Allows systems that cannot modify their deployment toplogy
+      to use this release.
+      Do not use if you're not already relying on this capability.
+      If true, does not forward syslogs,
+      and does not require any other properties be provided.
+      Overrides all other configuration.
