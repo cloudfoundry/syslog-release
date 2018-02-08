@@ -67,7 +67,16 @@ type LogOutput struct {
 
 func ForwardedLogs() string {
 	// 47450 is CF's "enterprise ID" and uniquely identifies messages sent by our system
-	session := BoshCmd("ssh", "storer", fmt.Sprintf("--command=%q", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'"), "--json", "-r")
+	return OutputFromBoshCommand("storer", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'")
+}
+
+func ForwarderMonitSummary() string {
+	return OutputFromBoshCommand("forwarder", "sudo /var/vcap/bash/bin/monit summary")
+}
+
+func OutputFromBoshCommand(job, command string) string {
+	// 47450 is CF's "enterprise ID" and uniquely identifies messages sent by our system
+	session := BoshCmd("ssh", job, "--command="+command, "--json", "-r")
 	Eventually(session).Should(gexec.Exit())
 	stdoutContents := session.Out.Contents()
 	var logOutput LogOutput

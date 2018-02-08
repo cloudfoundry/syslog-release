@@ -161,10 +161,8 @@ var _ = Describe("When syslog is disabled", func() {
 			}).Should(HaveLen(0))
 		})
 
-		PIt("doesn't start blackbox", func() {
-		})
-
-		PIt("doesn't restart rsyslog", func() {
+		It("doesn't start blackbox", func() {
+			Expect(ForwarderMonitSummary()).ToNot(ContainSubstring("blackbox"))
 		})
 	})
 
