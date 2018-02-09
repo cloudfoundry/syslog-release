@@ -21,7 +21,7 @@ scripts/export-bosh-lite-creds.sh
 
 To then run the tests locally:
 ```sh
-BOSH_ENVIRONMENT=vbox scripts/test
+scripts/test
 ```
 Note that this will run tests in parallel
 (with the `-p` ginkgo flag).
