@@ -145,6 +145,18 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 			Eventually(WriteToTestFile(message)).Should(gbytes.Say(message))
 		})
 	})
+
+	Context("when file forwarding is configured with bad rules", func() {
+		BeforeEach(func() {
+			Cleanup()
+			Deploy("manifests/broken-rules.yml")
+		})
+		AfterEach(func() {
+			Cleanup()
+		})
+
+		TestSharedBehavior()
+	})
 })
 
 var _ = Describe("When syslog is disabled", func() {

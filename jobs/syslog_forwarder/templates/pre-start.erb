@@ -13,8 +13,16 @@ mkdir -p /var/vcap/data/syslog_forwarder/buffered
 chown -R syslog:adm /var/vcap/data/syslog_forwarder/buffered
 
 mkdir -p /etc/rsyslog.d
-cp $(dirname $0)/../config/syslog-release.conf /etc/rsyslog.d/20-syslog-release.conf
-rm -f /etc/rsyslog.d/rsyslog.conf
+cp $(dirname $0)/../config/syslog-release-forwarding.conf /etc/rsyslog.d/20-syslog-release-forwarding.conf
+
+if [ $(rsyslogd -N1 -f $(dirname $0)/../config/syslog-release-custom-rules.conf) ]
+then
+  cp $(dirname $0)/../config/syslog-release-custom-rules.conf /etc/rsyslog.d/15-syslog-release-custom-rules.conf
+fi
+
+# This just cleans up after legacy config locations
+rm -f /etc/rsyslog.d/rsyslog.conf /etc/rsyslog.d/20-syslog-release.conf
+
 service rsyslog restart
 
 <% end %>

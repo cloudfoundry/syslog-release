@@ -3,7 +3,8 @@ name: syslog_forwarder
 
 templates:
   pre-start.erb: bin/pre-start
-  syslog-release.conf.erb: config/syslog-release.conf
+  syslog-release-forwarding.conf.erb: config/syslog-release-forwarding.conf
+  syslog-release-custom-rules.conf.erb: config/syslog-release-custom-rules.conf
   ca_cert.pem.erb: config/ca_cert.pem
   blackbox_ctl.erb: bin/blackbox_ctl
   blackbox_config.yml.erb: config/blackbox_config.yml

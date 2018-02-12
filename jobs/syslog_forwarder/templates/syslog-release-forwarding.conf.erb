@@ -70,8 +70,6 @@ template(name="SyslogForwarderTemplate" type="list") {
   property(name="msg")
 }
 
-<%= p('syslog.custom_rule') %>
-
 <% if p('syslog.tls_enabled') %>
   <%
     ca_cert_path = '/etc/ssl/certs/ca-certificates.crt'
