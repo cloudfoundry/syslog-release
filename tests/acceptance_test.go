@@ -27,9 +27,12 @@ var _ = Describe("Impact on the local VM", func() {
 			Eventually(restartsession).Should(gexec.Exit(0))
 		})
 
-		It("Cleans up any file at the old config file location", func() {
+		It("Cleans up any files at old config file locations", func() {
 			session := ForwarderSshCmd("stat /etc/rsyslog.d/rsyslog.conf")
 			Eventually(session).Should(gbytes.Say("stat: cannot stat ‘/etc/rsyslog.d/rsyslog.conf’: No such file or directory"))
+
+			session = ForwarderSshCmd("stat /etc/rsyslog.d/20-syslog-release.conf")
+			Eventually(session).Should(gbytes.Say("stat: cannot stat ‘/etc/rsyslog.d/20-syslog-release.conf’: No such file or directory"))
 		})
 	})
 
