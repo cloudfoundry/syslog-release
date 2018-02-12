@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"strconv"
 
-	"github.com/jtarchie/syslog/pkg/log"
+	logrfc "github.com/jtarchie/syslog/pkg/log"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -86,7 +86,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 					if len(line) == 0 {
 						break
 					}
-					logLine, err := syslog.Parse(line)
+					logLine, err := logrfc.Parse(line)
 					Expect(err).ToNot(HaveOccurred())
 					if string(logLine.Message()) == "test-rfc5424" {
 						sdata := logLine.StructureData()
