@@ -3,12 +3,12 @@
 * Tracker: [CF Platform Logging Improvements][tracker]
 * CI: [Syslog CI][CI]
 
-1. [Usage](#Usage)
-1. [Configureation](#Configure-Forwarding)
-1. [Custom Rules](#Custom-Rule)
-1. [Output Format](#Format)
-1. [Tech Notes](#Tech-Notes)
-1. [Development](#Development)
+1. [Usage](#usage)
+1. [Configureation](#configure-forwarding)
+1. [Custom Rules](#custom-rule)
+1. [Output Format](#format)
+1. [Tech Notes](#tech-notes)
+1. [Development](#development)
 
 This is a BOSH release
 to forward local syslog events
