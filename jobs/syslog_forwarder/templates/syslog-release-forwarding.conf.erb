@@ -124,5 +124,5 @@ $ActionExecOnlyWhenPreviousIsSuspended off
 <% end %>
 
 # Prevent vcap.* messsages from reaching anywhere else
-:programname, startswith, "vcap." ~
+:programname, startswith, "vcap." stop
 <% end %>

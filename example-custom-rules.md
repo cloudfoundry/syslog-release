@@ -31,12 +31,12 @@ because of the characters used in the rules.
 ## Examples
 ### Dropping `DEBUG` Logs
 ```
-if ($msg contains "DEBUG") then ~
+if ($msg contains "DEBUG") then stop
 ```
 
 ### Forwarding _Only_ Logs From a Certain Job
 ```
-if ($app-name != "uaa") then ~
+if ($app-name != "uaa") then stop
 ```
 
 ### Writing Certain Logs to a Local File
@@ -67,7 +67,7 @@ if ($app-name != "uaa") then {
 
 ## Further Notes
 In most of the above examples,
-the "discard" command (`~`)
+the stop directive (`stop`)
 is used to prevent any further processing
 of a log line matching a conditional.
 
