@@ -1,6 +1,14 @@
 # Syslog BOSH Release
 * Slack: #syslog on <https://slack.cloudfoundry.org>
 * Tracker: [CF Platform Logging Improvements][tracker]
+* CI: [Syslog CI][CI]
+
+1. [Usage](#Usage)
+1. [Configureation](#Configure-Forwarding)
+1. [Custom Rules](#Custom-Rule)
+1. [Output Format](#Format)
+1. [Tech Notes](#Tech-Notes)
+1. [Development](#Development)
 
 This is a BOSH release
 to forward local syslog events
@@ -192,12 +200,19 @@ There's a suite of acceptance tests
 in the `tests/` directory.
 To use them, you will need to [install Go][go-installation].
 
-The tests can be run from the top of the repo with
+Before running tests, you will need to create a bosh director.
+First you should ensure the bosh2 cli is installed and the bosh-deployment
+repository is downloaded and located at `~/workspace/bosh-deployment`. You can then
+run `./scripts/setup-bosh-lite-for-tests.sh` to create the director.
+Afterwards execute `source export-bosh-lite-creds.sh` to target the bosh director.
+
+The tests can then be run from the top of the repo with
 `./scripts/test`.
 
 For more details, see [`tests/README.md`][test-readme].
 
-We are unlikely to merge PRs that add features without tests.
+We are unlikely to merge PRs that add features without tests. Please submit all
+pull requests against the develop branch.
 
 [cf-d]: https://github.com/cloudfoundry/cf-deployment
 [forwarder-spec-page]: https://bosh.io/jobs/syslog_forwarder?source=github.com/cloudfoundry/syslog-release
@@ -209,3 +224,4 @@ We are unlikely to merge PRs that add features without tests.
 [syslog-bosh-io]: https://bosh.io/releases/github.com/cloudfoundry/syslog-release
 [test-readme]: tests/README.md
 [tracker]: https://www.pivotaltracker.com/n/projects/2126318
+[CI]: https://syslog.ci.cf-app.com
