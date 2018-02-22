@@ -18,7 +18,6 @@ end
 
 %>
 
-$ModLoad imuxsock                      # local message reception (rsyslog uses a datagram socket)
 $MaxMessageSize 4k                     # default is 2k
 $WorkDirectory /var/vcap/data/syslog_forwarder/buffered # where messages should be buffered on disk
 
