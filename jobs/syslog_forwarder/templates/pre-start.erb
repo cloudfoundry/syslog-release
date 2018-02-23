@@ -14,12 +14,14 @@ chown -R syslog:adm /var/vcap/data/syslog_forwarder/buffered
 
 mkdir -p /etc/rsyslog.d
 
-if [ $(rsyslogd -N1 -f $(dirname $0)/../config/syslog-release-custom-rules.conf) ]
-then
-  cp $(dirname $0)/../config/syslog-release-custom-rules.conf /etc/rsyslog.d/20-syslog-release-custom-rules.conf
-fi
-
 cp $(dirname $0)/../config/syslog-release-forwarding.conf /etc/rsyslog.d/30-syslog-release-forwarding.conf
+chmod 0644 /etc/rsyslog.d/30-syslog-release-forwarding.conf
+
+cp $(dirname $0)/../config/syslog-release-custom-rules.conf /etc/rsyslog.d/20-syslog-release-custom-rules.conf
+chmod 0644 /etc/rsyslog.d/20-syslog-release-custom-rules.conf
+
+# We remove the custom rule if it is not valid in the context of the rsyslog config.
+rsyslogd -N1 || (echo 'Custom rule configuration invalid' && rm /etc/rsyslog.d/20-syslog-release-custom-rules.conf)
 
 # This just cleans up after legacy config locations
 rm -f /etc/rsyslog.d/rsyslog.conf /etc/rsyslog.d/20-syslog-release.conf

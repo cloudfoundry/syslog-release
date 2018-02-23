@@ -118,6 +118,11 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 				Eventually(WriteToTestFile("test-blackbox-forwarding")).Should(gbytes.Say("test-blackbox-forwarding"))
 			})
 		})
+
+		It("has a valid config", func() {
+			session := ForwarderSshCmd("sudo rsyslogd -N1")
+			Eventually(session).Should(gexec.Exit(0))
+		})
 	}
 
 	Context("when file forwarding is configured to use UDP", func() {
@@ -156,6 +161,26 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		})
 		AfterEach(func() {
 			Cleanup()
+		})
+
+		TestSharedBehavior()
+	})
+
+	Context("when file forwarding is configured with good rules", func() {
+		BeforeEach(func() {
+			Cleanup()
+			Deploy("manifests/good-rules.yml")
+		})
+		AfterEach(func() {
+			Cleanup()
+		})
+
+		It("filters out messages that match the rule", func() {
+			message := "This is a DEBUG message that we filter out"
+			SendLogMessage(message)
+			Consistently(func() string {
+				return ForwardedLogs()
+			}).ShouldNot(ContainSubstring(message))
 		})
 
 		TestSharedBehavior()

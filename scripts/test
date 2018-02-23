@@ -10,5 +10,6 @@ popd
 pushd "$(dirname "$0")/../tests"
   go get github.com/Masterminds/glide
   glide install
+  go get github.com/onsi/ginkgo/ginkgo
   ginkgo -r -nodes=16 "$@"
 popd
