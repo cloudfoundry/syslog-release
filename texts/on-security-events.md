@@ -89,6 +89,12 @@ Explain setup of expected bosh VMs.
     <td><pre><14>1 2018-02-28T21:32:12.639411+00:00 10.0.16.22 audispd - - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="e13b49d8-fb2d-48de-952d-f15071135ca6"]  node=1f045518-275e-43f4-a74c-bdd28c2c97bd type=SYSCALL msg=audit(1519853532.633:3649): arch=c000003e syscall=82 success=yes exit=0 a0=7f098fcb294a a1=7f098fcb28d4 a2=0 a3=0 items=5 ppid=14954 pid=15137 auid=1003 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts0 ses=8 comm="passwd" exe="/usr/bin/passwd" key="delete"
 <85>1 2018-02-28T21:32:12.641228+00:00 10.0.16.22 passwd 15137 - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="e13b49d8-fb2d-48de-952d-f15071135ca6"]  pam_unix(passwd:chauthtok): password changed for testing1234</pre></td>
   </tr>
+  <tr>
+    <td>Manually stopping syslog</td>
+    <td>service stop rsyslog</td>
+    <td>rsyslogd</td>
+    <td><pre><46>1 2018-02-28T23:17:56.118218+00:00 10.0.16.22 rsyslogd - - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="e13b49d8-fb2d-48de-952d-f15071135ca6"]  [origin software="rsyslogd" swVersion="8.22.0" x-pid="7345" x-info="http://www.rsyslog.com"] exiting on signal 15.</pre></td>
+  </tr>
 </tbody>
 </table>
 
