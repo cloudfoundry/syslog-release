@@ -24,8 +24,7 @@ will also be forwarded,
 they're not what we're aiming to discuss here.
 
 # Audited events
-
-Explain setup of expected bosh VMs.
+These events are logged to the syslog drain when peformed on Bosh VM.
 
 <table>
 <thead>
