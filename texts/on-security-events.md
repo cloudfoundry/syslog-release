@@ -90,9 +90,15 @@ These events are logged to the syslog drain when peformed on Bosh VM.
   </tr>
   <tr>
     <td>Manually stopping syslog</td>
-    <td>service stop rsyslog</td>
+    <td>service rsyslog stop</td>
     <td>rsyslogd</td>
     <td><pre><46>1 2018-02-28T23:17:56.118218+00:00 10.0.16.22 rsyslogd - - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="e13b49d8-fb2d-48de-952d-f15071135ca6"]  [origin software="rsyslogd" swVersion="8.22.0" x-pid="7345" x-info="http://www.rsyslog.com"] exiting on signal 15.</pre></td>
+  </tr>
+  <tr>
+    <td>Manually stopping auditd</td>
+    <td>service auditd stop</td>
+    <td>DAEMON_END</td>
+    <td><pre><14>1 2018-02-28T23:34:41.846443+00:00 10.0.16.22 audispd - - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="e13b49d8-fb2d-48de-952d-f15071135ca6"]  node=1f045518-275e-43f4-a74c-bdd28c2c97bd type=DAEMON_END msg=audit(1519860881.846:6568): auditd normal halt, sending auid=1006 pid=16141 subj=l=4.4.0-116-generic auid=1006 pid=16107 subj=unconfined  res=success res=success</pre></td>
   </tr>
 </tbody>
 </table>
