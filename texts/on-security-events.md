@@ -63,7 +63,13 @@ Explain setup of expected bosh VMs.
 <14>1 2018-02-28T21:23:04.092059+00:00 10.0.16.22 audispd - - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="e13b49d8-fb2d-48de-952d-f15071135ca6"]  node=1f045518-275e-43f4-a74c-bdd28c2c97bd type=DEL_GROUP msg=audit(1519852984.085:3531): pid=15078 uid=0 auid=1003 ses=8 msg='op=deleting shadow group acct="testin123" exe="/usr/sbin/userdel" hostname=? addr=? terminal=pts/0 res=success'
 </pre></td>
   </tr>
-    </tr>
+  <tr>
+    <td>Modify a user's groups</td>
+    <td>usermod -g <group> <username></td>
+    <td>usermod</td>
+    <td><pre><14>1 2018-02-28T23:01:32.617281+00:00 10.0.16.22 audispd - - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="e13b49d8-fb2d-48de-952d-f15071135ca6"]  node=1f045518-275e-43f4-a74c-bdd28c2c97bd type=SYSCALL msg=audit(1519858892.612:3922): arch=c000003e syscall=82 success=yes exit=0 a0=7ffdea674220 a1=619da0 a2=7ffdea674190 a3=7ffdea673e30 items=5 ppid=13560 pid=15525 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="usermod" exe="/usr/sbin/usermod" key="identity"
+<86>1 2018-02-28T22:55:12.405859+00:00 10.0.16.22 usermod 15439 - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="e13b49d8-fb2d-48de-952d-f15071135ca6"]  add 'bosh_7890a75e1ecc4a6' to group 'admin'</pre></td>
+  </tr>
   <tr>
     <td>User enters super user mode</td>
     <td>sudo</td>
