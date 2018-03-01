@@ -1,0 +1,8 @@
+hostname: <%= p('syslog.blackbox.hostname') %>
+
+syslog:
+  destination:
+    transport: <%= p('syslog.transport') %>
+    address:  <%= p('syslog.address') %>:<%= p('syslog.port') %>
+
+  source_dir: <%= p("syslog.blackbox.source_dir") %>

@@ -1,0 +1,8 @@
+$ErrorActionPreference = "Stop";
+trap { $host.SetShouldExit(1) }
+
+$BOSH_INSTALL_TARGET = Resolve-Path $env:BOSH_INSTALL_TARGET
+
+$path=(Get-ChildItem "golang/go*.windows-amd64.zip").FullName
+
+Expand-Archive -Path $path -DestinationPath ${BOSH_INSTALL_TARGET} -Force
