@@ -43,6 +43,20 @@ These events are logged to the syslog drain when peformed on Bosh VM.
     <td><pre><7>1 2018-02-28T18:36:26.488124+00:00 10.0.16.22 vcap.agent 39 - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="6040e9df-afc3-4520-a6e1-0db97347951b"] 2018/02/28 18:36:26 CEF:0|CloudFoundry|BOSH|1|agent_api|ssh|1|duser=director.f762950d-2a20-4283-be8b-04e11ee11768.150cc352-9748-4b23-bcd1-7f2628ae6e82.f893ad11-8a13-4c36-8dce-861b8a1a5e7d src=10.254.50.4 spt=4222 shost=150cc352-9748-4b23-bcd1-7f2628ae6e82</pre></td>
   </tr>
   <tr>
+    <td>Fail to ssh</td>
+    <td>ssh</td>
+    <td>sshd</td>
+    <td><pre><38>1 2018-03-01T20:56:48.219606+00:00 10.0.16.22 sshd 21239 - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="e13b49d8-fb2d-48de-952d-f15071135ca6"]  Connection closed by 10.0.16.25 [preauth]
+<5>1 2018-03-01T20:56:48.223517+00:00 10.0.16.22 kernel - - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="e13b49d8-fb2d-48de-952d-f15071135ca6"] [165047.702399] audit: type=1109 audit(1519937808.216:6287): pid=21239 uid=0 auid=4294967295 ses=4294967295 msg='op=PAM:bad_ident acct="?" exe="/usr/sbin/sshd" hostname=10.0.16.25 addr=10.0.16.25 terminal=ssh res=failed'</pre></td>
+  </tr>
+  <tr>
+    <td>Finish ssh session</td>
+    <td>ssh</td>
+    <td>sshd:session</td>
+    <td><pre><38>1 2018-03-01T21:02:37.839333+00:00 10.0.16.22 sshd 21306 - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="e13b49d8-fb2d-48de-952d-f15071135ca6"]  Received disconnect from 10.0.0.5: 11: disconnected by user
+<86>1 2018-03-01T21:02:37.840082+00:00 10.0.16.22 sshd 21294 - [instance@47450 director="" deployment="syslog-storer" group="syslog-forwarder" az="z1" id="e13b49d8-fb2d-48de-952d-f15071135ca6"]  pam_unix(sshd:session): session closed for user bosh_2c72a6a98a3441c</pre></td>
+  </tr>
+  <tr>
     <td>Add a User</td>
     <td>useradd</td>
     <td>useradd</td>
