@@ -87,7 +87,7 @@ func OutputFromBoshCommand(job, command string) string {
 
 func AddFakeOldConfig() {
 	By("Adding files all the places where the config used to live")
-	session := ForwarderSshCmd("sudo bash -c 'echo fakeConfig=true > /etc/rsyslog.d/rsyslog.conf && echo fakeConfig=true > /etc/rsyslog.d/20-syslog-release.conf'")
+	session := ForwarderSshCmd("sudo bash -c 'echo fakeConfig=true > /etc/rsyslog.d/rsyslog.conf && echo fakeConfig=true > /etc/rsyslog.d/30-syslog-release.conf && echo fakeConfig=true > 20-syslog-release-custom-rules.conf'")
 	Eventually(session, 5*time.Minute).Should(gexec.Exit(0))
 }
 

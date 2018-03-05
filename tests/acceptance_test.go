@@ -31,8 +31,11 @@ var _ = Describe("Impact on the local VM", func() {
 			session := ForwarderSshCmd("stat /etc/rsyslog.d/rsyslog.conf")
 			Eventually(session).Should(gbytes.Say("stat: cannot stat ‘/etc/rsyslog.d/rsyslog.conf’: No such file or directory"))
 
-			session = ForwarderSshCmd("stat /etc/rsyslog.d/20-syslog-release.conf")
-			Eventually(session).Should(gbytes.Say("stat: cannot stat ‘/etc/rsyslog.d/20-syslog-release.conf’: No such file or directory"))
+			session = ForwarderSshCmd("stat /etc/rsyslog.d/30-syslog-release.conf")
+			Eventually(session).Should(gbytes.Say("stat: cannot stat ‘/etc/rsyslog.d/30-syslog-release.conf’: No such file or directory"))
+
+			session = ForwarderSshCmd("stat /etc/rsyslog.d/20-syslog-release-custom-rules.conf")
+			Eventually(session).Should(gbytes.Say("stat: cannot stat ‘/etc/rsyslog.d/20-syslog-release-custom-rules.conf’: No such file or directory"))
 		})
 	})
 

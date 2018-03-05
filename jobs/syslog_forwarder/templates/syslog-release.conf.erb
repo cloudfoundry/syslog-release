@@ -1,0 +1,43 @@
+<% unless p('syslog.migration.disabled') %>
+$MaxMessageSize 4k                     # default is 2k
+$WorkDirectory /var/vcap/data/syslog_forwarder/buffered # where messages should be buffered on disk
+
+$ActionQueueFileName           <%= p('syslog.queue_file_name') %>            # Spill to disk if queue is full (default: agg_backlog)
+$ActionQueueMaxDiskSpace       <%= p('syslog.queue_max_disk_space') %>       # Max size for disk queue (default: 128m)
+$ActionQueueSize               <%= p('syslog.queue_size') %>                 # Store no more than this number syslog messages in memory (default: 100000)
+$ActionQueueDiscardMark        <%= p('syslog.queue_discard_mark') %>         # Purge messages of from memory whose severity is greater than or equal to DiscardSeverity (default: 97500)
+$ActionQueueDiscardSeverity    <%= p('syslog.queue_discard_severity') %>     # This discards every message as soon as the discard mark is reached (default: 0)
+$ActionQueueLowWaterMark       <%= p('syslog.queue_low_water_mark') %>       # Num messages. Assuming avg size of 512B, this is 1MiB. (default: 2000)
+$ActionQueueHighWaterMark      <%= p('syslog.queue_high_water_mark') %>      # Num messages. Assuming avg size of 512B, this is 4MiB. (If this is reached, messages will spill to disk until the low watermark is reached). (default: 80000)
+$ActionQueueTimeoutEnqueue     <%= p('syslog.queue_timeout_enqueue') %>      # Discard messages if the queue + disk is full (default: 0)
+$ActionQueueCheckpointInterval <%= p('syslog.queue_checkpoint_interval') %>  # write bookkeeping information on checkpoints (every n records) (default: 100)
+$ActionResumeInterval          <%= p('syslog.resume_interval') %>            # When action is suspended (dest not connected), retry after this number of seconds (default: 10)
+$ActionQueueSaveOnShutdown     <%= p('syslog.queue_save_on_shutdown') ? 'on' : 'off' %>   # Save in-memory data to disk if rsyslog shuts down (default: on)
+
+$ModLoad imudp
+$UDPServerAddress 127.0.0.1
+$UDPServerRun 514
+
+<% if p('syslog.use_tcp_for_file_forwarding_local_transport') %>
+$ModLoad imtcp
+$InputTCPServerRun 514
+<% end %>
+
+# following https://tools.ietf.org/html/rfc5424#section-6
+template(name="SyslogForwarderTemplate" type="list") {
+  constant(value="<")
+  property(name="pri")
+  constant(value=">1 ")
+  property(name="timestamp" dateFormat="rfc3339")
+  constant(value=" <%= spec.address %> ")
+  property(name="app-name")
+  constant(value=" ")
+  property(name="procid")
+  constant(value=" ")
+  property(name="msgid")
+  # 47450 is CFF in https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
+  constant(value=" [instance@47450 director=\"<%= p('syslog.director') %>\" deployment=\"<%= spec.deployment %>\" group=\"<%= spec.job.name %>\" az=\"<%= spec.az %>\" id=\"<%= spec.id %>\"]")
+  property(name="msg" spifno1stsp="on" )
+  property(name="msg")
+}
+<% end %>
