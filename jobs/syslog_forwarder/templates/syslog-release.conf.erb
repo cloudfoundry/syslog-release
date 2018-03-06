@@ -22,22 +22,4 @@ $UDPServerRun 514
 $ModLoad imtcp
 $InputTCPServerRun 514
 <% end %>
-
-# following https://tools.ietf.org/html/rfc5424#section-6
-template(name="SyslogForwarderTemplate" type="list") {
-  constant(value="<")
-  property(name="pri")
-  constant(value=">1 ")
-  property(name="timestamp" dateFormat="rfc3339")
-  constant(value=" <%= spec.address %> ")
-  property(name="app-name")
-  constant(value=" ")
-  property(name="procid")
-  constant(value=" ")
-  property(name="msgid")
-  # 47450 is CFF in https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
-  constant(value=" [instance@47450 director=\"<%= p('syslog.director') %>\" deployment=\"<%= spec.deployment %>\" group=\"<%= spec.job.name %>\" az=\"<%= spec.az %>\" id=\"<%= spec.id %>\"]")
-  property(name="msg" spifno1stsp="on" )
-  property(name="msg")
-}
 <% end %>
