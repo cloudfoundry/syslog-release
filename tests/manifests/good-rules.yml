@@ -22,7 +22,7 @@ instance_groups:
     properties:
       syslog:
         custom_rule: |
-          if ($msg contains "DEBUG") then ~
+          if ($msg contains "DEBUG") then stop
   - name: storer
     instances: 1
     vm_type: default
