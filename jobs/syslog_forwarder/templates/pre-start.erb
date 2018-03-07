@@ -7,15 +7,15 @@ mkdir -p ${LOGDIR}
 chown -R root:root ${LOGDIR}
 chmod 0755 ${LOGDIR}
 
-<% unless p('syslog.migration.disabled') %>
-
 mkdir -p /var/vcap/data/syslog_forwarder/buffered
 chown -R syslog:adm /var/vcap/data/syslog_forwarder/buffered
 
 mkdir -p /etc/rsyslog.d
 
-# This just cleans up after legacy config locations and previous setups
+# This cleans up after legacy config locations and previous starts
 rm -f /etc/rsyslog.d/rsyslog.conf /etc/rsyslog.d/*-syslog-release*conf
+
+<% unless p('syslog.migration.disabled') %>
 
 cp $(dirname $0)/../config/syslog-release.conf /etc/rsyslog.d/20-syslog-release.conf
 chmod 0644 /etc/rsyslog.d/20-syslog-release.conf
@@ -32,6 +32,6 @@ rsyslogd -N1 || (echo 'Custom rule configuration invalid' && rm /etc/rsyslog.d/3
 cp $(dirname $0)/../config/syslog-release-forwarding-rules.conf /etc/rsyslog.d/35-syslog-release-forwarding-rules.conf
 chmod 0644 /etc/rsyslog.d/35-syslog-release-forwarding-rules.conf
 
-service rsyslog restart
-
 <% end %>
+
+service rsyslog restart
