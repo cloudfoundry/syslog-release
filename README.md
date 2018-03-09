@@ -125,7 +125,7 @@ you wish to exclude from forwarding.
 
 We have some simple documentation
 with a few example rules in
-[`example-custom-rules.md`](example-custom-rules.md).
+[`example-custom-rules.md`](examples/example-custom-rules.md).
 
 **Please note:** if your custom rule is invalid,
 it will be logged and discarded.
@@ -181,7 +181,7 @@ An example message from diego is transmitted as:
 
 A sample logstash config with filters
 to extract instance metadata is in
-[`scripts/logstash-filters.conf`](scripts/logstash-filters.conf).
+[`scripts/logstash-filters.conf`](examples/logstash-filters.conf).
 
 ## Tech Notes
 RSYSLOG is a system for log processing;
