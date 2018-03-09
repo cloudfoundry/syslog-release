@@ -11,6 +11,8 @@ builds:
     version: "11"
   6fcd5398-b7d2-4f39-bcce-1ca69ccdbe92:
     version: "6"
+  9a74c48f-3175-4a24-49da-58718931d797:
+    version: 11.2.0
   9ddc3f77-3b48-4809-9f70-3e0bb12370f7:
     version: "8"
   a05c0733-a74a-48d5-a3b2-b9f884243bec:
