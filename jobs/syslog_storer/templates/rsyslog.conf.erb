@@ -37,7 +37,7 @@ $UDPServerRun <%= port %>
 # Listen for logs over TCP
 $ModLoad imtcp
 $InputTCPMaxSessions 500
-<% if_p('syslog.tls.generation.ca', 'syslog.tls.generation.certificate', 'syslog.tls.generation.ca') do |cert, key, ca| %>
+<% if_p('syslog.tls.generation.ca', 'syslog.tls.generation.certificate', 'syslog.tls.generation.ca') do %>
 $DefaultNetstreamDriver gtls
 $DefaultNetstreamDriverCAFile /var/vcap/jobs/syslog_storer/config/ca.pem
 $DefaultNetstreamDriverCertFile /var/vcap/jobs/syslog_storer/config/syslog-storer.crt
