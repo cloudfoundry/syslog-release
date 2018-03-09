@@ -128,11 +128,14 @@ with a few example rules in
 [`example-custom-rules.md`](example-custom-rules.md).
 
 **Please note:** if your custom rule is invalid,
-no logs will be forwarded.
+it will be logged and discarded.
 
 ### Test Store
 The [`syslog_storer`][storer-spec-page] is meant for testing.
 Deploy it and configure your instances to forward logs to it.
+It provides a link that the forwarder consumes,
+so if they are deployed together and the forwarder is otherwise unconfigured,
+logs should be sent to the storer.
 It should not be co-located
 with other jobs which also try to configure syslog.
 Received logs are stored in `/var/vcap/store/syslog_storer/syslog.log`.
@@ -151,6 +154,12 @@ instance_groups:
 Remember to allow inbound traffic
 on TCP port 514
 in your IaaS security groups.
+
+The storer can also be used to test TLS connections.
+If you provide a Certificate Authority to the `syslog.tls.generation` properties,
+each storer instance will generate a cert signed by that CA at startup,
+with the instance's IP address as the common name.
+You will need to explicitly configure this CA's cert as trusted on the forwarder.
 
 ## Format
 This release forwards messages

@@ -66,8 +66,10 @@ properties:
     description: Set this to true to enable TLS.
     default: false
   syslog.permitted_peer:
-    description: Accepted fingerprint (SHA1) or name of remote peer. Required if TLS is enabled.
-    default: ""
+    description: >
+      Accepted fingerprint (SHA1) or name of remote peer.
+      Only used if TLS is enabled.
+      If not specified, will use the configured forwarding address.
     example: "*.papertrail.com"
   syslog.ca_cert:
     description: |

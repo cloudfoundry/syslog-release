@@ -50,6 +50,13 @@ func Deploy(manifest string) *gexec.Session {
 	return session
 }
 
+func DeployWithVarsStore(manifest string) *gexec.Session {
+	session := BoshCmd("deploy", manifest, "-v", fmt.Sprintf("deployment=%s", DeploymentName()), fmt.Sprintf("--vars-store=/tmp/%s-vars.yml", DeploymentName()))
+	Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
+	Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
+	return session
+}
+
 func ForwarderLog() *gexec.Session {
 	// 47450 is CF's "enterprise ID" and uniquely identifies messages sent by our system
 	session := BoshCmd("ssh", "storer", fmt.Sprintf("--command=%q", "cat /var/vcap/store/syslog_storer/syslog.log | grep '47450'"), "--json", "-r")

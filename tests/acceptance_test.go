@@ -184,6 +184,18 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 
 		TestSharedBehavior()
 	})
+
+	Context("when TLS is configured", func(){
+		BeforeEach(func(){
+			Cleanup()
+			DeployWithVarsStore("manifests/tls-forwarding.yml")
+		})
+		AfterEach(func() {
+			Cleanup()
+		})
+
+		TestSharedBehavior()
+	})
 })
 
 var _ = Describe("When syslog is disabled", func() {

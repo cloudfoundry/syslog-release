@@ -5,6 +5,8 @@ templates:
   pre-start.erb: bin/pre-start
   rsyslog.conf.erb: config/rsyslog.conf
   drain.erb: bin/drain
+  ca.key.erb: config/ca.key
+  ca.pem.erb: config/ca.pem
 
 provides:
 - name: syslog_storer
@@ -23,4 +25,20 @@ properties:
 
   syslog.custom_rule:
     default: ""
-    description: Custom rule for syslog event forwarder.
+    description: Custom rule for syslog event storer.
+
+  syslog.tls.generation.ca:
+    description: >
+      Certificate Authority (CA) of the CA that will be used to sign
+      generated certificates for each storer instance.
+      Generation will only occur if all generation properties are set.
+  syslog.tls.generation.certificate:
+    description: >
+      Certificate of the CA that will be used to sign
+      generated certificates for each storer instance.
+      Generation will only occur if all generation properties are set.
+  syslog.tls.generation.private_key:
+    description: >
+      Key of the CA that will be used to sign generated certificates
+      for each storer instance.
+      Generation will only occur if all generation properties are set.
