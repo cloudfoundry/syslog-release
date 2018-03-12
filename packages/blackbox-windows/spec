@@ -1,0 +1,10 @@
+---
+name: blackbox-windows
+dependencies:
+  - golang-windows
+files:
+  - github.com/concourse/blackbox/**/*.go
+  - github.com/hpcloud/tail/**/*.go
+  - github.com/papertrail/remote_syslog2/syslog/**/*.go
+  - github.com/tedsuo/ifrit/**/*.go
+  - gopkg.in/yaml.v2/**/*.go

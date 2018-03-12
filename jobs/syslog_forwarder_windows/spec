@@ -1,0 +1,40 @@
+---
+name: syslog_forwarder_windows
+
+templates:
+  blackbox_config.yml.erb: config/blackbox_config.yml
+
+packages:
+  - blackbox-windows
+
+properties:
+  syslog.transport:
+    description: >
+      Protocol that Blackbox will use when forwarding loglines from files
+      to the remote address.
+      Using TCP will prevent truncation of log lines over 1KB,
+      but may have undesirable performance impact.
+    default: tcp
+    description: One of `udp`, `tcp`
+  syslog.address:
+    description: IP or DNS address of the syslog server.
+    example: logs4.papertrail.com
+  syslog.port:
+    description: Port of the syslog server.
+    default: 514
+
+  syslog.blackbox.hostname:
+    description: >
+      The hostname that will appear in the syslog messages.
+      By default, blackbox will detect hostname.
+    default: ""
+
+  syslog.blackbox.source_dir:
+    description: >
+      directory with subdirectories containing log files.
+      log lines will be tagged with subdirectory name.
+    default: "c:\\var\\vcap\\sys\\log"
+
+  syslog.blackbox.limit_cpu:
+    description: limit goprocess to a single cpu via gomaxprocs
+    default: true

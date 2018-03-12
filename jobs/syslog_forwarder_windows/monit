@@ -1,0 +1,15 @@
+{
+  "processes": [
+    {
+      "name": "syslog_forwarder_windows",
+      "executable": "C:\\var\\vcap\\packages\\blackbox-windows\\blackbox.exe",
+      "args": ["-config", "c:\\var\\vcap\\jobs\\syslog_forwarder_windows\\config\\blackbox_config.yml"],
+      "env": {
+        <% if p('syslog.blackbox.limit_cpu') %>
+          "GOMAXPROCS": "1"
+        <% end %>
+      }
+    }
+  ]
+}
+

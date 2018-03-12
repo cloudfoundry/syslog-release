@@ -1,0 +1,24 @@
+$ErrorActionPreference = "Stop";
+trap { $host.SetShouldExit(1) }
+
+$BOSH_INSTALL_TARGET = Resolve-Path "${env:BOSH_INSTALL_TARGET}"
+
+$env:GOROOT="C:\var\vcap\packages\golang-windows\go"
+$env:GOPATH="${BOSH_INSTALL_TARGET}"
+$env:PATH="${env:GOROOT}\bin;${env:PATH}"
+$pkg_name="blackbox"
+$pkg_path="github.com/concourse/blackbox/cmd/blackbox"
+
+New-Item -ItemType "directory" -Force "${BOSH_INSTALL_TARGET}\src"
+
+robocopy.exe /E "${PWD}" "${BOSH_INSTALL_TARGET}\src"
+if ($LASTEXITCODE -ge 8) {
+    Write-Error "robocopy.exe /E ${PWD} ${BOSH_INSTALL_TARGET}\src"
+}
+
+go.exe build -o "${BOSH_INSTALL_TARGET}\${pkg_name}.exe" "${pkg_path}"
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Error compiling: ${pkg_path}"
+}
+
+Remove-Item -Recurse -Path "${BOSH_INSTALL_TARGET}\src" -Force
