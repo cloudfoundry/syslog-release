@@ -106,6 +106,17 @@ func WriteToTestFile(message string) func() *gexec.Session {
 	}
 }
 
+func WriteToPrivateTestFile(message string) func() *gexec.Session {
+	return func() *gexec.Session {
+		session := ForwarderSshCmd(fmt.Sprintf("sudo bash -c '"+
+			"touch /var/vcap/sys/log/syslog_forwarder/file.log; "+
+			"chmod 0700 /var/vcap/sys/log/syslog_forwarder/file.log; "+
+			"echo %s >> /var/vcap/sys/log/syslog_forwarder/file.log'", message))
+		Eventually(session).Should(gexec.Exit(0))
+		return ForwarderLog()
+	}
+}
+
 func DefaultLogfiles() *gexec.Session {
 	session := BoshCmd("ssh", "forwarder", fmt.Sprintf("--command=%q", "sudo cat /var/log/{messages,syslog,user.log}"), "--json", "-r")
 	Eventually(session).Should(gexec.Exit())

@@ -185,8 +185,8 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		TestSharedBehavior()
 	})
 
-	Context("when TLS is configured", func(){
-		BeforeEach(func(){
+	Context("when TLS is configured", func() {
+		BeforeEach(func() {
 			Cleanup()
 			DeployWithVarsStore("manifests/tls-forwarding.yml")
 		})
@@ -195,6 +195,29 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		})
 
 		TestSharedBehavior()
+	})
+})
+
+var _ = Describe("When syslog is configured to run in unprivileged mode", func() {
+	BeforeEach(func() {
+		Cleanup()
+		Deploy("manifests/blackbox-unpriv.yml")
+	})
+	AfterEach(func() {
+		Cleanup()
+	})
+
+	It("forwards normal log lines", func() {
+		messagegenerator := "{1..10}"
+		message := "1 2 3 4 5 6 7 8 9 10"
+		Eventually(WriteToTestFile(messagegenerator)).Should(gbytes.Say(message))
+	})
+
+	It("does not forward logs not visable to syslog user", func() {
+		//we can't use a literal message or we'll get false matches from the command which created the log line
+		messagegenerator := "{1..10}"
+		message := "1 2 3 4 5 6 7 8 9 10"
+		Consistently(WriteToPrivateTestFile(messagegenerator)).ShouldNot(gbytes.Say(message))
 	})
 })
 

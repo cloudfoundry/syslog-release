@@ -27,6 +27,16 @@ properties:
   syslog.forward_files:
     description: If enabled, use BlackBox to forward logs.
     default: true
+  syslog.respect_file_permissions:
+    description: |
+      If enabled, log files will be forwarded if and only if
+      they satisfy any of the following:
+      - world-readable
+      - readable by the syslog user
+      - readable by the syslog group
+      - readable by the vcap group
+        (note: the vcap user is insufficient, it must be the group.)
+    default: false
   syslog.use_tcp_for_file_forwarding_local_transport:
     description: >
       If enabled, Blackbox will use TCP rather than UDP
