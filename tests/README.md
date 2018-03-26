@@ -21,14 +21,14 @@ scripts/export-bosh-lite-creds.sh
 
 To then run the tests locally:
 ```sh
-scripts/test
+scripts/test -nodes=10
 ```
-Note that this will run tests in parallel
-(with the `-p` ginkgo flag).
 Any arguments passed to `scripts/test`
 will be passed on to Ginkgo;
-if you wish to run with only a single node,
-you can override the `-p` with `-nodes=1`.
+here, we're running with fewer nodes than the script calls for,
+to respect the limitations of our bosh-lite.
+Generally, try and pick a number of nodes that evenly divides
+into the number of tests you wish to run.
 
 To run only a specific test,
 see https://onsi.github.io/ginkgo/#focused-specs.
