@@ -26,7 +26,7 @@ case $1 in
       export GOMAXPROCS=1
     <% end %>
 
-    exec chpst -u syslog:syslog:vcap /var/vcap/packages/blackbox/bin/blackbox \
+    exec chpst -u syslog:vcap /var/vcap/packages/blackbox/bin/blackbox \
       -config=$CONFIG_FILE \
       1>>$LOG_DIR/blackbox.stdout.log \
       2>>$LOG_DIR/blackbox.stderr.log
