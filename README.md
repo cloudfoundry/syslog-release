@@ -17,6 +17,10 @@ to a remote syslog endpoint.
 It currently uses [RSYSLOG](http://www.rsyslog.com/)
 which is pre-installed by the stemcell.
 
+There is a [separate release][windows-syslog]
+to accomplish this on Windows stemcells,
+which uses blackbox, but not rsyslog.
+
 ## Usage
 Download the latest release
 from [bosh.io][syslog-bosh-io]
@@ -247,3 +251,4 @@ pull requests against the develop branch.
 [syslog-bosh-io]: https://bosh.io/releases/github.com/cloudfoundry/syslog-release
 [test-readme]: tests/README.md
 [tracker]: https://www.pivotaltracker.com/n/projects/2126318
+[windows-syslog]: https://github.com/cloudfoundry/windows-syslog-release
