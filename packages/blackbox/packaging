@@ -1,6 +1,6 @@
 set -e
 
-REPO_NAME=github.com/concourse/blackbox
+REPO_NAME=github.com/cloudfoundry/blackbox
 
 export GOROOT=$(readlink -nf /var/vcap/packages/golang)
 export GOPATH=$BOSH_INSTALL_TARGET
