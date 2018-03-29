@@ -32,6 +32,9 @@ rsyslogd -N1 || (echo 'Custom rule configuration invalid' && rm /etc/rsyslog.d/3
 cp $(dirname $0)/../config/syslog-release-forwarding-rules.conf /etc/rsyslog.d/35-syslog-release-forwarding-rules.conf
 chmod 0644 /etc/rsyslog.d/35-syslog-release-forwarding-rules.conf
 
+cp $(dirname $0)/../config/syslog-release-file-exclusion.conf /etc/rsyslog.d/40-syslog-release-file-exclusion.conf
+chmod 0644 /etc/rsyslog.d/40-syslog-release-file-exclusion.conf
+
 <% end %>
 
 service rsyslog restart

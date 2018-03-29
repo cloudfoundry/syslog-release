@@ -193,9 +193,12 @@ The whole thing looks something like this:
 Here are a couple of example messages from diego:
 
 ```
-<14>1 2017-01-25T13:25:03.18377Z 192.0.2.10 etcd - - [instance@47450 director="test-env" deployment="cf" group="diego_database" az="us-west1-a" id="83bd66e5-3fdf-44b7-bdd6-508deae7c786"] [INFO] the leader is [https://diego-database-0.etcd.service.cf.internal:4001]
-<14>1 2017-01-25T13:25:03.184491Z 192.0.2.10 bbs - - [instance@47450 director="test-env" deployment="cf" group="diego_database" az="us-west1-a" id="83bd66e5-3fdf-44b7-bdd6-508deae7c786"] {"timestamp":"1485350702.539694548","source":"bbs","message":"bbs.request.start-actual-lrp.starting","log_level":1,"data":{"actual_lrp_instance_key":{"instance_guid":"271f71c7-4119-4490-619f-4f44694717c0","cell_id":"diego_cell-2-41f21178-d619-4976-901c-325bc2d0d11d"},"actual_lrp_key":{"process_guid":"1545ce89-01e6-4b8f-9cb1-5654a3ecae10-137e7eb4-12de-457d-8e3e-1258e5a74687","index":5,"domain":"cf-apps"},"method":"POST","net_info":{"address":"192.0.2.12","ports":[{"container_port":8080,"host_port":61532},{"container_port":2222,"host_port":61533}]},"request":"/v1/actual_lrps/start","session":"418.1"}}
+<14>1 2017-01-25T13:25:03.18377Z 192.0.2.10 etcd rs2 - [instance@47450 director="test-env" deployment="cf" group="diego_database" az="us-west1-a" id="83bd66e5-3fdf-44b7-bdd6-508deae7c786"] [INFO] the leader is [https://diego-database-0.etcd.service.cf.internal:4001]
+<14>1 2017-01-25T13:25:03.184491Z 192.0.2.10 bbs rs2 - [instance@47450 director="test-env" deployment="cf" group="diego_database" az="us-west1-a" id="83bd66e5-3fdf-44b7-bdd6-508deae7c786"] {"timestamp":"1485350702.539694548","source":"bbs","message":"bbs.request.start-actual-lrp.starting","log_level":1,"data":{"actual_lrp_instance_key":{"instance_guid":"271f71c7-4119-4490-619f-4f44694717c0","cell_id":"diego_cell-2-41f21178-d619-4976-901c-325bc2d0d11d"},"actual_lrp_key":{"process_guid":"1545ce89-01e6-4b8f-9cb1-5654a3ecae10-137e7eb4-12de-457d-8e3e-1258e5a74687","index":5,"domain":"cf-apps"},"method":"POST","net_info":{"address":"192.0.2.12","ports":[{"container_port":8080,"host_port":61532},{"container_port":2222,"host_port":61533}]},"request":"/v1/actual_lrps/start","session":"418.1"}}
 ```
+Note: the `rs2` PROC_ID in the above indicates that the logs
+have been forwarded from a file by blackbox,
+which uses remote_syslog2 under the covers.
 
 A sample logstash config with filters to extract instance metadata
 is in [`scripts/logstash-filters.conf`](examples/logstash-filters.conf).
@@ -209,10 +212,16 @@ or a **forwarder**
 (i.e. it forwards system log messages
 to RSYSLOG storers, syslog servers, or log aggregation services).
 
-The RSYSLOG configuration file is `/etc/rsyslog.conf`.
+The default RSYSLOG configuration file is `/etc/rsyslog.conf`.
+On the stemcell, this specifies that configuration in`/etc/rsyslog.d/*`
+will also be respected.
 The RSYSLOG forwarder's customizations
-are rendered into `/etc/rsyslog.d/rsyslog.conf`,
-which is included by the configuration file.
+are rendered into several files following the format
+`/etc/rsyslog.d/[0-9][0-9]-syslog-release-*.conf`.
+
+**Note:** `syslog-release` deletes files in its pattern,
+and `/etc/rsyslog.d/rsyslog.conf`, a legacy config location,
+during prestart.
 
 ## Development
 In order to build releases or run tests,

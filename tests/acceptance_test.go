@@ -35,7 +35,7 @@ var _ = Describe("Impact on the local VM", func() {
 		})
 	})
 
-	PContext("When processing logs from blackbox", func() {
+	Context("When processing logs from blackbox", func() {
 		BeforeEach(func() {
 			Cleanup()
 			Deploy("manifests/udp-blackbox.yml")
