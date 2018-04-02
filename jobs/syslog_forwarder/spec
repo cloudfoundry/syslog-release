@@ -34,7 +34,6 @@ properties:
       they satisfy any of the following:
       - world-readable
       - readable by the syslog user
-      - readable by the syslog group
       - readable by the vcap group
         (note: the vcap user is insufficient, it must be the group.)
     default: false
