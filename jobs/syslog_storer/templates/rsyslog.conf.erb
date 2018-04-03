@@ -1,4 +1,3 @@
-$ModLoad imuxsock                       # local message reception (rsyslog uses a datagram socket)
 $MaxMessageSize 4k                      # default is 2k
 $WorkDirectory /var/vcap/data/syslog_storer/buffered # where messages should be buffered on disk
 
@@ -50,7 +49,6 @@ $InputTCPServerRun <%= port %>
         <% raise 'only RELP, UDP, and TCP are supported' %>
     <% end %>
 <% end  %>
-$ModLoad omfile
 $DirCreateMode 0700
 $FileCreateMode 0644
 *.* /var/vcap/store/syslog_storer/syslog.log;SyslogStorerTemplate
