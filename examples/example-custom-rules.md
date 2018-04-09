@@ -65,6 +65,23 @@ if ($app-name != "uaa") then {
 }
 ```
 
+### Configuring Global Properties
+It is possible to override global rsyslog config.
+This can be complicated, and may not always work as expected.
+
+For instance, the following rule will increase the [maximum message size][global-config-doc]:
+```
+$MaxMessageSize 10k
+```
+This is a very flexible option.
+It can be useful, as in the above case,
+for [working around issues][blackbox-trunc-issue]
+or prototyping changes to syslog-release.
+We can't necessarily support everything you might do with this.
+If you find yourself always configuring a certain parameter,
+please consider raising an issue to get it promoted to the spec,
+where we can test and document it.
+
 ## Further Notes
 In most of the above examples,
 the stop directive (`stop`)
@@ -79,3 +96,5 @@ Docs for rainerscript can be found [here][rainerscript-docs].
 
 [rainerscript-docs]: http://www.rsyslog.com/doc/v8-stable/rainerscript/index.html
 [rsyslog-config-docs]: http://www.rsyslog.com/doc/v8-stable/configuration/basic_structure.html
+[global-config-doc]: https://www.rsyslog.com/doc/v8-stable/configuration/global/index.html
+[blackbox-trunc-issue]: https://github.com/cloudfoundry/syslog-release/issues/37
