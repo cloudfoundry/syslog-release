@@ -1,0 +1,6 @@
+#!/bin/bash
+
+rm -f /etc/rsyslog.d/rsyslog.conf /etc/rsyslog.d/*-syslog-release*conf
+
+service rsyslog restart > /dev/null
+echo 0

@@ -11,6 +11,7 @@ templates:
   ca_cert.pem.erb: config/ca_cert.pem
   blackbox_ctl.erb: bin/blackbox_ctl
   blackbox_config.yml.erb: config/blackbox_config.yml
+  drain.erb: bin/drain
 
 packages:
   - blackbox
