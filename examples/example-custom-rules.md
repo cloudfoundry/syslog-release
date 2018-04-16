@@ -65,6 +65,43 @@ if ($app-name != "uaa") then {
 }
 ```
 
+#Forwarding to additional remotes
+
+If you want to forward logs to remotes in addition to the remote set in the manifest,
+you can use the custom rule field to do so. To send all logs to additional remotes, 
+set a remote using a forwarding rule. For example, if you wanted to send log lines
+to a server at 127.0.0.1 over port 514 you could set your custom_rule property to:
+
+```
+#udp address
+*.* @127.0.0.1:514;SyslogForwarderTemplate
+
+#tcp address
+*.* @@127.0.0.1:514;SyslogForwarderTemplate
+```
+
+If you wish to send a subset of messages, you can forward using conditionals, as well
+as the forwarding action type. This is just a slightly different syntax for forwarding using addresses.
+For example, if you wanted to forward all messages that contain the word test to a syslog server located at
+127.0.0.1 over port 514 using tcp, you can use the following rule in your custom_rule property. 
+```
+if ($msg contains "test") then action(type="omfwd" Target="127.0.0.1" Port="514" Protocol="tcp" template="SyslogForwarderTemplate")
+```
+
+You can combine these conditionals with and: 
+
+```
+if ($msg contains "test" and $msg contains "IMPORTANT") then action(type="omfwd" Target="127.0.0.1" Port="514" Protocol="tcp" template="SyslogForwarderTemplate")
+```
+
+If you want to then not send those log lines to the primary syslog reciever, you can then issue a custom rule afterwards
+to stop processing those messages. 
+
+```
+if ($msg contains "test") then action(type="omfwd" Target="127.0.0.1" Port="514" Protocol="tcp" template="SyslogForwarderTemplate")
+if ($msg contains "test") then stop
+```
+
 ### Configuring Global Properties
 It is possible to override global rsyslog config.
 This can be complicated, and may not always work as expected.
