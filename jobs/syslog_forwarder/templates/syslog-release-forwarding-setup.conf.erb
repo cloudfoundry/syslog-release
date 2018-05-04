@@ -83,4 +83,10 @@ $ActionSendStreamDriverPermittedPeer <%= p('syslog.permitted_peer', syslog_addre
     end
   end
 %>
+
+<% if p('syslog.client_tls.enabled') %>
+$DefaultNetstreamDriverCertFile /var/vcap/jobs/syslog_forwarder/config/client_tls_cert.pem
+$DefaultNetstreamDriverKeyFile /var/vcap/jobs/syslog_forwarder/config/client_tls_key.pem
+<% end %>
+
 <% end %>

@@ -10,6 +10,8 @@ templates:
   syslog-release-file-exclusion.conf.erb: config/syslog-release-file-exclusion.conf
   syslog-release-post-custom-config.conf.erb: config/syslog-release-post-custom-config.conf
   ca_cert.pem.erb: config/ca_cert.pem
+  client_tls_cert.pem.erb: config/client_tls_cert.pem
+  client_tls_key.pem.erb: config/client_tls_key.pem
   blackbox_ctl.erb: bin/blackbox_ctl
   blackbox_config.yml.erb: config/blackbox_config.yml
   drain.erb: bin/drain
@@ -98,6 +100,14 @@ properties:
       -----BEGIN CERTIFICATE-----
       MIIClTCCAf4CCQDc6hJtvGB8RjANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMC...
       -----END CERTIFICATE-----
+  syslog.client_tls.enabled:
+    description: Set this to true to enable client-to-server TLS authentication, in which the client provides a certificate for the server to verify.
+    default: false
+  syslog.client_tls.cert:
+    description: Certificate that will be used by the client to perform Mutual TLS.
+  syslog.client_tls.key:
+    description: Key that will be used by the client to perform Mutual TLS.
+
   syslog.queue_file_name:
     description: Spill to disk if queue is full.
     default: agg_backlog
