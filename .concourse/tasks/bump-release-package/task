@@ -1,0 +1,31 @@
+#!/bin/bash
+set -exu
+
+function write_private_yaml() {
+  set +x
+    BLOBS_BUCKET_ACCESS_KEY_ID="${BLOBS_BUCKET_ACCESS_KEY_ID:?"\$BLOBS_BUCKET_ACCESS_KEY_ID not set"}"
+    BLOBS_BUCKET_SECRET_KEY="${BLOBS_BUCKET_SECRET_KEY:?"\$BLOBS_BUCKET_SECRET_KEY not set"}"
+    cat > config/private.yml <<EOF
+---
+blobstore:
+  provider: s3
+  options:
+    secret_access_key: ${BLOBS_BUCKET_SECRET_KEY}
+    access_key_id: ${BLOBS_BUCKET_ACCESS_KEY_ID}
+EOF
+  set -x
+}
+
+function commit() {
+  git config user.name "CF Syslog Bot"
+  git config user.email "cf-syslog@pivotal.io"
+  git add .
+  git commit -m "Use current version of ${PACKAGE_NAME}" --allow-empty
+}
+
+pushd release
+  write_private_yaml
+  bosh vendor-package ${PACKAGE_NAME} ../package-release
+  commit
+popd
+git clone release updated-release

@@ -1,0 +1,24 @@
+---
+
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: relintdockerhubpushbot/bosh-cli
+
+inputs:
+- name: syslog-ci
+- name: release
+- name: package-release
+
+outputs:
+  - name: updated-release
+
+run:
+  path: syslog-ci/.concourse/tasks/bump-release-package/task
+
+params:
+  BLOBS_BUCKET_ACCESS_KEY_ID:
+  BLOBS_BUCKET_SECRET_KEY:
+  PACKAGE_NAME:

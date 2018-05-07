@@ -1,7 +1,7 @@
 # Syslog BOSH Release
 * Slack: #syslog on <https://slack.cloudfoundry.org>
 * Tracker: [CF Platform Logging Improvements][tracker]
-* CI: [Syslog CI][CI]
+* CI Pipelines: https://syslog.ci.cf-app.com
 
 1. [Usage](#usage)
 1. [Configureation](#configure-forwarding)
@@ -9,6 +9,7 @@
 1. [Output Format](#format)
 1. [Tech Notes](#tech-notes)
 1. [Development](#development)
+1. [CI](#CI)
 
 This is a BOSH release
 to forward local syslog events
@@ -240,6 +241,9 @@ repository is downloaded and located at `~/workspace/bosh-deployment`. You can t
 run `./scripts/setup-bosh-lite-for-tests.sh` to create the director.
 Afterwards execute `source export-bosh-lite-creds.sh` to target the bosh director.
 
+(Alternatively, if you wish to run the specs against the CI env,
+you can `source` the `.envrc` in your env-repo.)
+
 The tests can then be run from the top of the repo with
 `./scripts/test`.
 
@@ -248,16 +252,44 @@ For more details, see [`tests/README.md`][test-readme].
 We are unlikely to merge PRs that add features without tests. Please submit all
 pull requests against the develop branch.
 
+## CI
+Our CI pipelines can be found at https://syslog.ci.cf-app.com.
+Pipeline configuration can be found in the `.concourse` directory of this repo.
+While our pipeline is principally built using [`cf-deployment-concourse-tasks`][cf-d-c-t],
+there are also a couple of unique tasks found in the `.concourse/tasks` directory.
+
+Use of the ci requires access to the following secrets:
+- a [`cf-deployment-concourse-tasks`][cf-d-c-t]-style env repo (ours is [tycho-env][tycho-env])
+- credentials for the release blobstore and deployment keys for the release repo.
+  We store these secrets in the [`syslog-ci-private`][syslog-ci-private] repo.
+
+You will also need a concourse to run the pipeline on.
+Ours is deployed on GCP;
+the deployment manifest and bbl-state can be found in [`leela-env`][leela-env].
+
+Most people don't have access to these private repos.
+The Cloud Foundry Foundation admin team can grant access.
+
+Admin rights to the GCP projects associated with the above env-repos
+is governed by membership in the cf-syslog@pivotal.io Google Group.
+There are other resources (such as [durandal-env][durandal-env],
+our GCP project for experimental integrations and manual testing)
+associated with this, as well.
+
 [cf-d]: https://github.com/cloudfoundry/cf-deployment
-[CI]: https://syslog.ci.cf-app.com
+[cf-d-c-t]: https://github.com/cloudfoundry/cf-deployment-concourse-tasks
+[durandal-env]: https://github.com/cloudfoundry/durandal-env
 [ent-nums]: https://tools.ietf.org/html/rfc5424#section-7.2.2
 [forwarder-spec-page]: https://bosh.io/jobs/syslog_forwarder?source=github.com/cloudfoundry/syslog-release
 [go-installation]: https://golang.org/doc/install
+[leela-env]: https://github.com/cloudfoundry/leela-env
 [RFC]: https://tools.ietf.org/html/rfc5424
 [sd-id]: https://tools.ietf.org/html/rfc5424#section-6.3.2
 [storer-spec-page]: https://bosh.io/jobs/syslog_storer?source=github.com/cloudfoundry/syslog-release
+[syslog-ci-private]: https://github.com/cloudfoundry/syslog-ci-private
 [syslog-addon-ops]: https://github.com/cloudfoundry/cf-deployment/tree/master/operations/addons
 [syslog-bosh-io]: https://bosh.io/releases/github.com/cloudfoundry/syslog-release
 [test-readme]: tests/README.md
 [tracker]: https://www.pivotaltracker.com/n/projects/2126318
+[tycho-env]: https://www.github.com/cloudfoundry/tycho-env
 [windows-syslog]: https://github.com/cloudfoundry/windows-syslog-release
