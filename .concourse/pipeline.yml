@@ -182,7 +182,7 @@ jobs:
     - get: syslog-ci
     - get: syslog-release
   - task: bump-go-package
-    file: syslog-ci/tasks/bump-release-package/task.yml
+    file: syslog-ci/.concourse/tasks/bump-release-package/task.yml
     input_mapping:
       release: syslog-release
       package-release: golang-release
