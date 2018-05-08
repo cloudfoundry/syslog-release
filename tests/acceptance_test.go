@@ -93,6 +93,10 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 					if string(logLine.Message()) == "test-rfc5424" {
 						sdata := logLine.StructureData()
 						Expect(string(sdata.ID())).To(Equal("instance@47450"))
+						properties := sdata.Properties()
+						Expect(properties).To(ContainElement(logrfc.Property{Key: []byte("director"), Value: []byte("")}))
+						Expect(properties).To(ContainElement(logrfc.Property{Key: []byte("deployment"), Value: []byte(DeploymentName())}))
+						Expect(properties).To(ContainElement(logrfc.Property{Key: []byte("group"), Value: []byte("forwarder")}))
 						break
 					}
 				}
