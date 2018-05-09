@@ -106,7 +106,7 @@ resources:
     uri: git@github.com:cloudfoundry/syslog-release
     branch: syslog-release-version
     file: version
-    private_key: ((syslog_ci_versions_read_write_deploy_key))
+    private_key: ((syslog_release_read_write_deploy_key))
 
 # Concourse Tasks
 - name: cf-deployment-concourse-tasks
