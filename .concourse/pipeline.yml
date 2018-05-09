@@ -389,6 +389,7 @@ jobs:
       BLOBS_BUCKET_SECRET_KEY: ((syslog_release_blobs_buckets_secret_access_key))
   - put: syslog-release-master
     params:
+      rebase: true
       repository: final-release-repo
       tag: syslog-release-version/version
       tag_prefix: v
@@ -419,6 +420,7 @@ jobs:
       BLOBS_BUCKET_SECRET_KEY: ((syslog_release_blobs_buckets_secret_access_key))
   - put: syslog-release-master
     params:
+      rebase: true
       repository: final-release-repo
       tag: syslog-release-version/version
       tag_prefix: v
