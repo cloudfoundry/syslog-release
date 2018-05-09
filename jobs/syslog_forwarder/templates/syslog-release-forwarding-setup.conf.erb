@@ -19,7 +19,7 @@ end
 %>
 set $.director = "<%= p('syslog.director') %>";
 set $.deployment = "<%= spec.deployment %>";
-set $.job = "<%= spec.job.name %>";
+set $.instance = "<%= spec.name %>";
 set $.az = "<%= spec.az %>";
 set $.id = "<%= spec.id %>";
 # following https://tools.ietf.org/html/rfc5424#section-6
@@ -40,7 +40,7 @@ template(name="SyslogForwarderTemplate" type="list") {
   constant(value="\" deployment=\"")
   property(name="$.deployment")
   constant(value="\" group=\"")
-  property(name="$.job")
+  property(name="$.instance")
   constant(value="\" az=\"")
   property(name="$.az")
   constant(value="\" id=\"")
