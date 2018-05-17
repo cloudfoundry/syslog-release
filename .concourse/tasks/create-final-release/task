@@ -1,0 +1,47 @@
+#!/bin/bash
+set -exu
+
+version="$(< 'release-version/version')"
+
+function write_private_yaml() {
+  set +x
+    BLOBS_BUCKET_ACCESS_KEY_ID="${BLOBS_BUCKET_ACCESS_KEY_ID:?"\$BLOBS_BUCKET_ACCESS_KEY_ID not set"}"
+    BLOBS_BUCKET_SECRET_KEY="${BLOBS_BUCKET_SECRET_KEY:?"\$BLOBS_BUCKET_SECRET_KEY not set"}"
+    cat > config/private.yml <<EOF
+---
+blobstore:
+  provider: s3
+  options:
+    secret_access_key: ${BLOBS_BUCKET_SECRET_KEY}
+    access_key_id: ${BLOBS_BUCKET_ACCESS_KEY_ID}
+EOF
+  set -x
+}
+
+function create_final_release() {
+  bosh -n create-release --final --version="${version}"
+  EXIT_STATUS=${PIPESTATUS[0]}
+
+  if [ ! "$EXIT_STATUS" = "0" ]; then
+    echo "Failed to Create $RELEASE_NAME Release"
+    exit "$EXIT_STATUS"
+  fi
+}
+
+function commit_final_release() {
+  git config user.name "CF Syslog Bot"
+  git config user.email "cf-syslog@pivotal.io"
+  git add .final_builds releases
+  git commit -m "Final release ${version}"
+}
+
+function main() {
+  pushd release-repo > /dev/null
+    write_private_yaml
+    create_final_release
+    commit_final_release
+  popd > /dev/null
+  git clone release-repo final-release-repo
+}
+
+main

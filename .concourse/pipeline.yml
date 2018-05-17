@@ -1,0 +1,453 @@
+---
+groups:
+- name: syslog-release
+  jobs:
+  - bump-go-package
+  - syslog-acceptance-tests
+  - deploy-cf-with-created-syslog
+  - cf-acceptance-tests
+  - delete-cf-deployment
+  - create-final-release-patch
+  - create-final-release-minor
+- name: infrastructure
+  jobs:
+  - setup-infrastructure
+  - destroy-infrastructure
+
+resources:
+# Manifests and Releases
+- name: cf-deployment-master
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cf-deployment.git
+- name: cf-acceptance-tests
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
+- name: syslog-release
+  type: git
+  source:
+    branch: develop
+    private_key: ((syslog_release_read_write_deploy_key))
+    uri: git@github.com:cloudfoundry/syslog-release.git
+    ignore_paths:
+    - .final_builds/*
+    - releases/*
+- name: syslog-release-master
+  type: git
+  source:
+    branch: master
+    private_key: ((syslog_release_read_write_deploy_key))
+    uri: git@github.com:cloudfoundry/syslog-release.git
+# We have a second (explicitly develop) copy of this resource
+# to avoid creating new (triggering) versions
+# when putting master to develop.
+- name: syslog-release-develop
+  type: git
+  source:
+    branch: develop
+    private_key: ((syslog_release_read_write_deploy_key))
+    uri: git@github.com:cloudfoundry/syslog-release.git
+
+- name: golang-release
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/bosh-packages/golang-release.git
+    tag_filter: '*'
+
+- name: windows2016-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-windows2016-go_agent
+
+# ENV
+- name: tycho-env-bbl-state
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:cloudfoundry/tycho-env.git
+    private_key: ((tycho_env_git_deploy_key))
+    paths:
+    - bbl-state/*
+    - bbl-config/*
+    - google_account_creds.json
+    - operations/*
+- name: tycho-env-vars-store
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:cloudfoundry/tycho-env.git
+    private_key: ((tycho_env_git_deploy_key))
+    paths:
+    - deployment-vars.yml
+    - component_syslog_vars.yml
+    - operations/*
+- name: tycho-env-integration-configs
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:cloudfoundry/tycho-env.git
+    private_key: ((tycho_env_git_deploy_key))
+    paths:
+    - cats_integration_config.json
+
+# Control and Versions
+- name: weekly
+  type: time
+  source:
+    interval: 168h
+    location: US/Mountain
+    start: 3:00 PM
+    stop: 4:00 PM
+    days: [Wednesday]
+- name: syslog-release-version
+  type: semver
+  source:
+    initial_version: "11.3.0"
+    driver: git
+    uri: git@github.com:cloudfoundry/syslog-release
+    branch: syslog-release-version
+    file: version
+    private_key: ((syslog_release_read_write_deploy_key))
+
+# Concourse Tasks
+- name: cf-deployment-concourse-tasks
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+    tag_filter: v6.*
+
+- name: syslog-ci
+  type: git
+  source:
+    branch: develop
+    uri: https://github.com/cloudfoundry/syslog-release.git
+
+- name: runtime-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/runtime-ci.git
+
+jobs:
+- name: setup-infrastructure
+  serial_groups: [tycho]
+  public: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: tycho-env-bbl-state
+  - task: setup-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    params:
+      BBL_IAAS: gcp
+      BBL_GCP_SERVICE_ACCOUNT_KEY: google_account_creds.json
+      BBL_GCP_PROJECT_ID: ((tycho_gcp_project))
+      BBL_GCP_REGION: us-central1
+      BBL_GCP_ZONE: us-central1-a
+      BBL_LB_CERT: ((tycho_cf_ssl_cert))
+      BBL_LB_KEY: ((tycho_cf_ssl_cert_private_key))
+      BBL_CONFIG_DIR: bbl-config
+      LB_DOMAIN: tycho.cf-app.com
+      BBL_ENV_NAME: tycho
+    input_mapping:
+      bbl-state: tycho-env-bbl-state
+      bbl-config: tycho-env-bbl-state
+    ensure:
+      put: tycho-env-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+
+- name: destroy-infrastructure
+  serial_groups: [tycho]
+  public: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: tycho-env-bbl-state
+    - get: cf-deployment-concourse-tasks
+  - task: destroy-infrastructure
+    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
+    input_mapping:
+      bbl-state: tycho-env-bbl-state
+      bbl-config: tycho-env-bbl-state
+    ensure:
+      put: tycho-env-bbl-state
+      params:
+        repository: updated-bbl-state
+        rebase: true
+- name: bump-go-package
+  public: true
+  serial: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: golang-release
+      trigger: true
+    - get: syslog-ci
+    - get: syslog-release
+  - task: bump-go-package
+    file: syslog-ci/.concourse/tasks/bump-release-package/task.yml
+    input_mapping:
+      release: syslog-release
+      package-release: golang-release
+    params:
+      BLOBS_BUCKET_ACCESS_KEY_ID: ((syslog_release_blobs_buckets_access_key_id))
+      BLOBS_BUCKET_SECRET_KEY: ((syslog_release_blobs_buckets_secret_access_key))
+      PACKAGE_NAME: golang-1-linux
+  - put: syslog-release-develop
+    params:
+      repository: updated-release
+
+- name: syslog-acceptance-tests
+  public: true
+  serial: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: syslog-release
+      trigger: true
+    - get: tycho-env-bbl-state
+  - task: syslog-acceptance
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+          tag: v5
+      run:
+        path: bash
+        args:
+          - -c
+          - |
+            #!/bin/bash
+
+            set -e
+
+            workspace=$PWD
+            mkdir -p $GOPATH/src/github.com/cloudfoundry
+            ln -s $workspace/syslog-release $GOPATH/src/github.com/cloudfoundry/syslog-release
+
+            function kill_bbl_ssh {
+              pkill ssh || true
+            }
+
+            trap kill_bbl_ssh EXIT
+
+            pushd $workspace/tycho-env-bbl-state
+              source .envrc
+            popd
+
+            pushd $GOPATH/src/github.com/cloudfoundry/syslog-release
+              ./scripts/test
+            popd
+      caches:
+      - path: syslog-release/blobs
+      inputs:
+      - name: syslog-release
+      - name: tycho-env-bbl-state
+
+- name: deploy-cf-with-created-syslog
+  serial_groups: [tycho]
+  public: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: runtime-ci
+    - get: cf-deployment-master
+      trigger: true
+    - get: tycho-env-bbl-state
+    - get: tycho-env-vars-store
+    - get: tycho-env-integration-configs
+    - get: windows2016-stemcell
+    - get: syslog-release
+      trigger: true
+    - get: weekly
+      trigger: true
+  - task: upload-stemcell
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+    input_mapping:
+      bbl-state: tycho-env-bbl-state
+      cf-deployment: cf-deployment-master
+  - task: bosh-upload-windows2016-stemcell
+    file: runtime-ci/tasks/bosh-upload-stemcell/task.yml
+    input_mapping:
+      stemcell: windows2016-stemcell
+      bbl-state: tycho-env-bbl-state
+    params:
+      STEMCELL_NAME: '*.tgz'
+  - task: deploy-cf-with-created-syslog
+    file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
+    input_mapping:
+      bbl-state: tycho-env-bbl-state
+      bbl-config: tycho-env-bbl-state
+      cf-deployment: cf-deployment-master
+      release: syslog-release
+      ops-files: cf-deployment-master
+      vars-store: tycho-env-vars-store
+      vars-files: tycho-env-vars-store
+    params:
+      OPS_FILES: |
+        operations/addons/enable-component-syslog.yml
+        operations/experimental/use-bosh-dns.yml
+        operations/scale-to-one-az.yml
+        operations/windows2016-cell.yml
+        ../vars-files/operations/windows-enable-component-syslog.yml
+        ../vars-files/operations/cf-instances.yml
+        ../vars-files/operations/audit-logging-test.yml
+      SYSTEM_DOMAIN: tycho.cf-app.com
+      VARS_FILES: component_syslog_vars.yml
+      BBL_CONFIG_DIR: bbl-config
+    ensure:
+      put: tycho-env-vars-store
+      params:
+        repository: updated-vars-store
+        rebase: true
+  - task: update-integration-configs
+    file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
+    input_mapping:
+      vars-store: tycho-env-vars-store
+      integration-configs: tycho-env-integration-configs
+    ensure:
+      put: tycho-env-integration-configs
+      params:
+        repository: updated-integration-configs
+        rebase: true
+  - task: run-bosh-cleanup
+    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
+    input_mapping:
+      bbl-state: tycho-env-bbl-state
+      bbl-config: tycho-env-bbl-state
+
+- name: cf-acceptance-tests
+  serial_groups: [tycho]
+  public: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: cf-acceptance-tests
+    - get: cf-deployment-master
+      passed: [deploy-cf-with-created-syslog]
+    - get: tycho-env-bbl-state
+      trigger: true
+      passed: [deploy-cf-with-created-syslog]
+    - get: tycho-env-vars-store
+      passed: [deploy-cf-with-created-syslog]
+    - get: tycho-env-integration-configs
+    - get: cf-deployment-concourse-tasks
+    - get: syslog-release
+      passed: [deploy-cf-with-created-syslog]
+      trigger: true
+    - get: weekly
+      trigger: true
+      passed: [deploy-cf-with-created-syslog]
+  - task: set-cats-feature-flags
+    attempts: 20
+    file: cf-deployment-concourse-tasks/set-feature-flags/task.yml
+    input_mapping:
+      vars-store: tycho-env-vars-store
+    params:
+      SYSTEM_DOMAIN: tycho.cf-app.com
+      ENABLED_FEATURE_FLAGS: |
+        diego_docker
+        task_creation
+  - task: run-cats
+    input_mapping:
+      integration-config: tycho-env-integration-configs
+    file: cf-deployment-concourse-tasks/run-cats/task.yml
+    params:
+      CONFIG_FILE_PATH: cats_integration_config.json
+      NODES: 6
+
+- name: delete-cf-deployment
+  public: true
+  serial_groups: [tycho]
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: cf-deployment-concourse-tasks
+    - get: tycho-env-bbl-state
+      trigger: true
+      passed: [cf-acceptance-tests]
+    - get: syslog-release
+      trigger: true
+      passed: [cf-acceptance-tests]
+    - get: weekly
+      trigger: true
+      passed: [cf-acceptance-tests]
+  - task: delete-cf-deployment
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    input_mapping:
+      bbl-state: tycho-env-bbl-state
+      bbl-config: tycho-env-bbl-state
+
+- name: create-final-release-patch
+  public: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: syslog-ci
+    - get: syslog-release
+      passed: [cf-acceptance-tests, syslog-acceptance-tests]
+    - get: syslog-release-master
+    - get: syslog-release-version
+      params: {bump: patch}
+  - task: create-final-release
+    file: syslog-ci/.concourse/tasks/create-final-release/task.yml
+    input_mapping:
+      release-repo: syslog-release
+      release-version: syslog-release-version
+    params:
+      BLOBS_BUCKET_ACCESS_KEY_ID: ((syslog_release_blobs_buckets_access_key_id))
+      BLOBS_BUCKET_SECRET_KEY: ((syslog_release_blobs_buckets_secret_access_key))
+  - put: syslog-release-master
+    params:
+      rebase: true
+      repository: final-release-repo
+      tag: syslog-release-version/version
+      tag_prefix: v
+  - put: syslog-release-develop
+    params:
+      repository: syslog-release-master
+      merge: true
+  - put: syslog-release-version
+    params: {file: syslog-release-version/version}
+- name: create-final-release-minor
+  public: true
+  build_logs_to_retain: 100
+  plan:
+  - aggregate:
+    - get: syslog-ci
+    - get: syslog-release
+      passed: [cf-acceptance-tests, syslog-acceptance-tests]
+    - get: syslog-release-master
+    - get: syslog-release-version
+      params: {bump: minor}
+  - task: create-final-release
+    file: syslog-ci/.concourse/tasks/create-final-release/task.yml
+    input_mapping:
+      release-repo: syslog-release
+      release-version: syslog-release-version
+    params:
+      BLOBS_BUCKET_ACCESS_KEY_ID: ((syslog_release_blobs_buckets_access_key_id))
+      BLOBS_BUCKET_SECRET_KEY: ((syslog_release_blobs_buckets_secret_access_key))
+  - put: syslog-release-master
+    params:
+      rebase: true
+      repository: final-release-repo
+      tag: syslog-release-version/version
+      tag_prefix: v
+  - put: syslog-release-develop
+    params:
+      repository: syslog-release-master
+      merge: true
+  - put: syslog-release-version
+    params: {file: syslog-release-version/version}

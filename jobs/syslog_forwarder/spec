@@ -7,9 +7,11 @@ templates:
   syslog-release-custom-rules.conf.erb: config/syslog-release-custom-rules.conf
   syslog-release-forwarding-rules.conf.erb: config/syslog-release-forwarding-rules.conf
   syslog-release-forwarding-setup.conf.erb: config/syslog-release-forwarding-setup.conf
+  syslog-release-file-exclusion.conf.erb: config/syslog-release-file-exclusion.conf
   ca_cert.pem.erb: config/ca_cert.pem
   blackbox_ctl.erb: bin/blackbox_ctl
   blackbox_config.yml.erb: config/blackbox_config.yml
+  drain.erb: bin/drain
 
 packages:
   - blackbox
@@ -33,7 +35,6 @@ properties:
       they satisfy any of the following:
       - world-readable
       - readable by the syslog user
-      - readable by the syslog group
       - readable by the vcap group
         (note: the vcap user is insufficient, it must be the group.)
     default: false

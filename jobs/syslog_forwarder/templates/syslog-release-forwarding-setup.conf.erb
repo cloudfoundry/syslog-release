@@ -17,7 +17,11 @@ end.else do
 end
 
 %>
-
+set $.director = "<%= p('syslog.director') %>";
+set $.deployment = "<%= spec.deployment %>";
+set $.instance = "<%= spec.name %>";
+set $.az = "<%= spec.az %>";
+set $.id = "<%= spec.id %>";
 # following https://tools.ietf.org/html/rfc5424#section-6
 template(name="SyslogForwarderTemplate" type="list") {
   constant(value="<")
@@ -31,7 +35,17 @@ template(name="SyslogForwarderTemplate" type="list") {
   constant(value=" ")
   property(name="msgid")
   # 47450 is CFF in https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
-  constant(value=" [instance@47450 director=\"<%= p('syslog.director') %>\" deployment=\"<%= spec.deployment %>\" group=\"<%= spec.job.name %>\" az=\"<%= spec.az %>\" id=\"<%= spec.id %>\"]")
+  constant(value=" [instance@47450 director=\"")
+  property(name="$.director")
+  constant(value="\" deployment=\"")
+  property(name="$.deployment")
+  constant(value="\" group=\"")
+  property(name="$.instance")
+  constant(value="\" az=\"")
+  property(name="$.az")
+  constant(value="\" id=\"")
+  property(name="$.id")
+  constant(value="\"]")
   property(name="msg" spifno1stsp="on" )
   property(name="msg")
 }
@@ -47,6 +61,9 @@ $ActionQueueType LinkedList            # Allocate on-demand
 
 <% if p('syslog.tls_enabled') %>
   <%
+    if syslog_transport == 'udp'
+      raise "TLS is not supported with UDP. Change transport to TCP or RELP, or disable TLS."
+    end
     ca_cert_path = '/etc/ssl/certs/ca-certificates.crt'
 
     if_p('syslog.ca_cert') do
