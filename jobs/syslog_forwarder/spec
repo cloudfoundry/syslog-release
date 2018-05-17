@@ -8,6 +8,7 @@ templates:
   syslog-release-forwarding-rules.conf.erb: config/syslog-release-forwarding-rules.conf
   syslog-release-forwarding-setup.conf.erb: config/syslog-release-forwarding-setup.conf
   syslog-release-file-exclusion.conf.erb: config/syslog-release-file-exclusion.conf
+  syslog-release-post-custom-config.conf.erb: config/syslog-release-post-custom-config.conf
   ca_cert.pem.erb: config/ca_cert.pem
   blackbox_ctl.erb: bin/blackbox_ctl
   blackbox_config.yml.erb: config/blackbox_config.yml
@@ -71,6 +72,12 @@ properties:
       See further discussion and examples in
       example-custom-rules.md
       at the top level of the release repo.
+    default: ""
+
+  syslog.post_custom_config:
+    description: |
+      Custom raw rsyslog configuration for event forwarder.
+      This will be inserted after all the the forwarding rules and configuration.
     default: ""
 
   syslog.tls_enabled:
