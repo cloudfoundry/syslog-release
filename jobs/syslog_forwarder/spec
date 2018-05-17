@@ -3,10 +3,15 @@ name: syslog_forwarder
 
 templates:
   pre-start.erb: bin/pre-start
-  rsyslog.conf.erb: config/rsyslog.conf
+  syslog-release.conf.erb: config/syslog-release.conf
+  syslog-release-custom-rules.conf.erb: config/syslog-release-custom-rules.conf
+  syslog-release-forwarding-rules.conf.erb: config/syslog-release-forwarding-rules.conf
+  syslog-release-forwarding-setup.conf.erb: config/syslog-release-forwarding-setup.conf
+  syslog-release-file-exclusion.conf.erb: config/syslog-release-file-exclusion.conf
   ca_cert.pem.erb: config/ca_cert.pem
   blackbox_ctl.erb: bin/blackbox_ctl
   blackbox_config.yml.erb: config/blackbox_config.yml
+  drain.erb: bin/drain
 
 packages:
   - blackbox
@@ -24,6 +29,24 @@ properties:
   syslog.forward_files:
     description: If enabled, use BlackBox to forward logs.
     default: true
+  syslog.respect_file_permissions:
+    description: |
+      If enabled, log files will be forwarded if and only if
+      they satisfy any of the following:
+      - world-readable
+      - readable by the syslog user
+      - readable by the vcap group
+        (note: the vcap user is insufficient, it must be the group.)
+    default: false
+  syslog.use_tcp_for_file_forwarding_local_transport:
+    description: >
+      If enabled, Blackbox will use TCP rather than UDP
+      when forwarding loglines from files
+      to the local rsyslog.
+      Does not affect forwarding to remote addresses.
+      This prevents truncation of log lines over 1KB,
+      but may have undesirable performance impact.
+    default: false
   syslog.address:
     description: IP or DNS address of the syslog server.
     example: logs4.papertrail.com
@@ -42,18 +65,28 @@ properties:
       transport: tcp
 
   syslog.custom_rule:
-    description: Custom rule for syslog event forwarder.
+    description: |
+      Custom rsyslog rule for event forwarder.
+      This will be inserted before the forwarding rule.
+      See further discussion and examples in
+      example-custom-rules.md
+      at the top level of the release repo.
     default: ""
 
   syslog.tls_enabled:
     description: Set this to true to enable TLS.
     default: false
   syslog.permitted_peer:
-    description: Accepted fingerprint (SHA1) or name of remote peer. Required if TLS is enabled.
-    default: ""
+    description: >
+      Accepted fingerprint (SHA1) or name of remote peer.
+      Only used if TLS is enabled.
+      If not specified, will use the configured forwarding address.
     example: "*.papertrail.com"
   syslog.ca_cert:
-    description: Trust these Certificate Authorities. Required if TLS is enabled.
+    description: |
+      Trusted CAs. Necessary if TLS is enabled
+      AND signing CA is not present in instance cert store.
+      Overrides instance cert store if set.
     example: |
       -----BEGIN CERTIFICATE-----
       MIIClTCCAf4CCQDc6hJtvGB8RjANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMC...
@@ -103,3 +136,14 @@ properties:
   syslog.blackbox.limit_cpu:
     description: limit goprocess to a single cpu via gomaxprocs
     default: true
+
+  syslog.migration.disabled:
+    default: false
+    description: |
+      Deprecated.
+      Allows systems that cannot modify their deployment toplogy
+      to use this release.
+      Do not use if you're not already relying on this capability.
+      If true, does not forward syslogs,
+      and does not require any other properties be provided.
+      Overrides all other configuration.

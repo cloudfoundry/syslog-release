@@ -1,0 +1,62 @@
+<% unless p('syslog.migration.disabled') %>
+<%
+
+syslog_address = nil
+syslog_port = nil
+syslog_transport = nil
+
+if_p('syslog.address', 'syslog.port', 'syslog.transport') do |address, port, transport|
+  syslog_address = address
+  syslog_port = port
+  syslog_transport = transport
+end.else do
+  syslog_link = link('syslog')
+  syslog_address = syslog_link.instances[0].address
+  syslog_port = syslog_link.p('port')
+  syslog_transport = syslog_link.p('transport')
+end
+
+fallback_servers = nil
+respond_to?(:if_link) && if_link('syslog') do |syslog_link|
+  fallback_servers = syslog_link.instances.reject{ |instance| instance.address == syslog_address }.map { |instance|
+    { 'address' => instance.address,
+      'port' => link('syslog').p('port'),
+      'transport' => link('syslog').p('transport') }
+    }
+end.else do
+  fallback_servers = p('syslog.fallback_servers')
+end
+
+%>
+
+<% if syslog_transport == 'relp' %>
+$ModLoad omrelp
+*.* :omrelp:<%= syslog_address %>:<%= syslog_port %>;SyslogForwarderTemplate
+<% elsif syslog_transport == 'udp' %>
+*.* @<%= syslog_address %>:<%= syslog_port %>;SyslogForwarderTemplate
+<% elsif syslog_transport == 'tcp' %>
+*.* @@<%= syslog_address %>:<%= syslog_port %>;SyslogForwarderTemplate
+<% else %>
+<% raise "only RELP, UDP, and TCP protocols are supported (was '#{syslog_transport}')" %>
+<% end %>
+
+<% if fallback_servers.length > 0 %>
+$ActionExecOnlyWhenPreviousIsSuspended on
+    <% fallback_servers.each do |fallback_server| %>
+        <%
+          syslog_fallback_address = fallback_server.fetch('address')
+          syslog_fallback_port = fallback_server.fetch('port')
+          syslog_fallback_transport = fallback_server.fetch('transport')
+        %>
+        <% if syslog_fallback_transport == 'relp' %>
+$ModLoad omrelp
+:omrelp:<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;SyslogForwarderTemplate
+        <% elsif syslog_fallback_transport == 'tcp' %>
+& @@<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;SyslogForwarderTemplate
+        <% else %>
+          <% raise "only RELP, and TCP protocols are supported for fallback servers (was '#{syslog_fallback_transport}')" %>
+        <% end %>
+    <% end %>
+$ActionExecOnlyWhenPreviousIsSuspended off
+<% end %>
+<% end %>

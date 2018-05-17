@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -euxo pipefail
+
+pushd "$(dirname "$0")/.."
+  releaseVersion=$(date "+%s")
+  stemcellVersion=$(bosh stemcells | grep trusty | awk '{ print $2 }' | head -n 1 | tr '*' ' ')
+  bosh create-release --force --version=$releaseVersion
+  bosh upload-release
+  bosh deploy -n -d compilation ./tests/manifests/compliation.yml
+  bosh -d compilation export-release syslog/$releaseVersion ubuntu-trusty/$stemcellVersion
+  bosh upload-release syslog-$releaseVersion-*
+  rm syslog-$releaseVersion-*
+popd
+
+pushd "$(dirname "$0")/../tests"
+  go get github.com/Masterminds/glide
+  glide install
+  go get github.com/onsi/ginkgo/ginkgo
+  ginkgo -r -nodes=10 "$@"
+popd

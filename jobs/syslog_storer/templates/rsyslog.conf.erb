@@ -1,4 +1,3 @@
-$ModLoad imuxsock                       # local message reception (rsyslog uses a datagram socket)
 $MaxMessageSize 4k                      # default is 2k
 $WorkDirectory /var/vcap/data/syslog_storer/buffered # where messages should be buffered on disk
 
@@ -37,17 +36,22 @@ $UDPServerRun <%= port %>
 # Listen for logs over TCP
 $ModLoad imtcp
 $InputTCPMaxSessions 500
+<% if_p('syslog.tls.generation.ca', 'syslog.tls.generation.certificate', 'syslog.tls.generation.ca') do %>
+$DefaultNetstreamDriver gtls
+$DefaultNetstreamDriverCAFile /var/vcap/jobs/syslog_storer/config/ca.pem
+$DefaultNetstreamDriverCertFile /var/vcap/jobs/syslog_storer/config/syslog-storer.crt
+$DefaultNetstreamDriverKeyFile /var/vcap/jobs/syslog_storer/config/syslog-storer.key
+$InputTCPServerStreamDriverMode 1
+$InputTCPServerStreamDriverAuthMode anon
+<% end %>
 $InputTCPServerRun <%= port %>
     <% else %>
         <% raise 'only RELP, UDP, and TCP are supported' %>
     <% end %>
-
 <% end  %>
-
-$ModLoad omfile
 $DirCreateMode 0700
 $FileCreateMode 0644
 *.* /var/vcap/store/syslog_storer/syslog.log;SyslogStorerTemplate
 
 # Prevent them from reaching anywhere else
-:programname, startswith, "vcap." ~
+:programname, startswith, "vcap." stop

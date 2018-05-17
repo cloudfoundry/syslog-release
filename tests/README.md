@@ -1,34 +1,43 @@
-A simple test runner. In case of failure, deployment resources are not deleted.
+# Usage
 
-    ./tests/execute
+## Development
+The following commands assume you are operating
+from the top level of the repo, have go inistalled,
+and have initialized and updated the blackbox submodule
+as described in the main [README](../README.md).
 
-    # or for just one suite of tests
-    ./tests/execute defaults
+First, you'll need to setup a bosh-lite and login to it.
+If you don't have a bosh-lite running
+and aliased as `vbox` already:
+```sh
+scripts/setup-bosh-lite-for-tests.sh
+```
 
-The [`manifest.yml`](manifest.yml) is the base deployment manifest with a single storer and single forwarder. Individual test suites must have a `manifest-ops.yml` file in their directory which may further manipulate the base manifest. A fresh deployment is created for each suite, and then the `test-*` files are executed against it.
+If you don't already have BOSH credential
+environment variables in your session:
+```sh
+scripts/export-bosh-lite-creds.sh
+```
 
+To then run the tests locally:
+```sh
+scripts/test -nodes=10
+```
+Any arguments passed to `scripts/test`
+will be passed on to Ginkgo;
+here, we're running with fewer nodes than the script calls for,
+to respect the limitations of our bosh-lite.
+Generally, try and pick a number of nodes that evenly divides
+into the number of tests you wish to run.
 
-# Setup
+To run only a specific test,
+see https://onsi.github.io/ginkgo/#focused-specs.
 
-To run, ensure you have [bosh-cli](https://bosh.io/docs/cli-v2.html) installed and configured the environment with...
+## Notes
+Because this release is almost entirely composed of bosh templates,
+the acceptance tests do a bosh deployment for each test.
+There are helpers that make doing this easy.
 
- * **`BOSH_ENVIRONMENT`** - the environment for test deployments (you must already be logged in)
- * `BOSH_GW_HOST`, `BOSH_GW_USER`, `BOSH_GW_PRIVATE_KEY` - SSH gateway details (if necessary)
-
-And that a cloud-config is configured with...
-
- * VM Type `default`
- * Network `default`
- * Availability Zone `z1`
-
-And a stemcell is uploaded.
-
-
-## bosh-lite
-
-If you're using bosh-lite...
-
-    $ bosh upload-stemcell \
-      --sha1=7e8d841c5f4d736285ce21a1d582a645c2830cbf \
-      https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent?v=3363.9
-    $ bosh update-cloud-config <( wget -qO https://raw.githubusercontent.com/cloudfoundry/bosh-deployment/master/warden/cloud-config.yml )
+If you are trying to write tests for this release,
+please feel free to contact the team for assistance;
+our contact info is at the top of the main [README](../README.md).

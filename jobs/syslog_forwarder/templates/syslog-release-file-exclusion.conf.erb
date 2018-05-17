@@ -1,0 +1,5 @@
+#Prevent programs that write to syslog directly from having their logs written repeatedly to disk
+:programname, startswith, "vcap." stop
+#Prevent log lines that come from files from being re-written to disk by 50-default.conf rules.
+:procid, isequal, "rs2" stop
+

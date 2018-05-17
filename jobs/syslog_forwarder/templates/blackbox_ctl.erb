@@ -6,6 +6,7 @@ set -e
 RUN_DIR=/var/vcap/sys/run/syslog_forwarder/blackbox
 LOG_DIR=/var/vcap/sys/log/syslog_forwarder/blackbox
 PIDFILE=$RUN_DIR/blackbox.pid
+CONFIG_FILE=/var/vcap/jobs/syslog_forwarder/config/blackbox_config.yml
 
 case $1 in
 
@@ -18,14 +19,15 @@ case $1 in
 
     echo $$ > $PIDFILE
 
-    setcap cap_dac_read_search+ep /var/vcap/packages/blackbox/bin/blackbox
-
+    <% unless p('syslog.respect_file_permissions') %>
+      setcap cap_dac_read_search+ep /var/vcap/packages/blackbox/bin/blackbox
+    <% end %>
     <% if p('syslog.blackbox.limit_cpu') %>
       export GOMAXPROCS=1
     <% end %>
 
-    exec chpst -u syslog:syslog /var/vcap/packages/blackbox/bin/blackbox \
-      -config=/var/vcap/jobs/syslog_forwarder/config/blackbox_config.yml \
+    exec chpst -u syslog:vcap /var/vcap/packages/blackbox/bin/blackbox \
+      -config=$CONFIG_FILE \
       1>>$LOG_DIR/blackbox.stdout.log \
       2>>$LOG_DIR/blackbox.stderr.log
 

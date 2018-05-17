@@ -1,7 +1,9 @@
+<% unless p('syslog.migration.disabled') %>
 <% if p('syslog.forward_files') %>
 check process blackbox
   with pidfile /var/vcap/sys/run/syslog_forwarder/blackbox/blackbox.pid
   start program "/var/vcap/jobs/syslog_forwarder/bin/blackbox_ctl start"
   stop program "/var/vcap/jobs/syslog_forwarder/bin/blackbox_ctl stop"
   group vcap
+<% end %>
 <% end %>

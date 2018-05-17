@@ -1,0 +1,97 @@
+<% unless p('syslog.migration.disabled') %>
+<%
+
+syslog_address = nil
+syslog_port = nil
+syslog_transport = nil
+
+if_p('syslog.address', 'syslog.port', 'syslog.transport') do |address, port, transport|
+  syslog_address = address
+  syslog_port = port
+  syslog_transport = transport
+end.else do
+  syslog_link = link('syslog')
+  syslog_address = syslog_link.instances[0].address
+  syslog_port = syslog_link.p('port')
+  syslog_transport = syslog_link.p('transport')
+end
+
+fallback_servers = nil
+respond_to?(:if_link) && if_link('syslog') do |syslog_link|
+  fallback_servers = syslog_link.instances.reject{ |instance| instance.address == syslog_address }.map { |instance|
+    { 'address' => instance.address,
+      'port' => link('syslog').p('port'),
+      'transport' => link('syslog').p('transport') }
+    }
+end.else do
+  fallback_servers = p('syslog.fallback_servers')
+end
+
+%>
+set $.director = "<%= p('syslog.director') %>";
+set $.deployment = "<%= spec.deployment %>";
+set $.instance = "<%= spec.name %>";
+set $.az = "<%= spec.az %>";
+set $.id = "<%= spec.id %>";
+# following https://tools.ietf.org/html/rfc5424#section-6
+template(name="SyslogForwarderTemplate" type="list") {
+  constant(value="<")
+  property(name="pri")
+  constant(value=">1 ")
+  property(name="timestamp" dateFormat="rfc3339")
+  constant(value=" <%= spec.address %> ")
+  property(name="app-name")
+  constant(value=" ")
+  property(name="procid")
+  constant(value=" ")
+  property(name="msgid")
+  # 47450 is CFF in https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
+  constant(value=" [instance@47450 director=\"")
+  property(name="$.director")
+  constant(value="\" deployment=\"")
+  property(name="$.deployment")
+  constant(value="\" group=\"")
+  property(name="$.instance")
+  constant(value="\" az=\"")
+  property(name="$.az")
+  constant(value="\" id=\"")
+  property(name="$.id")
+  constant(value="\"]")
+  property(name="msg" spifno1stsp="on" )
+  property(name="msg")
+}
+
+<% if fallback_servers.length > 0 %>
+<% raise 'only RELP and TCP protocols are supported for fallback servers (was UDP)' if syslog_transport == 'udp' %>
+$ActionResumeRetryCount 2              # Try with a fallback server after 2 retries
+$ActionQueueType Direct
+<% else %>
+$ActionResumeRetryCount -1             # Try until the server becomes available
+$ActionQueueType LinkedList            # Allocate on-demand
+<% end %>
+
+<% if p('syslog.tls_enabled') %>
+  <%
+    if syslog_transport == 'udp'
+      raise "TLS is not supported with UDP. Change transport to TCP or RELP, or disable TLS."
+    end
+    ca_cert_path = '/etc/ssl/certs/ca-certificates.crt'
+
+    if_p('syslog.ca_cert') do
+      ca_cert_path = '/var/vcap/jobs/syslog_forwarder/config/ca_cert.pem'
+    end
+  %>
+
+$DefaultNetstreamDriverCAFile <%= ca_cert_path %>                 # trust these CAs
+$ActionSendStreamDriver gtls                                      # use gtls netstream driver
+$ActionSendStreamDriverMode 1                                     # require TLS
+$ActionSendStreamDriverAuthMode x509/name                         # authenticate by hostname
+$ActionSendStreamDriverPermittedPeer <%= p('syslog.permitted_peer', syslog_address) %>
+<%
+  else
+    if_p('syslog.ca_cert') do
+      raise "A ca cert was provided but tls is not enabled. Set 'syslog.tls_enabled' to true"
+    end
+  end
+%>
+<% end %>

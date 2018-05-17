@@ -1,0 +1,41 @@
+---
+name: ((deployment))
+releases:
+  - name: syslog
+    version: latest
+stemcells:
+  - alias: default
+    os: ubuntu-trusty
+    version: latest
+instance_groups:
+  - name: forwarder
+    instances: 1
+    vm_type: default
+    stemcell: default
+    networks:
+      - name: default
+    azs:
+      - z1
+    jobs:
+      - name: syslog_forwarder
+        release: syslog
+    properties:
+      syslog:
+        custom_rule: |
+          if :invalid-property-accessor then $nonsense
+  - name: storer
+    instances: 1
+    vm_type: default
+    stemcell: default
+    networks:
+      - name: default
+    azs:
+      - z1
+    jobs:
+      - name: syslog_storer
+        release: syslog
+update:
+  canaries: 1
+  max_in_flight: 1
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000

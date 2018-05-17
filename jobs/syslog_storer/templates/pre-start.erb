@@ -1,10 +1,51 @@
 #!/bin/bash
 set -ex
 
+#Taken from bosh https://bosh.io/docs/director-certs-openssl.html
+function generateCert {
+  name=$1
+  ip=$2
+
+  cat >openssl-exts.conf <<-EOL
+extensions = san
+[san]
+subjectAltName = IP:${ip}
+EOL
+
+  echo "Generating private key..."
+  openssl genrsa -out ${name}.key 2048
+
+  echo "Generating certificate signing request for ${ip}..."
+  # golang requires to have SAN for the IP
+  openssl req -new -nodes -key ${name}.key \
+    -out ${name}.csr \
+    -subj "/C=US/O=BOSH/CN=${ip}"
+
+  echo "Generating certificate ${ip}..."
+  openssl x509 -req -in ${name}.csr \
+    -CA /var/vcap/jobs/syslog_storer/config/ca.pem -CAkey /var/vcap/jobs/syslog_storer/config/ca.key -CAcreateserial \
+    -out ${name}.crt -days 99999 \
+    -extfile ./openssl-exts.conf
+
+  echo "Deleting certificate signing request and config..."
+  rm ${name}.csr
+  rm ./openssl-exts.conf
+}
+
 mkdir -p /var/vcap/store/syslog_storer
 mkdir -p /var/vcap/data/syslog_storer/buffered
 chown -R syslog:adm /var/vcap/data/syslog_storer/buffered
 chown -R syslog:adm /var/vcap/store/syslog_storer
+
+<% if_p('syslog.tls.generation.ca', 'syslog.tls.generation.certificate', 'syslog.tls.generation.ca') do %>
+generateCert syslog-storer <%= spec.ip %>
+
+cp syslog-storer.key /var/vcap/jobs/syslog_storer/config/syslog-storer.key
+cp syslog-storer.crt /var/vcap/jobs/syslog_storer/config/syslog-storer.crt
+
+chmod 0600 /var/vcap/jobs/syslog_storer/config/syslog-storer.key
+chown -R syslog:adm /var/vcap/jobs/syslog_storer/config/syslog-storer.key
+<% end %>
 
 mkdir -p /etc/rsyslog.d
 cp $(dirname $0)/../config/rsyslog.conf /etc/rsyslog.d/rsyslog.conf
