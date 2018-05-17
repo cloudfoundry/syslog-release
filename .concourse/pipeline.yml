@@ -177,6 +177,8 @@ jobs:
     input_mapping:
       bbl-state: tycho-env-bbl-state
       bbl-config: tycho-env-bbl-state
+    params:
+      BBL_GCP_SERVICE_ACCOUNT_KEY: google_account_creds.json
     ensure:
       put: tycho-env-bbl-state
       params:
