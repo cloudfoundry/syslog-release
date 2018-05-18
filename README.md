@@ -224,6 +224,24 @@ are rendered into several files following the format
 and `/etc/rsyslog.d/rsyslog.conf`, a legacy config location,
 during prestart.
 
+BLACKBOX is used for forwarding from files.
+It was historically an experiment by the Concourse team,
+but now it's just used to forward logs from files.
+It currently vendors a mutated version of
+the remote-syslog2 library.
+The mutation is to enable filtering of logs
+forwarded by blackbox,
+and to allow us to support structured data in
+windows-syslog-release,
+which is purely reliant on blackbox.
+At some point it might be worthwhile
+to PR those changes back up;
+the current situation is admittedly odd and awkward.
+
+RSYSLOG itself might be able to do this at some point in the future.
+The current version of rsyslog does not sufficiently support wildcards
+for our use-case, but it may be worth further exploring in the future.
+
 ## Development
 In order to build releases or run tests,
 you will need to initialize and update the blackbox submodule:

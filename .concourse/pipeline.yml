@@ -58,6 +58,11 @@ resources:
     uri: https://github.com/bosh-packages/golang-release.git
     tag_filter: '*'
 
+- name: windows2016-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-windows2016-go_agent
+
 # ENV
 - name: tycho-env-bbl-state
   type: git
@@ -121,6 +126,12 @@ resources:
   source:
     branch: develop
     uri: https://github.com/cloudfoundry/syslog-release.git
+
+- name: runtime-ci
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cloudfoundry/runtime-ci.git
 
 jobs:
 - name: setup-infrastructure
@@ -250,11 +261,13 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
+    - get: runtime-ci
     - get: cf-deployment-master
       trigger: true
     - get: tycho-env-bbl-state
     - get: tycho-env-vars-store
     - get: tycho-env-integration-configs
+    - get: windows2016-stemcell
     - get: syslog-release
       trigger: true
     - get: weekly
@@ -264,6 +277,13 @@ jobs:
     input_mapping:
       bbl-state: tycho-env-bbl-state
       cf-deployment: cf-deployment-master
+  - task: bosh-upload-windows2016-stemcell
+    file: runtime-ci/tasks/bosh-upload-stemcell/task.yml
+    input_mapping:
+      stemcell: windows2016-stemcell
+      bbl-state: tycho-env-bbl-state
+    params:
+      STEMCELL_NAME: '*.tgz'
   - task: deploy-cf-with-created-syslog
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
@@ -330,6 +350,7 @@ jobs:
       trigger: true
       passed: [deploy-cf-with-created-syslog]
   - task: set-cats-feature-flags
+    attempts: 20
     file: cf-deployment-concourse-tasks/set-feature-flags/task.yml
     input_mapping:
       vars-store: tycho-env-vars-store
