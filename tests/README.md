@@ -33,6 +33,10 @@ into the number of tests you wish to run.
 To run only a specific test,
 see https://onsi.github.io/ginkgo/#focused-specs.
 
+You can set `STEMCELL_OS` to run the tests with arbitrary stemcells.
+Any valid value for `stemcell.os` in the BOSH manifest should work -
+the tests end up interpolating the env var into the test manifests.
+
 ## Notes
 Because this release is almost entirely composed of bosh templates,
 the acceptance tests do a bosh deployment for each test.
