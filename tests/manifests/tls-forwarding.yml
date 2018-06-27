@@ -5,7 +5,7 @@ releases:
     version: latest
 stemcells:
   - alias: default
-    os: ubuntu-trusty
+    os: ((stemcell-os))
     version: latest
 instance_groups:
   - name: forwarder
