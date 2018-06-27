@@ -3,6 +3,7 @@ package syslog_acceptance_test
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -15,6 +16,13 @@ import (
 
 func DeploymentName() string {
 	return fmt.Sprintf("syslog-tests-%d", GinkgoParallelNode())
+}
+
+func StemcellOS() string {
+	if stemcellOS, stemcellEnvSet := os.LookupEnv("STEMCELL_OS"); stemcellEnvSet {
+		return stemcellOS
+	}
+	return "ubuntu-trusty"
 }
 
 func BoshCmd(args ...string) *gexec.Session {
@@ -44,14 +52,18 @@ func Cleanup() {
 }
 
 func Deploy(manifest string) *gexec.Session {
-	session := BoshCmd("deploy", manifest, "-v", fmt.Sprintf("deployment=%s", DeploymentName()))
+	session := BoshCmd("deploy", manifest,
+		"-v", fmt.Sprintf("deployment=%s", DeploymentName()),
+		"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS()))
 	Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
 	Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
 	return session
 }
 
 func DeployWithVarsStore(manifest string) *gexec.Session {
-	session := BoshCmd("deploy", manifest, "-v", fmt.Sprintf("deployment=%s", DeploymentName()), fmt.Sprintf("--vars-store=/tmp/%s-vars.yml", DeploymentName()))
+	session := BoshCmd("deploy", manifest,
+		"-v", fmt.Sprintf("deployment=%s", DeploymentName()), fmt.Sprintf("--vars-store=/tmp/%s-vars.yml", DeploymentName()),
+		"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS()))
 	Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
 	Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
 	return session
