@@ -40,7 +40,7 @@ func ForwarderSshCmd(command string) *gexec.Session {
 }
 
 func SendLogMessage(msg string) {
-	session := ForwarderSshCmd(fmt.Sprintf("logger %s -t vcap.", msg))
+	session := ForwarderSshCmd(fmt.Sprintf("logger --size 1025 %s -t vcap.", msg))
 	Eventually(session).Should(gexec.Exit(0))
 }
 
