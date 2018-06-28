@@ -257,47 +257,47 @@ jobs:
       inputs:
       - name: syslog-release
       - name: tycho-env-bbl-state
-  - task: syslog-acceptance-centos-7
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
-          tag: v5
-      params:
-        STEMCELL_OS: centos-7
-      run:
-        path: bash
-        args:
-          - -c
-          - |
-            #!/bin/bash
-
-            set -e
-
-            workspace=$PWD
-            mkdir -p $GOPATH/src/github.com/cloudfoundry
-            ln -s $workspace/syslog-release $GOPATH/src/github.com/cloudfoundry/syslog-release
-
-            function kill_bbl_ssh {
-              pkill ssh || true
-            }
-
-            trap kill_bbl_ssh EXIT
-
-            pushd $workspace/tycho-env-bbl-state
-              source .envrc
-            popd
-
-            pushd $GOPATH/src/github.com/cloudfoundry/syslog-release
-              ./scripts/test
-            popd
-      caches:
-      - path: syslog-release/blobs
-      inputs:
-      - name: syslog-release
-      - name: tycho-env-bbl-state
+  # - task: syslog-acceptance-centos-7
+  #   config:
+  #     platform: linux
+  #     image_resource:
+  #       type: docker-image
+  #       source:
+  #         repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+  #         tag: v5
+  #     params:
+  #       STEMCELL_OS: centos-7
+  #     run:
+  #       path: bash
+  #       args:
+  #         - -c
+  #         - |
+  #           #!/bin/bash
+  #
+  #           set -e
+  #
+  #           workspace=$PWD
+  #           mkdir -p $GOPATH/src/github.com/cloudfoundry
+  #           ln -s $workspace/syslog-release $GOPATH/src/github.com/cloudfoundry/syslog-release
+  #
+  #           function kill_bbl_ssh {
+  #             pkill ssh || true
+  #           }
+  #
+  #           trap kill_bbl_ssh EXIT
+  #
+  #           pushd $workspace/tycho-env-bbl-state
+  #             source .envrc
+  #           popd
+  #
+  #           pushd $GOPATH/src/github.com/cloudfoundry/syslog-release
+  #             ./scripts/test
+  #           popd
+  #     caches:
+  #     - path: syslog-release/blobs
+  #     inputs:
+  #     - name: syslog-release
+  #     - name: tycho-env-bbl-state
   - task: syslog-acceptance-trusty
     config:
       platform: linux
