@@ -4,7 +4,7 @@
 * CI Pipelines: https://syslog.ci.cf-app.com
 
 1. [Usage](#usage)
-1. [Configureation](#configure-forwarding)
+1. [Configuration](#configure-forwarding)
 1. [Custom Rules](#custom-rule)
 1. [Output Format](#format)
 1. [Tech Notes](#tech-notes)
