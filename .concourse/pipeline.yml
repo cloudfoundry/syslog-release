@@ -15,7 +15,7 @@ groups:
   - destroy-infrastructure
 
 resources:
-# Manifests and Releases
+# Manifests, Releases, and Stemcells
 - name: cf-deployment-master
   type: git
   source:
@@ -50,18 +50,29 @@ resources:
     branch: develop
     private_key: ((syslog_release_read_write_deploy_key))
     uri: git@github.com:cloudfoundry/syslog-release.git
-
 - name: golang-release
   type: git
   source:
     branch: master
     uri: https://github.com/bosh-packages/golang-release.git
     tag_filter: '*'
-
 - name: windows2016-stemcell
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-windows2016-go_agent
+- name: ubuntu-xenial-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-xenial-go_agent
+- name: ubuntu-trusty-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-trusty-go_agent
+- name: centos-stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-centos-7-go_agent
+
 
 # ENV
 - name: tycho-env-bbl-state
@@ -216,6 +227,48 @@ jobs:
     - get: syslog-release
       trigger: true
     - get: tycho-env-bbl-state
+    - get: ubuntu-trusty-stemcell
+    - get: ubuntu-xenial-stemcell
+    - get: centos-stemcell
+  - task: upload-all-linux-stemcells
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
+          tag: v5
+      run:
+        path: bash
+        args:
+          - -c
+          - |
+            #!/bin/bash
+
+            set -e
+
+            workspace=$PWD
+            mkdir -p $GOPATH/src/github.com/cloudfoundry
+            ln -s $workspace/syslog-release $GOPATH/src/github.com/cloudfoundry/syslog-release
+
+            function kill_bbl_ssh {
+              pkill ssh || true
+            }
+
+            trap kill_bbl_ssh EXIT
+
+            pushd $workspace/tycho-env-bbl-state
+              source .envrc
+            popd
+
+            bosh upload-stemcell ubuntu-trusty-stemcell/*.tgz
+            bosh upload-stemcell ubuntu-xenial-stemcell/*.tgz
+            bosh upload-stemcell centos-stemcell/*.tgz
+      inputs:
+      - name: tycho-env-bbl-state
+      - name: ubuntu-trusty-stemcell
+      - name: ubuntu-xenial-stemcell
+      - name: centos-stemcell
   - task: syslog-acceptance-xenial
     config:
       platform: linux
