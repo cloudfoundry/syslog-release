@@ -200,6 +200,52 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 
 		TestSharedBehavior()
 	})
+
+	Context("when TLS is only configured in the client", func() {
+		BeforeEach(func() {
+			Cleanup()
+			DeployWithVarsStore("manifests/tls-forwarding-not-in-server.yml")
+		})
+		AfterEach(func() {
+			Cleanup()
+		})
+
+		It("does not forward logs", func() {
+			SendLogMessage("test-logger-isolation")
+			Consistently(func() string {
+				return ForwardedLogs()
+			}).Should(HaveLen(0))
+		})
+	})
+
+	Context("when Mutual TLS is configured", func() {
+		BeforeEach(func() {
+			Cleanup()
+			DeployWithVarsStore("manifests/mutual-tls-forwarding.yml")
+		})
+		AfterEach(func() {
+			Cleanup()
+		})
+
+		TestSharedBehavior()
+	})
+
+	Context("when Mutual TLS is configured but the client provides an invalid cert", func() {
+		BeforeEach(func() {
+			Cleanup()
+			DeployWithVarsStore("manifests/mutual-tls-forwarding-invalid-client-cert.yml")
+		})
+		AfterEach(func() {
+			Cleanup()
+		})
+
+		It("does not forward logs", func() {
+			SendLogMessage("test-logger-isolation")
+			Consistently(func() string {
+				return ForwardedLogs()
+			}).Should(HaveLen(0))
+		})
+	})
 })
 
 var _ = Describe("When syslog is configured to run in unprivileged mode", func() {

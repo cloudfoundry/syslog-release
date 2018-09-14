@@ -42,7 +42,11 @@ $DefaultNetstreamDriverCAFile /var/vcap/jobs/syslog_storer/config/ca.pem
 $DefaultNetstreamDriverCertFile /var/vcap/jobs/syslog_storer/config/syslog-storer.crt
 $DefaultNetstreamDriverKeyFile /var/vcap/jobs/syslog_storer/config/syslog-storer.key
 $InputTCPServerStreamDriverMode 1
+    <% if p('syslog.client_tls.enabled') %>
+$InputTCPServerStreamDriverAuthMode x509/certvalid
+    <% else %>
 $InputTCPServerStreamDriverAuthMode anon
+    <% end %>
 <% end %>
 $InputTCPServerRun <%= port %>
     <% else %>

@@ -35,6 +35,12 @@ chmod 0644 /etc/rsyslog.d/35-syslog-release-forwarding-rules.conf
 cp $(dirname $0)/../config/syslog-release-file-exclusion.conf /etc/rsyslog.d/40-syslog-release-file-exclusion.conf
 chmod 0644 /etc/rsyslog.d/40-syslog-release-file-exclusion.conf
 
+cp $(dirname $0)/../config/syslog-release-post-custom-config.conf /etc/rsyslog.d/99-syslog-release-post-custom-config.conf
+chmod 0644 /etc/rsyslog.d/99-syslog-release-post-custom-config.conf
+
+# We remove the custom config if it is not valid in the context of the rsyslog config.
+rsyslogd -N1 || (echo 'Post custom configuration invalid' && rm 99-syslog-release-post-custom-config.conf)
+
 <% end %>
 
 service rsyslog restart

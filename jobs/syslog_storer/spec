@@ -42,3 +42,8 @@ properties:
       Key of the CA that will be used to sign generated certificates
       for each storer instance.
       Generation will only occur if all generation properties are set.
+
+  syslog.client_tls.enabled:
+    default: false
+    description: >
+      Require syslog clients to use a CA-validated TLS certificate.
