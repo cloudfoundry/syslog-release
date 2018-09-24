@@ -130,7 +130,7 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v6.*
+    tag_filter: v7.*
 
 - name: syslog-ci
   type: git
@@ -160,7 +160,6 @@ jobs:
       BBL_GCP_SERVICE_ACCOUNT_KEY: google_account_creds.json
       BBL_GCP_PROJECT_ID: ((tycho_gcp_project))
       BBL_GCP_REGION: us-central1
-      BBL_GCP_ZONE: us-central1-a
       BBL_LB_CERT: ((tycho_cf_ssl_cert))
       BBL_LB_KEY: ((tycho_cf_ssl_cert_private_key))
       BBL_CONFIG_DIR: bbl-config
@@ -409,18 +408,15 @@ jobs:
       trigger: true
     - get: weekly
       trigger: true
-  - task: upload-stemcell
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcell-from-cf-deployment/task.yml
+  - task: upload-stemcells
+    file: cf-deployment-concourse-tasks/bosh-upload-stemcells/task.yml
     input_mapping:
       bbl-state: tycho-env-bbl-state
       cf-deployment: cf-deployment-master
-  - task: bosh-upload-windows2016-stemcell
-    file: runtime-ci/tasks/bosh-upload-stemcell/task.yml
-    input_mapping:
-      stemcell: windows2016-stemcell
-      bbl-state: tycho-env-bbl-state
+      ops-files: cf-deployment-master
     params:
-      STEMCELL_NAME: '*.tgz'
+      OPS_FILES: >
+        operations/windows2016-cell.yml
   - task: deploy-cf-with-created-syslog
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
@@ -429,12 +425,10 @@ jobs:
       cf-deployment: cf-deployment-master
       release: syslog-release
       ops-files: cf-deployment-master
-      vars-store: tycho-env-vars-store
       vars-files: tycho-env-vars-store
     params:
       OPS_FILES: |
         operations/addons/enable-component-syslog.yml
-        operations/experimental/use-bosh-dns.yml
         operations/scale-to-one-az.yml
         operations/windows2016-cell.yml
         ../vars-files/operations/windows-enable-component-syslog.yml
@@ -443,15 +437,10 @@ jobs:
       SYSTEM_DOMAIN: tycho.cf-app.com
       VARS_FILES: component_syslog_vars.yml
       BBL_CONFIG_DIR: bbl-config
-    ensure:
-      put: tycho-env-vars-store
-      params:
-        repository: updated-vars-store
-        rebase: true
   - task: update-integration-configs
     file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
     input_mapping:
-      vars-store: tycho-env-vars-store
+      bbl-state: tycho-env-bbl-state
       integration-configs: tycho-env-integration-configs
     ensure:
       put: tycho-env-integration-configs
