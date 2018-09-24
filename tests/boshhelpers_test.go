@@ -40,18 +40,28 @@ func ForwarderSshCmd(command string) *gexec.Session {
 }
 
 func SendLogMessage(msg string) {
-	session := ForwarderSshCmd(fmt.Sprintf("logger --size 1025 %s -t vcap.", msg))
+	session := ForwarderSshCmd(fmt.Sprintf("logger --size 1025 %s -t vcap. || logger %s -t vcap.", msg, msg))
 	Eventually(session).Should(gexec.Exit(0))
 }
 
+func eventualLockChecker() func() *gexec.Session {
+	lockCheck := func() *gexec.Session {
+		return BoshCmd("locks")
+	}
+	return lockCheck
+}
+
 func Cleanup() {
+	By("Performing Cleanup")
 	BoshCmd("locks")
 	session := BoshCmd("delete-deployment")
 	Eventually(session, 10*time.Minute).Should(gexec.Exit(0))
-	Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
+
+	Eventually(eventualLockChecker()).ShouldNot(gbytes.Say(DeploymentName()))
 }
 
 func Deploy(manifest string) *gexec.Session {
+	By("Deploying")
 	session := BoshCmd("deploy", manifest,
 		"-v", fmt.Sprintf("deployment=%s", DeploymentName()),
 		"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS()))
