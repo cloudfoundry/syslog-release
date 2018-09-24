@@ -177,7 +177,7 @@ var _ = Describe("HttpServer", func() {
 				}
 
 				serverTlsConfig := &tls.Config{
-					Certificates:       []tls.Certificate{tlsCert},
+					Certificates: []tls.Certificate{tlsCert},
 				}
 
 				unixHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -227,7 +227,7 @@ var _ = Describe("HttpServer", func() {
 				}
 
 				serverTlsConfig := &tls.Config{
-					Certificates:       []tls.Certificate{tlsCert},
+					Certificates: []tls.Certificate{tlsCert},
 				}
 
 				server = http_server.NewTLSServer(address, handler, serverTlsConfig)
