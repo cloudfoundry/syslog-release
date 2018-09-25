@@ -4,6 +4,7 @@ name: syslog_forwarder
 templates:
   pre-start.erb: bin/pre-start
   syslog-release.conf.erb: config/syslog-release.conf
+  syslog-release-vcap-filter.conf.erb: config/syslog-release-vcap-filter.conf
   syslog-release-custom-rules.conf.erb: config/syslog-release-custom-rules.conf
   syslog-release-forwarding-rules.conf.erb: config/syslog-release-forwarding-rules.conf
   syslog-release-forwarding-setup.conf.erb: config/syslog-release-forwarding-setup.conf
@@ -72,6 +73,18 @@ properties:
       example-custom-rules.md
       at the top level of the release repo.
     default: ""
+  syslog.filter_legacy_vcap_messages:
+    description: >
+      Drop messages with an app name that starts with "vcap."
+      This is intended to prevent near-identical duplicates
+      when using forward_files with legacy Cloud Foundry jobs,
+      which generally use tee to send logs to syslog directly
+      in addition to writing them to the filesystem.
+      This should probably be set to true
+      in any deployment of Cloud Foundry Application Runtime.
+      This may be on by default in the future,
+      though this would be a breaking/major version change.
+    default: false
 
   syslog.tls_enabled:
     description: Set this to true to enable TLS.

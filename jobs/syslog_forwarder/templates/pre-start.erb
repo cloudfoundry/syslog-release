@@ -29,6 +29,9 @@ chmod 0644 /etc/rsyslog.d/30-syslog-release-custom-rules.conf
 # We remove the custom rule if it is not valid in the context of the rsyslog config.
 rsyslogd -N1 || (echo 'Custom rule configuration invalid' && rm /etc/rsyslog.d/30-syslog-release-custom-rules.conf)
 
+cp $(dirname $0)/../config/syslog-release-vcap-filter.conf /etc/rsyslog.d/32-syslog-release-vcap-filter.conf
+chmod 0644 /etc/rsyslog.d/32-syslog-release-vcap-filter.conf
+
 cp $(dirname $0)/../config/syslog-release-forwarding-rules.conf /etc/rsyslog.d/35-syslog-release-forwarding-rules.conf
 chmod 0644 /etc/rsyslog.d/35-syslog-release-forwarding-rules.conf
 

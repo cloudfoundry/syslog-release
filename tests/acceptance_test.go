@@ -202,6 +202,31 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	})
 })
 
+var _ = Describe("Optional features to reduce CF log volume", func() {
+	AfterEach(func() {
+		Cleanup()
+	})
+
+	Context("when vcap filtering is enabled to eliminate duplication", func() {
+		BeforeEach(func() {
+			Cleanup()
+			Deploy("manifests/vcap-filtering.yml")
+		})
+		It("filters logs from the vcap side of the tee while forwarding other logs", func() {
+			By("continuing to forward logs from the filesystem")
+			fileMessage := "Old-style CF tee-based message, file side"
+			Eventually(WriteToTestFile(fileMessage)).Should(gbytes.Say(fileMessage))
+
+			By("not forwarding logs written as vcap. user")
+			loggerMessage := "Old-style CF tee-based message, logger side"
+			SendLogMessage(loggerMessage)
+			Consistently(func() string {
+				return ForwardedLogs()
+			}).ShouldNot(ContainSubstring(loggerMessage))
+		})
+	})
+})
+
 var _ = Describe("When syslog is configured to run in unprivileged mode", func() {
 	BeforeEach(func() {
 		Cleanup()
