@@ -479,7 +479,7 @@ jobs:
     attempts: 20
     file: cf-deployment-concourse-tasks/set-feature-flags/task.yml
     input_mapping:
-      vars-store: tycho-env-vars-store
+      bbl-state: tycho-env-bbl-state
     params:
       SYSTEM_DOMAIN: tycho.cf-app.com
       ENABLED_FEATURE_FLAGS: |
