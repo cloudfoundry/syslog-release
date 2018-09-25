@@ -68,10 +68,13 @@ resources:
   type: bosh-io-stemcell
   source:
     name: bosh-google-kvm-ubuntu-trusty-go_agent
-- name: centos-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-google-kvm-centos-7-go_agent
+#   Only necessary to run syslog acceptance tests with CentOS,
+#   but such tests don't currently work,
+#   due to rsyslogd not being on the path in the centos stemcell.
+# - name: centos-stemcell
+#   type: bosh-io-stemcell
+#   source:
+#     name: bosh-google-kvm-centos-7-go_agent
 
 
 # ENV
@@ -131,18 +134,11 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
     tag_filter: v7.*
-
 - name: syslog-ci
   type: git
   source:
     branch: develop
     uri: https://github.com/cloudfoundry/syslog-release.git
-
-- name: runtime-ci
-  type: git
-  source:
-    branch: master
-    uri: https://github.com/cloudfoundry/runtime-ci.git
 
 jobs:
 - name: setup-infrastructure
@@ -228,7 +224,7 @@ jobs:
     - get: tycho-env-bbl-state
     - get: ubuntu-trusty-stemcell
     - get: ubuntu-xenial-stemcell
-    - get: centos-stemcell
+    # - get: centos-stemcell
   - task: upload-all-linux-stemcells
     config:
       platform: linux
@@ -262,12 +258,12 @@ jobs:
 
             bosh upload-stemcell ubuntu-trusty-stemcell/*.tgz
             bosh upload-stemcell ubuntu-xenial-stemcell/*.tgz
-            bosh upload-stemcell centos-stemcell/*.tgz
+            # bosh upload-stemcell centos-stemcell/*.tgz
       inputs:
       - name: tycho-env-bbl-state
       - name: ubuntu-trusty-stemcell
       - name: ubuntu-xenial-stemcell
-      - name: centos-stemcell
+      # - name: centos-stemcell
   - task: syslog-acceptance-xenial
     config:
       platform: linux
@@ -400,7 +396,6 @@ jobs:
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: runtime-ci
     - get: cf-deployment-master
       trigger: true
     - get: tycho-env-bbl-state
@@ -463,12 +458,8 @@ jobs:
   plan:
   - aggregate:
     - get: cf-acceptance-tests
-    - get: cf-deployment-master
-      passed: [deploy-cf-with-created-syslog]
     - get: tycho-env-bbl-state
       trigger: true
-      passed: [deploy-cf-with-created-syslog]
-    - get: tycho-env-vars-store
       passed: [deploy-cf-with-created-syslog]
     - get: tycho-env-integration-configs
     - get: cf-deployment-concourse-tasks
