@@ -309,6 +309,9 @@ jobs:
       inputs:
       - name: syslog-release
       - name: tycho-env-bbl-state
+  # This doesn't work right now because the tests invoke rsyslogd,
+  # (and expect it to be on the path)
+  # and that doesn't work on CentOS
   # - task: syslog-acceptance-centos-7
   #   config:
   #     platform: linux
