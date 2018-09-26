@@ -17,6 +17,8 @@ builds:
     version: 11.3.2
   67f14a0c-6e3b-42c1-73d1-828eccb9f377:
     version: "11"
+  6c01cc7f-b683-4060-5b5f-9609fc58e380:
+    version: 11.4.0
   6fcd5398-b7d2-4f39-bcce-1ca69ccdbe92:
     version: "6"
   9a74c48f-3175-4a24-49da-58718931d797:
