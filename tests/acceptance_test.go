@@ -225,6 +225,24 @@ var _ = Describe("Optional features to reduce CF log volume", func() {
 			}).ShouldNot(ContainSubstring(loggerMessage))
 		})
 	})
+	Context("when DEBUG filtering is enabled to reduce volume", func() {
+		BeforeEach(func() {
+			Cleanup()
+			Deploy("manifests/debug-filtering.yml")
+		})
+		It("filters logs that start with DEBUG while forwarding other logs", func() {
+			By("continuing to forward logs from the filesystem")
+			normalMessage := "INFO is not debug or DEBUG"
+			Eventually(WriteToTestFile(normalMessage)).Should(gbytes.Say(normalMessage))
+
+			By("not forwarding logs that start with DEBUG")
+			debugMessage := "DEBUG is debug, however"
+			SendLogMessage(debugMessage)
+			Consistently(func() string {
+				return ForwardedLogs()
+			}).ShouldNot(ContainSubstring(debugMessage))
+		})
+	})
 })
 
 var _ = Describe("When syslog is configured to run in unprivileged mode", func() {

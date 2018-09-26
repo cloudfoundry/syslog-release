@@ -2,17 +2,18 @@
 name: syslog_forwarder
 
 templates:
-  pre-start.erb: bin/pre-start
-  syslog-release.conf.erb: config/syslog-release.conf
-  syslog-release-vcap-filter.conf.erb: config/syslog-release-vcap-filter.conf
-  syslog-release-custom-rules.conf.erb: config/syslog-release-custom-rules.conf
-  syslog-release-forwarding-rules.conf.erb: config/syslog-release-forwarding-rules.conf
-  syslog-release-forwarding-setup.conf.erb: config/syslog-release-forwarding-setup.conf
-  syslog-release-file-exclusion.conf.erb: config/syslog-release-file-exclusion.conf
-  ca_cert.pem.erb: config/ca_cert.pem
   blackbox_ctl.erb: bin/blackbox_ctl
   blackbox_config.yml.erb: config/blackbox_config.yml
+  ca_cert.pem.erb: config/ca_cert.pem
   drain.erb: bin/drain
+  pre-start.erb: bin/pre-start
+  syslog-release.conf.erb: config/syslog-release.conf
+  syslog-release-custom-rules.conf.erb: config/syslog-release-custom-rules.conf
+  syslog-release-debug-filter.conf.erb: config/syslog-release-debug-filter.conf
+  syslog-release-file-exclusion.conf.erb: config/syslog-release-file-exclusion.conf
+  syslog-release-forwarding-rules.conf.erb: config/syslog-release-forwarding-rules.conf
+  syslog-release-forwarding-setup.conf.erb: config/syslog-release-forwarding-setup.conf
+  syslog-release-vcap-filter.conf.erb: config/syslog-release-vcap-filter.conf
 
 packages:
   - blackbox
@@ -84,6 +85,21 @@ properties:
       in any deployment of Cloud Foundry Application Runtime.
       This may be on by default in the future,
       though this would be a breaking/major version change.
+    default: false
+  syslog.heuristically_filter_debug_messages:
+    description: >
+      Drop messages with an msg that start with "DEBUG".
+      This is intended to prevent high-volume,
+      low-value debug logs from overwhelming syslog receivers,
+      while still allowing the UAA job
+      to log its debug messages to disk for support-enablement purposes.
+      While this may impact other logs,
+      most other jobs are not generally configured to emit debug logs,
+      and anyone who wants to filter out UAA's debug volume
+      likely doesn't mind losing the other debug volume, too.
+      This filter is necessarily heuristic/string-based
+      because syslog PRI information is not meaningful
+      in logs produced by blackbox.
     default: false
 
   syslog.tls_enabled:
