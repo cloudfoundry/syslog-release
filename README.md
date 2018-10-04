@@ -1,4 +1,5 @@
 # Syslog BOSH Release
+# This has been modified to forward pg_log prefix. 
 * Slack: #syslog on <https://slack.cloudfoundry.org>
 * Tracker: [CF Platform Logging Improvements][tracker]
 * CI Pipelines: https://syslog.ci.cf-app.com
@@ -23,8 +24,8 @@ to accomplish this on Windows stemcells,
 which uses blackbox, but not rsyslog.
 
 ## Usage
-Download the latest release
-from [bosh.io][syslog-bosh-io]
+If you looking for the original release.
+You can find it from [bosh.io][syslog-bosh-io]
 and include it in your manifest:
 
 ```yml
@@ -52,6 +53,12 @@ Configure `address` and,
 optionally,
 `port` and `transport`:
 
+### Configure Log_prfix
+Add the [`log_suffix`]
+to allow a different log suffix to be forwarded by blackbox.
+The default value is "log". 
+Which will forwarding both system and postgresql logs. 
+
 ```yml
 instance_groups:
 - name: some-instance-group
@@ -61,6 +68,8 @@ instance_groups:
   properties:
     syslog:
       address: <IP or hostname>
+      blackbox:
+        log_suffix: <log_suffix>
 ```
 
 By default,
@@ -136,6 +145,7 @@ with a few example rules in
 it will be logged and discarded.
 
 ### Test Store
+Has been removed for ops environment.
 The [`syslog_storer`][storer-spec-page] is meant for testing.
 Deploy it and configure your instances to forward logs to it.
 It provides a link that the forwarder consumes,
@@ -243,6 +253,7 @@ The current version of rsyslog does not sufficiently support wildcards
 for our use-case, but it may be worth further exploring in the future.
 
 ## Development
+# Skip the submodule update. This will overwrite the modified blackbox.
 In order to build releases or run tests,
 you will need to initialize and update the blackbox submodule:
 ```
