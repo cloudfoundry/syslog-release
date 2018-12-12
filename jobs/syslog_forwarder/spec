@@ -170,7 +170,7 @@ properties:
     default: false
     description: |
       Deprecated.
-      Allows systems that cannot modify their deployment toplogy
+      Allows systems that cannot modify their deployment topology
       to use this release.
       Do not use if you're not already relying on this capability.
       If true, does not forward syslogs,
