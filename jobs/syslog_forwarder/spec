@@ -162,6 +162,10 @@ properties:
       log lines will be tagged with subdirectory name.
     default: /var/vcap/sys/log
 
+  syslog.blackbox.log_filename:
+    description: If set to true, log lines are also tagged with filename in the format <subdirectory>/<file.log>.
+    default: false
+
   syslog.blackbox.limit_cpu:
     description: limit goprocess to a single cpu via gomaxprocs
     default: true
