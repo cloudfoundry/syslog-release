@@ -8,8 +8,7 @@ pushd "$(dirname "$0")/.."
 popd
 
 pushd "$(dirname "$0")/../tests"
-  go get github.com/Masterminds/glide
-  glide install
+  go build ./...
   go get github.com/onsi/ginkgo/ginkgo
   ginkgo -r -nodes=10 "$@"
 popd

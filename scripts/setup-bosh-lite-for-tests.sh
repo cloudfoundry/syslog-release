@@ -44,5 +44,5 @@ set -e
 bosh -n -e vbox update-cloud-config ~/workspace/bosh-deployment/warden/cloud-config.yml
 
 bosh -n -e vbox upload-stemcell \
-https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent?v=3468.5 \
---sha1 b95fac2b5d27a3c91b762b1df3747110b058a145
+https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-xenial-go_agent?v=315.64 \
+--sha1 bfeacdd2ef178742b211c9ea7f154e58fb28639a

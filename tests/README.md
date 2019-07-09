@@ -1,6 +1,7 @@
 # Usage
 
 ## Development
+
 The following commands assume you are operating
 from the top level of the repo, have go inistalled,
 and have initialized and updated the blackbox submodule
@@ -9,20 +10,24 @@ as described in the main [README](../README.md).
 First, you'll need to setup a bosh-lite and login to it.
 If you don't have a bosh-lite running
 and aliased as `vbox` already:
+
 ```sh
 scripts/setup-bosh-lite-for-tests.sh
 ```
 
 If you don't already have BOSH credential
 environment variables in your session:
+
 ```sh
-scripts/export-bosh-lite-creds.sh
+source scripts/export-bosh-lite-creds.sh
 ```
 
 To then run the tests locally:
+
 ```sh
 scripts/test -nodes=10
 ```
+
 Any arguments passed to `scripts/test`
 will be passed on to Ginkgo;
 here, we're running with fewer nodes than the script calls for,
@@ -38,6 +43,7 @@ Any valid value for `stemcell.os` in the BOSH manifest should work -
 the tests end up interpolating the env var into the test manifests.
 
 ## Notes
+
 Because this release is almost entirely composed of bosh templates,
 the acceptance tests do a bosh deployment for each test.
 There are helpers that make doing this easy.
