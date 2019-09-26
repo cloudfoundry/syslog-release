@@ -1,5 +1,5 @@
 <% unless p('syslog.migration.disabled') %>
-$MaxMessageSize 8k
+$MaxMessageSize <%= p('syslog.max_message_size') %>
 $WorkDirectory /var/vcap/data/syslog_forwarder/buffered # where messages should be buffered on disk
 
 $ActionQueueFileName           <%= p('syslog.queue_file_name') %>            # Spill to disk if queue is full (default: agg_backlog)

@@ -180,3 +180,7 @@ properties:
       If true, does not forward syslogs,
       and does not require any other properties be provided.
       Overrides all other configuration.
+
+  syslog.max_message_size:
+    default: 8k
+    description: Sets the $MaxMessageSize configuration flag for rsyslog.

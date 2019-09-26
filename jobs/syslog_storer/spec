@@ -42,3 +42,7 @@ properties:
       Key of the CA that will be used to sign generated certificates
       for each storer instance.
       Generation will only occur if all generation properties are set.
+
+  syslog.max_message_size:
+    default: 8k
+    description: Sets the $MaxMessageSize configuration flag for rsyslog.

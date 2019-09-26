@@ -8,7 +8,7 @@ require (
 	github.com/jtarchie/syslog v0.0.0-20190709005936-5fab01d378a6
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
-	github.com/onsi/ginkgo v1.8.0
+	github.com/onsi/ginkgo v1.10.1
 	github.com/onsi/gomega v1.5.0
 	github.com/papertrail/remote_syslog2 v0.0.0-20190614180052-09062fc2b02a
 	github.com/stretchr/testify v1.3.0 // indirect

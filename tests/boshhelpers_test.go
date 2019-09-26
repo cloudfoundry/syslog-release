@@ -39,8 +39,8 @@ func ForwarderSshCmd(command string) *gexec.Session {
 	return BoshCmd("ssh", "forwarder", "-c", command)
 }
 
-func SendLogMessage(msg string) {
-	session := ForwarderSshCmd(fmt.Sprintf("logger --size 1025 %s -t vcap. || logger %s -t vcap.", msg, msg))
+func SendLogMessage(msg string, maxSize int) {
+	session := ForwarderSshCmd(fmt.Sprintf("logger --size %d %s --tag vcap. || logger %s --tag vcap.", maxSize, msg, msg))
 	Eventually(session).Should(gexec.Exit(0))
 }
 

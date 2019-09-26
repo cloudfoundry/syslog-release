@@ -12,6 +12,8 @@ import (
 	"github.com/onsi/gomega/gexec"
 )
 
+var DEFAULT_LOGGER_SIZE = 1024
+
 var _ = Describe("Impact on the local VM", func() {
 
 	AfterEach(func() {
@@ -54,7 +56,7 @@ var _ = Describe("Impact on the local VM", func() {
 		BeforeEach(func() {
 			Cleanup()
 			Deploy("manifests/udp-blackbox.yml")
-			SendLogMessage("test-logger-isolation")
+			SendLogMessage("test-logger-isolation", DEFAULT_LOGGER_SIZE)
 		})
 
 		It("doesn't write them to the logfiles specified in the stemcell config", func() {
@@ -74,7 +76,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	TestSharedBehavior := func() {
 		Context("When messages are written to UDP with logger", func() {
 			It("receives messages in rfc5424 format on the configured drain", func() {
-				SendLogMessage("test-rfc5424")
+				SendLogMessage("test-rfc5424", DEFAULT_LOGGER_SIZE)
 				Eventually(func() string {
 					return ForwardedLogs()
 				}).Should(ContainSubstring("test-rfc5424"))
@@ -104,7 +106,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 
 			It("receives messages over 1k long on the configured drain", func() {
 				message := counterString(1025, "A")
-				SendLogMessage(message)
+				SendLogMessage(message, 1025)
 				Eventually(func() string {
 					return ForwardedLogs()
 				}).Should(ContainSubstring(message))
@@ -155,6 +157,15 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 
 			Eventually(WriteToTestFile(message)).Should(gbytes.Say(message))
 		})
+
+		It("receives truncated messages at max syslog size of 2k", func() {
+			message := counterString(3000, "C")
+			SendLogMessage(message, 8192)
+
+			Consistently(
+				ForwardedLogs,
+			).ShouldNot(ContainSubstring(message[2048:]))
+		})
 	})
 
 	Context("when file forwarding is configured with bad rules", func() {
@@ -180,7 +191,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 
 		It("filters out messages that match the rule", func() {
 			message := "This is a DEBUG message that we filter out"
-			SendLogMessage(message)
+			SendLogMessage(message, DEFAULT_LOGGER_SIZE)
 			Consistently(func() string {
 				return ForwardedLogs()
 			}).ShouldNot(ContainSubstring(message))
@@ -219,7 +230,7 @@ var _ = Describe("Optional features to reduce CF log volume", func() {
 
 			By("not forwarding logs written as vcap. user")
 			loggerMessage := "Old-style CF tee-based message, logger side"
-			SendLogMessage(loggerMessage)
+			SendLogMessage(loggerMessage, DEFAULT_LOGGER_SIZE)
 			Consistently(func() string {
 				return ForwardedLogs()
 			}).ShouldNot(ContainSubstring(loggerMessage))
@@ -237,7 +248,7 @@ var _ = Describe("Optional features to reduce CF log volume", func() {
 
 			By("not forwarding logs that start with DEBUG")
 			debugMessage := "DEBUG is debug, however"
-			SendLogMessage(debugMessage)
+			SendLogMessage(debugMessage, DEFAULT_LOGGER_SIZE)
 			Consistently(func() string {
 				return ForwardedLogs()
 			}).ShouldNot(ContainSubstring(debugMessage))
@@ -276,7 +287,7 @@ var _ = Describe("When syslog is disabled", func() {
 		})
 
 		It("does not forward logs", func() {
-			SendLogMessage("test-logger-isolation")
+			SendLogMessage("test-logger-isolation", DEFAULT_LOGGER_SIZE)
 			Consistently(func() string {
 				return ForwardedLogs()
 			}).Should(HaveLen(0))

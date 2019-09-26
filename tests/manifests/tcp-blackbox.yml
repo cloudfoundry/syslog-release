@@ -22,6 +22,7 @@ instance_groups:
     properties:
       syslog:
         use_tcp_for_file_forwarding_local_transport: true
+        max_message_size: 2k
   - name: storer
     instances: 1
     vm_type: default

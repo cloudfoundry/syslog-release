@@ -1,4 +1,4 @@
-$MaxMessageSize 8k
+$MaxMessageSize <%= p('syslog.max_message_size') %>
 $WorkDirectory /var/vcap/data/syslog_storer/buffered # where messages should be buffered on disk
 
 # Forward vcap messages to the aggregator
