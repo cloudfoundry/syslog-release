@@ -4,13 +4,16 @@
 * Tracker: [CF Platform Logging Improvements][tracker]
 * CI Pipelines: [syslog.ci.cf-app.com](https://syslog.ci.cf-app.com)
 
-1. [Usage](#usage)
-1. [Configuration](#configure-forwarding)
-1. [Custom Rules](#custom-rule)
-1. [Output Format](#format)
-1. [Tech Notes](#tech-notes)
-1. [Development](#development)
-1. [CI](#CI)
+- [Syslog BOSH Release](#syslog-bosh-release)
+  - [Usage](#usage)
+    - [Configure Forwarding](#configure-forwarding)
+    - [Message Size Limits](#message-size-limits)
+    - [Custom Rule](#custom-rule)
+    - [Test Store](#test-store)
+  - [Format](#format)
+  - [Tech Notes](#tech-notes)
+  - [Development](#development)
+  - [CI](#ci)
 
 This is a BOSH release
 to forward local syslog events
@@ -122,6 +125,17 @@ cert store will no longer be referenced.
 This necessitates including
 the _entire_ certificate chain.
 
+### Message Size Limits
+
+By default, the maximum size of the message is 8kB, but it can be configured
+up to 99,990B (which is a limitation of the blackbox). If you are using UDP
+as your communication protocol, you will be limited by the protocol (1kB).
+
+```yml
+properties:
+  syslog:
+    max_message_size: 4k
+```
 ### Custom Rule
 
 This release allows a custom rule
@@ -170,6 +184,9 @@ If you provide a Certificate Authority to the `syslog.tls.generation` properties
 each storer instance will generate a cert signed by that CA at startup,
 with the instance's IP address as the common name.
 You will need to explicitly configure this CA's cert as trusted on the forwarder.
+
+You can also configure the maximum message size of the test store,
+which is defaulted to 8k using `syslog.max_message_size`.
 
 ## Format
 
