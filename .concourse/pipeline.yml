@@ -14,8 +14,43 @@ groups:
   - setup-infrastructure
   - destroy-infrastructure
 
+resource_types:
+- name: vault
+  type: docker-image
+  source:
+    repository: oratos/vault-resource
+    tag: latest
+
 resources:
 # Manifests, Releases, and Stemcells
+
+# ENV
+- name: leela-env-vars-store
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:cloudfoundry/tycho-env.git
+    private_key: ((github.oratos-bot-private-key))
+    paths:
+    - deployment-vars.yml
+    - component_syslog_vars.yml
+    - operations/*
+- name: leela-bbl-state
+  type: vault
+  source:
+    url: https://vault.oratos.ci.cf-app.com
+    role_id: ((vault.role_id))
+    secret_id: ((vault.secret_id))
+    path: secret/envs/leela-bbl-state
+    tarball: true
+- name: leela-env-integration-configs
+  type: vault
+  source:
+    url: https://vault.oratos.ci.cf-app.com
+    role_id: ((vault.role_id))
+    secret_id: ((vault.secret_id))
+    path: secret/envs/leela
+
 - name: cf-deployment-master
   type: git
   source:
@@ -76,38 +111,6 @@ resources:
 #   source:
 #     name: bosh-google-kvm-centos-7-go_agent
 
-
-# ENV
-- name: tycho-env-bbl-state
-  type: git
-  source:
-    branch: master
-    uri: git@github.com:cloudfoundry/tycho-env.git
-    private_key: ((github.oratos-bot-private-key))
-    paths:
-    - bbl-state/*
-    - bbl-config/*
-    - google_account_creds.json
-    - operations/*
-- name: tycho-env-vars-store
-  type: git
-  source:
-    branch: master
-    uri: git@github.com:cloudfoundry/tycho-env.git
-    private_key: ((github.oratos-bot-private-key))
-    paths:
-    - deployment-vars.yml
-    - component_syslog_vars.yml
-    - operations/*
-- name: tycho-env-integration-configs
-  type: git
-  source:
-    branch: master
-    uri: git@github.com:cloudfoundry/tycho-env.git
-    private_key: ((github.oratos-bot-private-key))
-    paths:
-    - cats_integration_config.json
-
 # Control and Versions
 - name: weekly
   type: time
@@ -133,7 +136,7 @@ resources:
   source:
     branch: master
     uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v7.*
+    tag_filter: v9.5.0
 - name: syslog-ci
   type: git
   source:
@@ -142,51 +145,78 @@ resources:
 
 jobs:
 - name: setup-infrastructure
-  serial_groups: [tycho]
+  serial_groups: [leela]
   public: true
   build_logs_to_retain: 100
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: tycho-env-bbl-state
+    - get: leela-bbl-state
   - task: setup-infrastructure
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     params:
       BBL_IAAS: gcp
-      BBL_GCP_SERVICE_ACCOUNT_KEY: google_account_creds.json
-      BBL_GCP_PROJECT_ID: ((tycho_gcp_project))
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcloud.oratos-ci-testing-cfcr-service-account))
       BBL_GCP_REGION: us-central1
-      BBL_LB_CERT: ((tycho_cf_ssl_cert))
-      BBL_LB_KEY: ((tycho_cf_ssl_cert_private_key))
-      BBL_CONFIG_DIR: bbl-config
-      LB_DOMAIN: tycho.cf-app.com
-      BBL_ENV_NAME: tycho
+      BBL_ENV_NAME: leela
+      SKIP_LB_CREATION: true
+      STORE_BBL_STATE_AS_TARBALL: true
     input_mapping:
-      bbl-state: tycho-env-bbl-state
-      bbl-config: tycho-env-bbl-state
-    ensure:
-      put: tycho-env-bbl-state
+      bbl-state: leela-bbl-state
+      bbl-config: leela-bbl-state
+  - task: clean-up-bbl-state
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: oratos/ci-base
+      inputs:
+      - name: updated-bbl-state
+      outputs:
+      - name: cleaned-bbl-state
       params:
-        repository: updated-bbl-state
-        rebase: true
+        DEBUG:
+      run:
+        path: /bin/bash
+        args:
+        - "-c"
+        - |
+          #!/bin/bash
+          set -Eeuo pipefail; [ -n "${DEBUG:-}" ] && set -x
+
+          tar xvzf updated-bbl-state/bbl-state.tgz -C updated-bbl-state/
+          rm updated-bbl-state/bbl-state.tgz
+
+          pushd updated-bbl-state/bbl-state > /dev/null
+            # Delete all files ignored by git.
+            git init
+            git clean -ffdX
+          popd > /dev/null
+
+          cp -r updated-bbl-state/. cleaned-bbl-state
+  - put: leela-bbl-state
+    params:
+      data: updated-bbl-state
+
 
 - name: destroy-infrastructure
-  serial_groups: [tycho]
+  serial_groups: [leela]
   public: true
   build_logs_to_retain: 100
   plan:
   - aggregate:
-    - get: tycho-env-bbl-state
+    - get: leela-bbl-state
     - get: cf-deployment-concourse-tasks
   - task: destroy-infrastructure
     file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
     input_mapping:
-      bbl-state: tycho-env-bbl-state
-      bbl-config: tycho-env-bbl-state
+      bbl-state: leela-bbl-state
+      bbl-config: leela-bbl-state
     params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: google_account_creds.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcloud.oratos-ci-testing-cfcr-service-account))
     ensure:
-      put: tycho-env-bbl-state
+      put: leela-bbl-state
       params:
         repository: updated-bbl-state
         rebase: true
@@ -220,7 +250,7 @@ jobs:
   - aggregate:
     - get: syslog-release
       trigger: true
-    - get: tycho-env-bbl-state
+    - get: leela-bbl-state
     - get: ubuntu-trusty-stemcell
     - get: ubuntu-xenial-stemcell
     # - get: centos-stemcell
@@ -251,7 +281,7 @@ jobs:
 
             trap kill_bbl_ssh EXIT
 
-            pushd $workspace/tycho-env-bbl-state
+            pushd $workspace/leela-bbl-state
               source .envrc
             popd
 
@@ -259,7 +289,7 @@ jobs:
             bosh upload-stemcell ubuntu-xenial-stemcell/*.tgz
             # bosh upload-stemcell centos-stemcell/*.tgz
       inputs:
-      - name: tycho-env-bbl-state
+      - name: leela-bbl-state
       - name: ubuntu-trusty-stemcell
       - name: ubuntu-xenial-stemcell
       # - name: centos-stemcell
@@ -292,7 +322,7 @@ jobs:
 
             trap kill_bbl_ssh EXIT
 
-            pushd $workspace/tycho-env-bbl-state
+            pushd $workspace/leela-bbl-state
               source .envrc
             popd
 
@@ -303,7 +333,7 @@ jobs:
       - path: syslog-release/blobs
       inputs:
       - name: syslog-release
-      - name: tycho-env-bbl-state
+      - name: leela-bbl-state
   # This doesn't work right now because the tests invoke rsyslogd,
   # (and expect it to be on the path)
   # and that doesn't work on CentOS
@@ -336,7 +366,7 @@ jobs:
   #
   #           trap kill_bbl_ssh EXIT
   #
-  #           pushd $workspace/tycho-env-bbl-state
+  #           pushd $workspace/leela-bbl-state
   #             source .envrc
   #           popd
   #
@@ -347,7 +377,7 @@ jobs:
   #     - path: syslog-release/blobs
   #     inputs:
   #     - name: syslog-release
-  #     - name: tycho-env-bbl-state
+  #     - name: leela-bbl-state
   - task: syslog-acceptance-trusty
     config:
       platform: linux
@@ -375,7 +405,7 @@ jobs:
 
             trap kill_bbl_ssh EXIT
 
-            pushd $workspace/tycho-env-bbl-state
+            pushd $workspace/leela-bbl-state
               source .envrc
             popd
 
@@ -386,10 +416,10 @@ jobs:
       - path: syslog-release/blobs
       inputs:
       - name: syslog-release
-      - name: tycho-env-bbl-state
+      - name: leela-bbl-state
 
 - name: deploy-cf-with-created-syslog
-  serial_groups: [tycho]
+  serial_groups: [leela]
   public: true
   build_logs_to_retain: 100
   plan:
@@ -397,9 +427,9 @@ jobs:
     - get: cf-deployment-concourse-tasks
     - get: cf-deployment-master
       trigger: true
-    - get: tycho-env-bbl-state
-    - get: tycho-env-vars-store
-    - get: tycho-env-integration-configs
+    - get: leela-bbl-state
+    - get: leela-env-vars-store
+    - get: leela-env-integration-configs
     - get: windows2016-stemcell
     - get: syslog-release
       trigger: true
@@ -408,7 +438,7 @@ jobs:
   - task: upload-stemcells
     file: cf-deployment-concourse-tasks/bosh-upload-stemcells/task.yml
     input_mapping:
-      bbl-state: tycho-env-bbl-state
+      bbl-state: leela-bbl-state
       cf-deployment: cf-deployment-master
       ops-files: cf-deployment-master
     params:
@@ -417,12 +447,12 @@ jobs:
   - task: deploy-cf-with-created-syslog
     file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
     input_mapping:
-      bbl-state: tycho-env-bbl-state
-      bbl-config: tycho-env-bbl-state
+      bbl-state: leela-bbl-state
+      bbl-config: leela-bbl-state
       cf-deployment: cf-deployment-master
       release: syslog-release
       ops-files: cf-deployment-master
-      vars-files: tycho-env-vars-store
+      vars-files: leela-env-vars-store
     params:
       OPS_FILES: |
         operations/addons/enable-component-syslog.yml
@@ -431,36 +461,36 @@ jobs:
         ../vars-files/operations/windows-enable-component-syslog.yml
         ../vars-files/operations/cf-instances.yml
         ../vars-files/operations/audit-logging-test.yml
-      SYSTEM_DOMAIN: tycho.cf-app.com
+      SYSTEM_DOMAIN: leela.cf-app.com
       VARS_FILES: component_syslog_vars.yml
       BBL_CONFIG_DIR: bbl-config
   - task: update-integration-configs
     file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
     input_mapping:
-      bbl-state: tycho-env-bbl-state
-      integration-configs: tycho-env-integration-configs
+      bbl-state: leela-bbl-state
+      integration-configs: leela-env-integration-configs
     ensure:
-      put: tycho-env-integration-configs
+      put: leela-env-integration-configs
       params:
         repository: updated-integration-configs
         rebase: true
   - task: run-bosh-cleanup
     file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
     input_mapping:
-      bbl-state: tycho-env-bbl-state
-      bbl-config: tycho-env-bbl-state
+      bbl-state: leela-bbl-state
+      bbl-config: leela-bbl-state
 
 - name: cf-acceptance-tests
-  serial_groups: [tycho]
+  serial_groups: [leela]
   public: true
   build_logs_to_retain: 100
   plan:
   - aggregate:
     - get: cf-acceptance-tests
-    - get: tycho-env-bbl-state
+    - get: leela-bbl-state
       trigger: true
       passed: [deploy-cf-with-created-syslog]
-    - get: tycho-env-integration-configs
+    - get: leela-env-integration-configs
     - get: cf-deployment-concourse-tasks
     - get: syslog-release
       passed: [deploy-cf-with-created-syslog]
@@ -472,15 +502,15 @@ jobs:
     attempts: 20
     file: cf-deployment-concourse-tasks/set-feature-flags/task.yml
     input_mapping:
-      bbl-state: tycho-env-bbl-state
+      bbl-state: leela-bbl-state
     params:
-      SYSTEM_DOMAIN: tycho.cf-app.com
+      SYSTEM_DOMAIN: leela.cf-app.com
       ENABLED_FEATURE_FLAGS: |
         diego_docker
         task_creation
   - task: run-cats
     input_mapping:
-      integration-config: tycho-env-integration-configs
+      integration-config: leela-env-integration-configs
     file: cf-deployment-concourse-tasks/run-cats/task.yml
     params:
       CONFIG_FILE_PATH: cats_integration_config.json
@@ -488,12 +518,12 @@ jobs:
 
 - name: delete-cf-deployment
   public: true
-  serial_groups: [tycho]
+  serial_groups: [leela]
   build_logs_to_retain: 100
   plan:
   - aggregate:
     - get: cf-deployment-concourse-tasks
-    - get: tycho-env-bbl-state
+    - get: leela-bbl-state
       trigger: true
       passed: [cf-acceptance-tests]
     - get: syslog-release
@@ -505,8 +535,8 @@ jobs:
   - task: delete-cf-deployment
     file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
     input_mapping:
-      bbl-state: tycho-env-bbl-state
-      bbl-config: tycho-env-bbl-state
+      bbl-state: leela-bbl-state
+      bbl-config: leela-bbl-state
 
 - name: create-final-release-patch
   public: true

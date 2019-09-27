@@ -3,7 +3,7 @@ set -exu
 
 function write_private_yaml() {
   set +x
-  cat $PRIVATE_YML > config/private.yml
+  echo $PRIVATE_YML > config/private.yml
   set -x
 }
 
