@@ -19,5 +19,4 @@ run:
   path: syslog-ci/.concourse/tasks/create-final-release/task
 
 params:
-  BLOBS_BUCKET_ACCESS_KEY_ID:
-  BLOBS_BUCKET_SECRET_KEY:
+  PRIVATE_YML:

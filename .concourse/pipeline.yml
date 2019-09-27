@@ -30,7 +30,7 @@ resources:
   type: git
   source:
     branch: develop
-    private_key: ((syslog_release_read_write_deploy_key))
+    private_key: ((github.oratos-bot-private-key))
     uri: git@github.com:cloudfoundry/syslog-release.git
     ignore_paths:
     - .final_builds/*
@@ -39,7 +39,7 @@ resources:
   type: git
   source:
     branch: master
-    private_key: ((syslog_release_read_write_deploy_key))
+    private_key: ((github.oratos-bot-private-key))
     uri: git@github.com:cloudfoundry/syslog-release.git
 # We have a second (explicitly develop) copy of this resource
 # to avoid creating new (triggering) versions
@@ -48,7 +48,7 @@ resources:
   type: git
   source:
     branch: develop
-    private_key: ((syslog_release_read_write_deploy_key))
+    private_key: ((github.oratos-bot-private-key))
     uri: git@github.com:cloudfoundry/syslog-release.git
 - name: golang-release
   type: git
@@ -83,7 +83,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/tycho-env.git
-    private_key: ((tycho_env_git_deploy_key))
+    private_key: ((github.oratos-bot-private-key))
     paths:
     - bbl-state/*
     - bbl-config/*
@@ -94,7 +94,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/tycho-env.git
-    private_key: ((tycho_env_git_deploy_key))
+    private_key: ((github.oratos-bot-private-key))
     paths:
     - deployment-vars.yml
     - component_syslog_vars.yml
@@ -104,7 +104,7 @@ resources:
   source:
     branch: master
     uri: git@github.com:cloudfoundry/tycho-env.git
-    private_key: ((tycho_env_git_deploy_key))
+    private_key: ((github.oratos-bot-private-key))
     paths:
     - cats_integration_config.json
 
@@ -125,7 +125,7 @@ resources:
     uri: git@github.com:cloudfoundry/syslog-release
     branch: syslog-release-version
     file: version
-    private_key: ((syslog_release_read_write_deploy_key))
+    private_key: ((github.oratos-bot-private-key))
 
 # Concourse Tasks
 - name: cf-deployment-concourse-tasks
@@ -206,8 +206,7 @@ jobs:
       release: syslog-release
       package-release: golang-release
     params:
-      BLOBS_BUCKET_ACCESS_KEY_ID: ((syslog_release_blobs_buckets_access_key_id))
-      BLOBS_BUCKET_SECRET_KEY: ((syslog_release_blobs_buckets_secret_access_key))
+      PRIVATE_YML: ((release.private_yml))
       PACKAGE_NAME: golang-1-linux
   - put: syslog-release-develop
     params:
@@ -526,8 +525,7 @@ jobs:
       release-repo: syslog-release
       release-version: syslog-release-version
     params:
-      BLOBS_BUCKET_ACCESS_KEY_ID: ((syslog_release_blobs_buckets_access_key_id))
-      BLOBS_BUCKET_SECRET_KEY: ((syslog_release_blobs_buckets_secret_access_key))
+      PRIVATE_YML: ((release.private_yml))
   - put: syslog-release-master
     params:
       rebase: true
@@ -557,8 +555,7 @@ jobs:
       release-repo: syslog-release
       release-version: syslog-release-version
     params:
-      BLOBS_BUCKET_ACCESS_KEY_ID: ((syslog_release_blobs_buckets_access_key_id))
-      BLOBS_BUCKET_SECRET_KEY: ((syslog_release_blobs_buckets_secret_access_key))
+      PRIVATE_YML: ((release.private_yml))
   - put: syslog-release-master
     params:
       rebase: true
