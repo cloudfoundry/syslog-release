@@ -4,9 +4,6 @@ groups:
   jobs:
   - bump-go-package
   - syslog-acceptance-tests
-  - deploy-cf-with-created-syslog
-  - cf-acceptance-tests
-  - delete-cf-deployment
   - create-final-release-patch
   - create-final-release-minor
 - name: infrastructure
@@ -25,16 +22,6 @@ resources:
 # Manifests, Releases, and Stemcells
 
 # ENV
-- name: leela-env-vars-store
-  type: git
-  source:
-    branch: master
-    uri: git@github.com:cloudfoundry/tycho-env.git
-    private_key: ((github.oratos-bot-private-key))
-    paths:
-    - deployment-vars.yml
-    - component_syslog_vars.yml
-    - operations/*
 - name: leela-bbl-state
   type: vault
   source:
@@ -43,24 +30,6 @@ resources:
     secret_id: ((vault.secret_id))
     path: secret/envs/leela-bbl-state
     tarball: true
-- name: leela-env-integration-configs
-  type: vault
-  source:
-    url: https://vault.oratos.ci.cf-app.com
-    role_id: ((vault.role_id))
-    secret_id: ((vault.secret_id))
-    path: secret/envs/leela
-
-- name: cf-deployment-master
-  type: git
-  source:
-    branch: master
-    uri: https://github.com/cloudfoundry/cf-deployment.git
-- name: cf-acceptance-tests
-  type: git
-  source:
-    branch: master
-    uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
 - name: syslog-release
   type: git
   source:
@@ -91,10 +60,6 @@ resources:
     branch: master
     uri: https://github.com/bosh-packages/golang-release.git
     tag_filter: '*'
-- name: windows2016-stemcell
-  type: bosh-io-stemcell
-  source:
-    name: bosh-google-kvm-windows2016-go_agent
 - name: ubuntu-xenial-stemcell
   type: bosh-io-stemcell
   source:
@@ -112,14 +77,6 @@ resources:
 #     name: bosh-google-kvm-centos-7-go_agent
 
 # Control and Versions
-- name: weekly
-  type: time
-  source:
-    interval: 168h
-    location: US/Mountain
-    start: 3:00 PM
-    stop: 4:00 PM
-    days: [Wednesday]
 - name: syslog-release-version
   type: semver
   source:
@@ -149,7 +106,7 @@ jobs:
   public: true
   build_logs_to_retain: 100
   plan:
-  - aggregate:
+  - in_parallel:
     - get: cf-deployment-concourse-tasks
     - get: leela-bbl-state
   - task: setup-infrastructure
@@ -205,7 +162,7 @@ jobs:
   public: true
   build_logs_to_retain: 100
   plan:
-  - aggregate:
+  - in_parallel:
     - get: leela-bbl-state
     - get: cf-deployment-concourse-tasks
   - task: destroy-infrastructure
@@ -225,7 +182,7 @@ jobs:
   serial: true
   build_logs_to_retain: 100
   plan:
-  - aggregate:
+  - in_parallel:
     - get: golang-release
       trigger: true
     - get: syslog-ci
@@ -236,7 +193,7 @@ jobs:
       release: syslog-release
       package-release: golang-release
     params:
-      PRIVATE_YML: ((release.private_yml))
+      PRIVATE_YML: ((syslog-release.private_yml))
       PACKAGE_NAME: golang-1-linux
   - put: syslog-release-develop
     params:
@@ -247,7 +204,7 @@ jobs:
   serial: true
   build_logs_to_retain: 100
   plan:
-  - aggregate:
+  - in_parallel:
     - get: syslog-release
       trigger: true
     - get: leela-bbl-state
@@ -282,17 +239,16 @@ jobs:
             trap kill_bbl_ssh EXIT
 
             pushd $workspace/leela-bbl-state
-              source .envrc
+              tar -xzf bbl-state.tgz
+              eval "$(bbl print-env --state-dir=bbl-state)"
             popd
 
             bosh upload-stemcell ubuntu-trusty-stemcell/*.tgz
             bosh upload-stemcell ubuntu-xenial-stemcell/*.tgz
-            # bosh upload-stemcell centos-stemcell/*.tgz
       inputs:
       - name: leela-bbl-state
       - name: ubuntu-trusty-stemcell
       - name: ubuntu-xenial-stemcell
-      # - name: centos-stemcell
   - task: syslog-acceptance-xenial
     config:
       platform: linux
@@ -313,8 +269,6 @@ jobs:
             set -e
 
             workspace=$PWD
-            mkdir -p $GOPATH/src/github.com/cloudfoundry
-            ln -s $workspace/syslog-release $GOPATH/src/github.com/cloudfoundry/syslog-release
 
             function kill_bbl_ssh {
               pkill ssh || true
@@ -323,10 +277,12 @@ jobs:
             trap kill_bbl_ssh EXIT
 
             pushd $workspace/leela-bbl-state
-              source .envrc
+              tar -xzf bbl-state.tgz
+              eval "$(bbl print-env --state-dir=bbl-state)"
             popd
 
-            pushd $GOPATH/src/github.com/cloudfoundry/syslog-release
+            pushd syslog-release
+              go mod download
               ./scripts/test
             popd
       caches:
@@ -334,50 +290,6 @@ jobs:
       inputs:
       - name: syslog-release
       - name: leela-bbl-state
-  # This doesn't work right now because the tests invoke rsyslogd,
-  # (and expect it to be on the path)
-  # and that doesn't work on CentOS
-  # - task: syslog-acceptance-centos-7
-  #   config:
-  #     platform: linux
-  #     image_resource:
-  #       type: docker-image
-  #       source:
-  #         repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
-  #         tag: v5
-  #     params:
-  #       STEMCELL_OS: centos-7
-  #     run:
-  #       path: bash
-  #       args:
-  #         - -c
-  #         - |
-  #           #!/bin/bash
-  #
-  #           set -e
-  #
-  #           workspace=$PWD
-  #           mkdir -p $GOPATH/src/github.com/cloudfoundry
-  #           ln -s $workspace/syslog-release $GOPATH/src/github.com/cloudfoundry/syslog-release
-  #
-  #           function kill_bbl_ssh {
-  #             pkill ssh || true
-  #           }
-  #
-  #           trap kill_bbl_ssh EXIT
-  #
-  #           pushd $workspace/leela-bbl-state
-  #             source .envrc
-  #           popd
-  #
-  #           pushd $GOPATH/src/github.com/cloudfoundry/syslog-release
-  #             ./scripts/test
-  #           popd
-  #     caches:
-  #     - path: syslog-release/blobs
-  #     inputs:
-  #     - name: syslog-release
-  #     - name: leela-bbl-state
   - task: syslog-acceptance-trusty
     config:
       platform: linux
@@ -396,8 +308,6 @@ jobs:
             set -e
 
             workspace=$PWD
-            mkdir -p $GOPATH/src/github.com/cloudfoundry
-            ln -s $workspace/syslog-release $GOPATH/src/github.com/cloudfoundry/syslog-release
 
             function kill_bbl_ssh {
               pkill ssh || true
@@ -406,10 +316,12 @@ jobs:
             trap kill_bbl_ssh EXIT
 
             pushd $workspace/leela-bbl-state
-              source .envrc
+              tar -xzf bbl-state.tgz
+              eval "$(bbl print-env --state-dir=bbl-state)"
             popd
 
-            pushd $GOPATH/src/github.com/cloudfoundry/syslog-release
+            pushd syslog-release
+              go mod download
               ./scripts/test
             popd
       caches:
@@ -418,134 +330,14 @@ jobs:
       - name: syslog-release
       - name: leela-bbl-state
 
-- name: deploy-cf-with-created-syslog
-  serial_groups: [leela]
-  public: true
-  build_logs_to_retain: 100
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-    - get: cf-deployment-master
-      trigger: true
-    - get: leela-bbl-state
-    - get: leela-env-vars-store
-    - get: leela-env-integration-configs
-    - get: windows2016-stemcell
-    - get: syslog-release
-      trigger: true
-    - get: weekly
-      trigger: true
-  - task: upload-stemcells
-    file: cf-deployment-concourse-tasks/bosh-upload-stemcells/task.yml
-    input_mapping:
-      bbl-state: leela-bbl-state
-      cf-deployment: cf-deployment-master
-      ops-files: cf-deployment-master
-    params:
-      OPS_FILES: >
-        operations/windows2016-cell.yml
-  - task: deploy-cf-with-created-syslog
-    file: cf-deployment-concourse-tasks/bosh-deploy-with-created-release/task.yml
-    input_mapping:
-      bbl-state: leela-bbl-state
-      bbl-config: leela-bbl-state
-      cf-deployment: cf-deployment-master
-      release: syslog-release
-      ops-files: cf-deployment-master
-      vars-files: leela-env-vars-store
-    params:
-      OPS_FILES: |
-        operations/addons/enable-component-syslog.yml
-        operations/scale-to-one-az.yml
-        operations/windows2016-cell.yml
-        ../vars-files/operations/windows-enable-component-syslog.yml
-        ../vars-files/operations/cf-instances.yml
-        ../vars-files/operations/audit-logging-test.yml
-      SYSTEM_DOMAIN: leela.cf-app.com
-      VARS_FILES: component_syslog_vars.yml
-      BBL_CONFIG_DIR: bbl-config
-  - task: update-integration-configs
-    file: cf-deployment-concourse-tasks/update-integration-configs/task.yml
-    input_mapping:
-      bbl-state: leela-bbl-state
-      integration-configs: leela-env-integration-configs
-    ensure:
-      put: leela-env-integration-configs
-      params:
-        repository: updated-integration-configs
-        rebase: true
-  - task: run-bosh-cleanup
-    file: cf-deployment-concourse-tasks/bosh-cleanup/task.yml
-    input_mapping:
-      bbl-state: leela-bbl-state
-      bbl-config: leela-bbl-state
-
-- name: cf-acceptance-tests
-  serial_groups: [leela]
-  public: true
-  build_logs_to_retain: 100
-  plan:
-  - aggregate:
-    - get: cf-acceptance-tests
-    - get: leela-bbl-state
-      trigger: true
-      passed: [deploy-cf-with-created-syslog]
-    - get: leela-env-integration-configs
-    - get: cf-deployment-concourse-tasks
-    - get: syslog-release
-      passed: [deploy-cf-with-created-syslog]
-      trigger: true
-    - get: weekly
-      trigger: true
-      passed: [deploy-cf-with-created-syslog]
-  - task: set-cats-feature-flags
-    attempts: 20
-    file: cf-deployment-concourse-tasks/set-feature-flags/task.yml
-    input_mapping:
-      bbl-state: leela-bbl-state
-    params:
-      SYSTEM_DOMAIN: leela.cf-app.com
-      ENABLED_FEATURE_FLAGS: |
-        diego_docker
-        task_creation
-  - task: run-cats
-    input_mapping:
-      integration-config: leela-env-integration-configs
-    file: cf-deployment-concourse-tasks/run-cats/task.yml
-    params:
-      CONFIG_FILE_PATH: cats_integration_config.json
-      NODES: 6
-
-- name: delete-cf-deployment
-  public: true
-  serial_groups: [leela]
-  build_logs_to_retain: 100
-  plan:
-  - aggregate:
-    - get: cf-deployment-concourse-tasks
-    - get: leela-bbl-state
-      trigger: true
-      passed: [cf-acceptance-tests]
-    - get: syslog-release
-      trigger: true
-      passed: [cf-acceptance-tests]
-    - get: weekly
-      trigger: true
-      passed: [cf-acceptance-tests]
-  - task: delete-cf-deployment
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    input_mapping:
-      bbl-state: leela-bbl-state
-      bbl-config: leela-bbl-state
-
 - name: create-final-release-patch
   public: true
   build_logs_to_retain: 100
   plan:
-  - aggregate:
+  - in_parallel:
     - get: syslog-ci
     - get: syslog-release
-      passed: [cf-acceptance-tests, syslog-acceptance-tests]
+      passed: [syslog-acceptance-tests]
     - get: syslog-release-master
     - get: syslog-release-version
       params: {bump: patch}
@@ -555,7 +347,7 @@ jobs:
       release-repo: syslog-release
       release-version: syslog-release-version
     params:
-      PRIVATE_YML: ((release.private_yml))
+      PRIVATE_YML: ((syslog-release.private_yml))
   - put: syslog-release-master
     params:
       rebase: true
@@ -572,10 +364,10 @@ jobs:
   public: true
   build_logs_to_retain: 100
   plan:
-  - aggregate:
+  - in_parallel:
     - get: syslog-ci
     - get: syslog-release
-      passed: [cf-acceptance-tests, syslog-acceptance-tests]
+      passed: [syslog-acceptance-tests]
     - get: syslog-release-master
     - get: syslog-release-version
       params: {bump: minor}
@@ -585,7 +377,7 @@ jobs:
       release-repo: syslog-release
       release-version: syslog-release-version
     params:
-      PRIVATE_YML: ((release.private_yml))
+      PRIVATE_YML: ((syslog-release.private_yml))
   - put: syslog-release-master
     params:
       rebase: true
