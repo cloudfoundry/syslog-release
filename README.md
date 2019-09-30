@@ -303,23 +303,17 @@ pull requests against the develop branch.
 
 ## CI
 
-Our CI pipelines can be found at https://syslog.ci.cf-app.com.
+Our CI pipelines can be found at https://oratos.ci.cf-app.com/teams/main/pipelines/syslog-release
 Pipeline configuration can be found in the `.concourse` directory of this repo.
 While our pipeline is principally built using [`cf-deployment-concourse-tasks`][cf-d-c-t],
 there are also a couple of unique tasks found in the `.concourse/tasks` directory.
 
-Use of the ci requires access to the following secrets:
+Our CI pipeline has credentials stored in a [Vault](https://www.vaultproject.io), which is where
+we've put the blobstore credentials and our BBL state. The s3 keys to generate a private.yml
+are currently in [https://github.com/cloudfoundry/syslog-ci-private][secrets]. 
+You can get access to this and the other private repos from the CFF.
 
-- a [`cf-deployment-concourse-tasks`][cf-d-c-t]-style env repo (ours is [tycho-env][tycho-env])
-- credentials for the release blobstore and deployment keys for the release repo.
-  We store these secrets in the [`syslog-ci-private`][syslog-ci-private] repo.
-
-You will also need a concourse to run the pipeline on.
-Ours is deployed on GCP;
-the deployment manifest and bbl-state can be found in [`leela-env`][leela-env].
-
-Most people don't have access to these private repos.
-The Cloud Foundry Foundation admin team can grant access.
+You can bbl-up your own environment for use in the `setup-infrastructure` and `destroy-infrastructure` groups.
 
 Admin rights to the GCP projects associated with the above env-repos
 is governed by membership in the cf-syslog@pivotal.io Google Group.
