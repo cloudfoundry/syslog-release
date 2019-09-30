@@ -10,5 +10,5 @@ popd
 pushd "$(dirname "$0")/../tests"
   go build ./...
   go get github.com/onsi/ginkgo/ginkgo
-  ginkgo -r -nodes=10 "$@"
+  ginkgo -r -nodes=5 "$@"
 popd
