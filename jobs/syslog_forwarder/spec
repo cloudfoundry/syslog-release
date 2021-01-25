@@ -184,3 +184,7 @@ properties:
   syslog.max_message_size:
     default: 8k
     description: Sets the $MaxMessageSize configuration flag for rsyslog.
+
+  logging.format.timestamp:
+    description: "Format for timestamp in log file forwarder logs. Valid values are 'deprecated' and 'rfc3339'."
+    default: "deprecated"

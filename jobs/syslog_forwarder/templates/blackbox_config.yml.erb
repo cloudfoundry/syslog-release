@@ -1,5 +1,6 @@
 hostname: "-"
 
+use_rfc3339: <%= p("logging.format.timestamp") == "rfc3339" %>
 syslog:
   destination:
 <% if p('syslog.use_tcp_for_file_forwarding_local_transport') %>
