@@ -8,7 +8,8 @@ pushd "$(dirname "$0")/.."
 popd
 
 pushd "$(dirname "$0")/../tests"
+  export GO111MODULE=auto
   go build ./...
-  go get github.com/onsi/ginkgo/ginkgo
+  go get -u github.com/onsi/ginkgo/ginkgo
   ginkgo -r -nodes=5 "$@"
 popd
