@@ -3,7 +3,4 @@ name: blackbox
 dependencies:
   - golang-1-linux
 files:
-  - github.com/cloudfoundry/blackbox/**/*.go
-  - github.com/hpcloud/tail/**/*.go
-  - github.com/tedsuo/ifrit/**/*.go
-  - gopkg.in/yaml.v2/**/*.go
+  - blackbox/**/*
