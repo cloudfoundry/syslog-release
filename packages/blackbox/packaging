@@ -2,7 +2,5 @@ set -e
 source /var/vcap/packages/golang-1-linux/bosh/compile.env
 export GO111MODULE=auto
 
-mkdir ../src && cp -a * ../src && mv ../src ./src
-mkdir $BOSH_INSTALL_TARGET/bin
-
-go build -o $BOSH_INSTALL_TARGET/bin/blackbox src/github.com/cloudfoundry/blackbox/cmd/blackbox/main.go
+cd blackbox/cmd/blackbox
+go build -mod=vendor -o $BOSH_INSTALL_TARGET/bin/blackbox .
