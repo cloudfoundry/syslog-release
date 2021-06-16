@@ -49,6 +49,8 @@ builds:
     version: "9"
   e17b88e4-217c-450c-6bb3-716a58b9ccd9:
     version: "10"
+  e777d9eb-f234-49a6-70f4-e2d66fe4fa28:
+    version: 11.7.3
   ed908262-2c71-416e-8c59-1b624b48ebdf:
     version: "2"
   f187b1dc-edf2-49ad-5788-ac0e31886ac1:
