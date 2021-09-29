@@ -22,12 +22,13 @@ set $.deployment = "<%= spec.deployment %>";
 set $.instance = "<%= spec.name %>";
 set $.az = "<%= spec.az %>";
 set $.id = "<%= spec.id %>";
+set $.dateformat = "<%= p('syslog.timestamp_format') %>";
 # following https://tools.ietf.org/html/rfc5424#section-6
 template(name="SyslogForwarderTemplate" type="list") {
   constant(value="<")
   property(name="pri")
   constant(value=">1 ")
-  property(name="timestamp" dateFormat="rfc3339")
+  property(name="timestamp" dateFormat="$.dateformat")
   constant(value=" <%= spec.address %> ")
   property(name="app-name")
   constant(value=" ")

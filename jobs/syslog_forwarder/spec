@@ -185,6 +185,16 @@ properties:
     default: 8k
     description: Sets the $MaxMessageSize configuration flag for rsyslog.
 
+  syslog.timestamp_format:
+    default: rfc3339
+    description: |
+      Sets the dateFormat in the syslog template.
+      All the property options with date- prefix can be accepted,
+      see https://www.rsyslog.com/doc/v8-stable/configuration/templates.html#the-template-statement
+      E.g: utc rfc3164..., for details, please view 
+      https://www.rsyslog.com/doc/v8-stable/configuration/property_replacer.html#property-options.
+    example: utc
+
   logging.format.timestamp:
     description: "Format for timestamp in log file forwarder logs. Valid values are 'deprecated' and 'rfc3339'."
     default: "deprecated"
