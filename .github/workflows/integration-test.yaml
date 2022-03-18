@@ -17,10 +17,11 @@ jobs:
       - env:
           TOOLSMITH_TOKEN: ${{ secrets.TOOLSMITH_TOKEN }}
         run: |
-          while ! curl --fail -X POST "https://environments.toolsmiths.cf-app.com/pooled_gcp_engineering_environments/claim?api_token=${TOOLSMITH_TOKEN}&pool_name=cf-deployment&notes=github-actions-syslog-release" > metadata.json
-          do
-              sleep 1
-          done
+          if ! curl --fail -X POST "https://environments.toolsmiths.cf-app.com/pooled_gcp_engineering_environments/claim?api_token=${TOOLSMITH_TOKEN}&pool_name=cf-deployment&notes=github-actions-syslog-release" > metadata.json
+          then
+              echo "UNABLE TO CLAIM AN ENVIRONMENT, PLEASE RETRY LATER"
+              exit 1
+          fi
 
           eval "$(bbl print-env --metadata-file ./metadata.json)"
           ./scripts/test

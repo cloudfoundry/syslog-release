@@ -8,6 +8,6 @@ pushd "$(dirname "$0")/.."
 popd
 
 pushd "$(dirname "$0")/../tests"
-  go get -d github.com/onsi/ginkgo/ginkgo
+  go install github.com/onsi/ginkgo/ginkgo@latest
   ginkgo -r -nodes=2 "$@"
 popd
