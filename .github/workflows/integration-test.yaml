@@ -1,0 +1,15 @@
+name: Integration test
+on:
+  pull_request:
+    branches:
+    - main
+  push:
+    branches:
+    - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: cloudfoundry/cf-deployment-concourse-tasks:latest
+    steps:
+      - run: bosh version
+
