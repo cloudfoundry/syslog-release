@@ -12,16 +12,18 @@ jobs:
     container: cloudfoundry/cf-deployment-concourse-tasks:latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - env:
           TOOLSMITH_TOKEN: ${{ secrets.TOOLSMITH_TOKEN }}
         run: |
-          while ! curl -X POST "https://environments.toolsmiths.cf-app.com/pooled_gcp_engineering_environments/claim?api_token=${TOOLSMITH_TOKEN}&pool_name=cf-deployment&notes=github-actions-syslog-release" > metadata.json
+          while ! curl --fail -X POST "https://environments.toolsmiths.cf-app.com/pooled_gcp_engineering_environments/claim?api_token=${TOOLSMITH_TOKEN}&pool_name=cf-deployment&notes=github-actions-syslog-release" > metadata.json
           do
               exit 1
               sleep 1
           done
 
-          eval "$(bbl print-env --metadata-file ./metadata)"
+          eval "$(bbl print-env --metadata-file ./metadata.json)"
           ./scripts/test
       - if: always()
         env:
