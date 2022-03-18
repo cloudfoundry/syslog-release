@@ -1,20 +1,18 @@
-name: Integration test
+name: Integration Test
 on:
   pull_request:
     branches:
     - main
-  push:
-    branches:
-    - main
 jobs:
-  test:
+  integration-test:
     runs-on: ubuntu-latest
     container: cloudfoundry/cf-deployment-concourse-tasks:latest
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - env:
+      - name: Claim environment
+        env:
           TOOLSMITH_TOKEN: ${{ secrets.TOOLSMITH_TOKEN }}
         run: |
           if ! curl --fail -X POST "https://environments.toolsmiths.cf-app.com/pooled_gcp_engineering_environments/claim?api_token=${TOOLSMITH_TOKEN}&pool_name=cf-deployment&notes=github-actions-syslog-release" > metadata.json
@@ -22,10 +20,10 @@ jobs:
               echo "UNABLE TO CLAIM AN ENVIRONMENT, PLEASE RETRY LATER"
               exit 1
           fi
-
           eval "$(bbl print-env --metadata-file ./metadata.json)"
-          ./scripts/test
-      - if: always()
+      - run: ./scripts/test
+      - name: Unclaim environment
+        if: always()
         env:
           TOOLSMITH_TOKEN: ${{ secrets.TOOLSMITH_TOKEN }}
         run: |
