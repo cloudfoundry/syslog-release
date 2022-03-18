@@ -19,7 +19,6 @@ jobs:
         run: |
           while ! curl --fail -X POST "https://environments.toolsmiths.cf-app.com/pooled_gcp_engineering_environments/claim?api_token=${TOOLSMITH_TOKEN}&pool_name=cf-deployment&notes=github-actions-syslog-release" > metadata.json
           do
-              exit 1
               sleep 1
           done
 
