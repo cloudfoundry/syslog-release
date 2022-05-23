@@ -12,6 +12,16 @@ chown -R syslog:adm /var/vcap/data/syslog_forwarder/buffered
 
 mkdir -p /etc/rsyslog.d
 
+<% if_p('syslog.mtls_ca_cert') do %>
+  cp $(dirname $0)/../config/mtls_ca_cert.pem /etc/rsyslog.d/server-ca.crt
+<% end %>
+<% if_p('syslog.mtls_client_cert') do %>
+  cp $(dirname $0)/../config/mtls_client_cert.pem /etc/rsyslog.d/client.crt
+<% end %>
+<% if_p('syslog.mtls_client_key') do %>
+  cp $(dirname $0)/../config/mtls_client_key.pem /etc/rsyslog.d/client.key
+<% end %>
+
 # This cleans up after legacy config locations and previous starts
 rm -f /etc/rsyslog.d/rsyslog.conf /etc/rsyslog.d/*-syslog-release*conf
 
