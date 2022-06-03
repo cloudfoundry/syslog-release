@@ -144,10 +144,8 @@ instance_groups:
 Remember to allow inbound traffic on TCP port 514 in your IaaS security groups.
 
 The storer can also be used to test TLS connections. If you provide a
-Certificate Authority to the `syslog.tls.generation` properties, each storer
-instance will generate a cert signed by that CA at startup, with the instance's
-IP address as the common name. You will need to explicitly configure this CA's
-cert as trusted on the forwarder.
+Certificate to the `syslog.tls` properties, you can receive tls messages.
+You will need to explicitly configure this cert as trusted on the forwarder.
 
 You can also configure the maximum message size of the test store, which is
 defaulted to 8k using `syslog.max_message_size`.
