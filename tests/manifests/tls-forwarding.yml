@@ -19,6 +19,8 @@ instance_groups:
     jobs:
       - name: syslog_forwarder
         release: syslog
+        consumes:
+          syslog_storer: {ip_addresses: true}
         properties:
           syslog:
             tls_enabled: true
