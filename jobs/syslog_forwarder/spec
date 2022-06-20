@@ -5,8 +5,8 @@ templates:
   blackbox_ctl.erb: bin/blackbox_ctl
   blackbox_config.yml.erb: config/blackbox_config.yml
   ca_cert.pem.erb: config/ca_cert.pem
-  client_cert.pem.erb: config/client_cert.pem
-  client_key.pem.erb: config/client_key.pem
+  client.crt.erb: config/client.crt
+  client.key.erb: config/client.key
   drain.erb: bin/drain
   pre-start.erb: bin/pre-start
   syslog-release.conf.erb: config/syslog-release.conf
