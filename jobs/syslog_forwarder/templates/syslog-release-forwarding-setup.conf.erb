@@ -73,8 +73,8 @@ $ActionQueueType LinkedList            # Allocate on-demand
 
 $DefaultNetstreamDriverCAFile <%= ca_cert_path %>                 # trust these CAs
 <% if_p('syslog.client_cert', 'syslog.client_key') do %>
-$DefaultNetstreamDriverCertFile <%= p('syslog.client_cert') %>
-$DefaultNetstreamDriverKeyFile <%= p('syslog.client_key') %>
+$DefaultNetstreamDriverCertFile /var/vcap/jobs/syslog_forwarder/config/client_cert.pem
+$DefaultNetstreamDriverKeyFile /var/vcap/jobs/syslog_forwarder/config/client_key.pem
 <% end %>
 $ActionSendStreamDriver gtls                                      # use gtls netstream driver
 $ActionSendStreamDriverMode 1                                     # require TLS
