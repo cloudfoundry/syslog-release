@@ -23,6 +23,9 @@ instance_groups:
           syslog:
             tls_enabled: true
             ca_cert: ((syslog_ca.certificate))
+            client_cert: ((syslog_client.certificate))
+            client_key: ((syslog_client.private_key))
+
   - name: storer
     instances: 1
     vm_type: default
@@ -43,6 +46,14 @@ variables:
     type: certificate
     options:
       is_ca: true
+  - name: syslog_client
+    type: certificate
+    options:
+      ca: syslog_ca
+      common_name: syslog-client
+      extended_key_usage:
+      - client_auth
+
 update:
   canaries: 1
   max_in_flight: 1
