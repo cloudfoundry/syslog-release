@@ -72,6 +72,10 @@ $ActionQueueType LinkedList            # Allocate on-demand
   %>
 
 $DefaultNetstreamDriverCAFile <%= ca_cert_path %>                 # trust these CAs
+<% if_p('syslog.client_cert', 'syslog.client_key') do %>
+$DefaultNetstreamDriverCertFile <%= p('syslog.client_cert') %>
+$DefaultNetstreamDriverKeyFile <%= p('syslog.client_key') %>
+<% end %>
 $ActionSendStreamDriver gtls                                      # use gtls netstream driver
 $ActionSendStreamDriverMode 1                                     # require TLS
 $ActionSendStreamDriverAuthMode x509/name                         # authenticate by hostname
