@@ -22,10 +22,10 @@ instance_groups:
         properties:
           syslog:
             tls_enabled: true
-            ca_cert: ((syslog_ca.certificate))
+            permitted_peer: "*.storer.default.((deployment)).bosh"
+            ca_cert: ((syslog_server.ca))
             client_cert: ((syslog_client.certificate))
             client_key: ((syslog_client.private_key))
-
   - name: storer
     instances: 1
     vm_type: default
@@ -40,19 +40,34 @@ instance_groups:
         properties:
           syslog:
             tls:
-              generation: ((syslog_ca))
+              ca: ((syslog_server.ca))
+              certificate: ((syslog_server.certificate))
+              private_key: ((syslog_server.private_key))
 variables:
-  - name: syslog_ca
-    type: certificate
-    options:
-      is_ca: true
-  - name: syslog_client
-    type: certificate
-    options:
-      ca: syslog_ca
-      common_name: syslog-client
-      extended_key_usage:
-      - client_auth
+- name: syslog_ca
+  type: certificate
+  update_mode: converge
+  options:
+    common_name: test
+    is_ca: true
+- name: syslog_server
+  type: certificate
+  update_mode: converge
+  options:
+    extended_key_usage:
+    - client_auth
+    ca: syslog_ca
+    common_name: '*.storer.default.((deployment)).bosh'
+    alternative_names:
+    - '*.storer.default.((deployment)).bosh'
+- name: syslog_client
+  type: certificate
+  update_mode: converge
+  options:
+    extended_key_usage:
+    - client_auth
+    ca: syslog_ca
+    common_name: '*.forwarder.default.((deployment)).bosh'
 
 update:
   canaries: 1

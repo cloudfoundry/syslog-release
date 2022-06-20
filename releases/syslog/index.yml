@@ -5,6 +5,8 @@ builds:
     version: 11.7.10
   3362198a-c61c-4521-591e-f030045ee9e2:
     version: 11.7.0
+  36d6fd99-3104-43ca-7c97-02d13ae06e84:
+    version: 11.7.11
   37f2b194-5fd8-4694-7a8b-4301d0b1e2d6:
     version: 11.3.1
   3e9c09f2-5849-4707-5f18-cfe4ba31a98b:

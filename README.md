@@ -1,10 +1,10 @@
 # Syslog BOSH Release
 
-[![slack.cloudfoundry.org](https://slack.cloudfoundry.org/badge.svg)](https://cloudfoundry.slack.com/archives/CUW93AF3M)
-
 This is a BOSH release to forward local syslog events in [RFC5424][RFC] format to a remote syslog endpoint. It currently uses [RSYSLOG][RSYSLOG], which is pre-installed by the stemcell, and [blackbox][blackbox].
 
 There is a [separate release][windows-syslog] to accomplish this on Windows stemcells, which uses [blackbox][blackbox], but not [RSYSLOG][RSYSLOG].
+
+If you have any questions, or want to get attention for a PR or issue please reach out on the [#logging-and-metrics channel in the cloudfoundry slack](https://cloudfoundry.slack.com/archives/CUW93AF3M)
 
 ## Table of Contents
 
@@ -144,10 +144,8 @@ instance_groups:
 Remember to allow inbound traffic on TCP port 514 in your IaaS security groups.
 
 The storer can also be used to test TLS connections. If you provide a
-Certificate Authority to the `syslog.tls.generation` properties, each storer
-instance will generate a cert signed by that CA at startup, with the instance's
-IP address as the common name. You will need to explicitly configure this CA's
-cert as trusted on the forwarder.
+Certificate to the `syslog.tls` properties, you can receive tls messages.
+You will need to explicitly configure this cert as trusted on the forwarder.
 
 You can also configure the maximum message size of the test store, which is
 defaulted to 8k using `syslog.max_message_size`.
