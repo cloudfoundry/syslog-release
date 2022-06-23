@@ -46,7 +46,7 @@ module(
     load="imtcp"
     StreamDriver.Name="gtls"
     StreamDriver.Mode="1"
-    StreamDriver.AuthMode="anon"
+    StreamDriver.AuthMode="<%= p('syslog.tls.authmode') %>"
 )
 <% end.else do %>
     module(load="imtcp")
