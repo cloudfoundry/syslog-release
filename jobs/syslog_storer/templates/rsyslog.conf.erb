@@ -33,18 +33,25 @@ $ModLoad imudp
 $UDPServerRun <%= port %>
 
     <% elsif transport == 'tcp' %>
-# Listen for logs over TCP
-$ModLoad imtcp
-$InputTCPMaxSessions 500
+
 <% if_p('syslog.tls.ca', 'syslog.tls.certificate', 'syslog.tls.ca') do %>
-$DefaultNetstreamDriver gtls
-$DefaultNetstreamDriverCAFile /var/vcap/jobs/syslog_storer/config/ca.pem
-$DefaultNetstreamDriverCertFile /var/vcap/jobs/syslog_storer/config/syslog-storer.crt
-$DefaultNetstreamDriverKeyFile /var/vcap/jobs/syslog_storer/config/syslog-storer.key
-$InputTCPServerStreamDriverMode 1
-$InputTCPServerStreamDriverAuthMode anon
+global(
+    defaultNetstreamDriverCAFile="/var/vcap/jobs/syslog_storer/config/ca.pem"
+    defaultNetstreamDriverCertFile="/var/vcap/jobs/syslog_storer/config/syslog-storer.crt"
+    defaultNetstreamDriverKeyFile="/var/vcap/jobs/syslog_storer/config/syslog-storer.key"
+    defaultNetstreamDriver="gtls"
+)
+
+module(
+    load="imtcp"
+    StreamDriver.Name="gtls"
+    StreamDriver.Mode="1"
+    StreamDriver.AuthMode="anon"
+)
+<% end.else do %>
+    module(load="imtcp")
 <% end %>
-$InputTCPServerRun <%= port %>
+input(type="imtcp" port="514")
     <% else %>
         <% raise 'only RELP, UDP, and TCP are supported' %>
     <% end %>

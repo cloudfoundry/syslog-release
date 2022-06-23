@@ -22,7 +22,7 @@ func StemcellOS() string {
 	if stemcellOS, stemcellEnvSet := os.LookupEnv("STEMCELL_OS"); stemcellEnvSet {
 		return stemcellOS
 	}
-	return "ubuntu-xenial"
+	return "ubuntu-bionic"
 }
 
 func BoshCmd(args ...string) *gexec.Session {
