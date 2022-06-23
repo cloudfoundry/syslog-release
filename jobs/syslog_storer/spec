@@ -37,6 +37,10 @@ properties:
   syslog.tls.private_key:
     description: >
       Key of the CA that will be used to serve syslog server.
+  syslog.tls.authmode:
+    default: anon
+    description: >
+      Authentication mode that will be used to validate mTLS certificates.
 
   syslog.max_message_size:
     default: 8k
