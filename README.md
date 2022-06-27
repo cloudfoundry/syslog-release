@@ -118,8 +118,7 @@ forwarding.
 We have some simple documentation with a few example rules in
 [`example-custom-rules.md`](examples/example-custom-rules.md).
 
-**Please note:** if your custom rule is invalid, it will be logged and
-discarded.
+**Please note:** if your custom rule is invalid, the pre-start script will fail.
 
 ### Test Store
 

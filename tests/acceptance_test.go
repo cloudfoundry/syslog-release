@@ -168,18 +168,6 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		})
 	})
 
-	Context("when file forwarding is configured with bad rules", func() {
-		BeforeEach(func() {
-			Cleanup()
-			Deploy("manifests/broken-rules.yml")
-		})
-		AfterEach(func() {
-			Cleanup()
-		})
-
-		TestSharedBehavior()
-	})
-
 	Context("when file forwarding is configured with good rules", func() {
 		BeforeEach(func() {
 			Cleanup()
@@ -198,6 +186,25 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		})
 
 		TestSharedBehavior()
+	})
+
+	Context("when an invalid configuration is supplied", func() {
+		BeforeEach(func() {
+			Cleanup()
+		})
+		AfterEach(func() {
+			Cleanup()
+		})
+
+		It("has an invalid config", func() {
+			By("Deploying")
+
+			session := BoshCmd("deploy", "manifests/broken-rules.yml",
+				"-v", fmt.Sprintf("deployment=%s", DeploymentName()),
+				"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS()))
+			Eventually(session, 10*time.Minute).ShouldNot(gexec.Exit(0))
+			Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
+		})
 	})
 
 	Context("when TLS is configured", func() {
