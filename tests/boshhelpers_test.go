@@ -100,7 +100,7 @@ func ForwardedLogs() string {
 }
 
 func ForwarderMonitSummary() string {
-	return OutputFromBoshCommand("forwarder", "sudo /var/vcap/bash/bin/monit summary")
+	return OutputFromBoshCommand("forwarder", "sudo /var/vcap/bosh/bin/monit summary")
 }
 
 func OutputFromBoshCommand(job, command string) string {
