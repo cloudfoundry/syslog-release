@@ -31,9 +31,9 @@ var _ = Describe("Impact on the local VM", func() {
 
 		It("Cleans up any files at old config file locations", func() {
 			session := ForwarderSshCmd("stat /etc/rsyslog.d/rsyslog.conf || stat /etc/rsyslog.d/30-syslog-release.conf || stat /etc/rsyslog.d/20-syslog-release-custom-rules.conf")
-			Eventually(session).Should(gbytes.Say(`stat: cannot stat '\/etc\/rsyslog\.d\/rsyslog\.conf'`))
-			Eventually(session).Should(gbytes.Say(`stat: cannot stat '\/etc\/rsyslog\.d\/30-syslog-release\.conf'`))
-			Eventually(session).Should(gbytes.Say(`stat: cannot stat '\/etc\/rsyslog\.d\/20-syslog-release-custom-rules\.conf'`))
+			Eventually(session).Should(gbytes.Say(`stat: cannot stat[x]? '\/etc\/rsyslog\.d\/rsyslog\.conf'`))
+			Eventually(session).Should(gbytes.Say(`stat: cannot stat[x]? '\/etc\/rsyslog\.d\/30-syslog-release\.conf'`))
+			Eventually(session).Should(gbytes.Say(`stat: cannot stat[x]? '\/etc\/rsyslog\.d\/20-syslog-release-custom-rules\.conf'`))
 		})
 	})
 
