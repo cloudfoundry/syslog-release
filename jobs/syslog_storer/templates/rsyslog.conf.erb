@@ -51,7 +51,7 @@ module(
 <% end.else do %>
     module(load="imtcp")
 <% end %>
-input(type="imtcp" port="514")
+input(type="imtcp" port="<%= port %>")
     <% else %>
         <% raise 'only RELP, UDP, and TCP are supported' %>
     <% end %>
