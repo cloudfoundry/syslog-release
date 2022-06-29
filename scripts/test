@@ -2,12 +2,16 @@
 
 set -euxo pipefail
 
+STEMCELL_OS="${STEMCELL_OS:-ubuntu-xenial}"
+
 pushd "$(dirname "$0")/.."
   bosh create-release --force --version="$(date "+%s")"
   bosh upload-release
 popd
 
+bosh upload-stemcell "https://bosh.io/d/stemcells/bosh-google-kvm-${STEMCELL_OS}-go_agent"
+
 pushd "$(dirname "$0")/../tests"
   go install github.com/onsi/ginkgo/ginkgo@latest
-  ginkgo -r -nodes=2 "$@"
+  ginkgo -r -nodes="${NODES:-3}" "$@"
 popd
