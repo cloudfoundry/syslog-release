@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"strconv"
+	"time"
+	"fmt"
 
 	logrfc "github.com/jtarchie/syslog/pkg/log"
 	. "github.com/onsi/ginkgo"
@@ -196,13 +198,13 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 			Cleanup()
 		})
 
-		It("has an invalid config", func() {
+		It("will fail the pre-start script", func() {
 			By("Deploying")
 
 			session := BoshCmd("deploy", "manifests/broken-rules.yml",
 				"-v", fmt.Sprintf("deployment=%s", DeploymentName()),
 				"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS()))
-			Eventually(session, 10*time.Minute).ShouldNot(gexec.Exit(0))
+			Eventually(session, 10*time.Minute).Should(gexec.Exit(1))
 			Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
 		})
 	})
