@@ -3,12 +3,12 @@ package syslog_acceptance_test
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"strconv"
 	"time"
-	"fmt"
 
 	logrfc "github.com/jtarchie/syslog/pkg/log"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
