@@ -4,8 +4,8 @@ go 1.17
 
 require (
 	github.com/jtarchie/syslog v0.0.0-20200616043123-c6861be235b9
-	github.com/onsi/ginkgo/v2 v2.2.0
-	github.com/onsi/gomega v1.20.2
+	github.com/onsi/ginkgo/v2 v2.3.0
+	github.com/onsi/gomega v1.22.1
 )
 
 require (
