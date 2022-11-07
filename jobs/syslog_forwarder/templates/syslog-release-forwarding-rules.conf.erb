@@ -38,7 +38,7 @@ $ActionExecOnlyWhenPreviousIsSuspended on
           syslog_fallback_transport = fallback_server.fetch('transport')
         %>
         <% if syslog_fallback_transport == 'relp' %>
-$ModLoad omrelp
+module( load="omrelp" tls.tlslib="openssl" )
 :omrelp:<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;SyslogForwarderTemplate
         <% elsif syslog_fallback_transport == 'tcp' %>
 & @@<%= syslog_fallback_address %>:<%= syslog_fallback_port %>;SyslogForwarderTemplate
