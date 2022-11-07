@@ -19,7 +19,7 @@ end
 %>
 
 <% if syslog_transport == 'relp' %>
-$ModLoad omrelp
+module( load="omrelp" tls.tlslib="openssl" )
 *.* :omrelp:<%= syslog_address %>:<%= syslog_port %>;SyslogForwarderTemplate
 <% elsif syslog_transport == 'udp' %>
 *.* @<%= syslog_address %>:<%= syslog_port %>;SyslogForwarderTemplate
