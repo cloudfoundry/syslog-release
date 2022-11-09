@@ -73,6 +73,8 @@ builds:
     version: "1"
   be7a6ed8-4c42-46b4-b240-6ac7eb929158:
     version: "4"
+  bf81896c-69bf-41e9-5429-ce48880bf127:
+    version: 11.8.3
   c1760d0d-b048-4b4e-6d6f-6f41bb21a43c:
     version: 12.0.1
   cfeb80b4-8201-4b78-5665-a70c88bdc7f0:
