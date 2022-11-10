@@ -21,11 +21,10 @@ instance_groups:
         release: syslog
         properties:
           syslog:
+            transport: "relp"
             tls_enabled: true
             permitted_peer: "*.storer.default.((deployment)).bosh"
-            ca_cert: ((syslog_server.ca))
-            client_cert: ((syslog_client.certificate))
-            client_key: ((syslog_client.private_key))
+            ca_cert: ((syslog.ca))
   - name: storer
     instances: 1
     vm_type: default
@@ -40,10 +39,9 @@ instance_groups:
         properties:
           syslog:
             tls:
-              ca: ((syslog_server.ca))
-              certificate: ((syslog_server.certificate))
-              private_key: ((syslog_server.private_key))
-              authmode: x509/certvalid
+              ca: ((syslog.ca))
+              certificate: ((syslog.certificate))
+              private_key: ((syslog.private_key))
 variables:
 - name: syslog_ca
   type: certificate
@@ -51,7 +49,7 @@ variables:
   options:
     common_name: test
     is_ca: true
-- name: syslog_server
+- name: syslog
   type: certificate
   update_mode: converge
   options:
@@ -62,16 +60,6 @@ variables:
     common_name: '*.storer.default.((deployment)).bosh'
     alternative_names:
     - '*.storer.default.((deployment)).bosh'
-- name: syslog_client
-  type: certificate
-  update_mode: converge
-  options:
-    extended_key_usage:
-    - client_auth
-    - server_auth
-    ca: syslog_ca
-    common_name: '*.forwarder.default.((deployment)).bosh'
-
 update:
   canaries: 1
   max_in_flight: 1
