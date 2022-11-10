@@ -221,6 +221,18 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		TestSharedBehavior()
 	})
 
+	Context("when TLS is configured over relp", func() {
+		BeforeEach(func() {
+			Cleanup()
+			DeployWithVarsStore("manifests/relp-tls.yml")
+		})
+		AfterEach(func() {
+			Cleanup()
+		})
+
+		TestSharedBehavior()
+	})
+
 	Context("when TLS is configured and mTLS is enforced", func() {
 		BeforeEach(func() {
 			Cleanup()
