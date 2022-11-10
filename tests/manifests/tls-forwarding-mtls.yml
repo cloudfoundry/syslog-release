@@ -57,6 +57,7 @@ variables:
   options:
     extended_key_usage:
     - client_auth
+    - server_auth
     ca: syslog_ca
     common_name: '*.storer.default.((deployment)).bosh'
     alternative_names:
@@ -67,6 +68,7 @@ variables:
   options:
     extended_key_usage:
     - client_auth
+    - server_auth
     ca: syslog_ca
     common_name: '*.forwarder.default.((deployment)).bosh'
 
