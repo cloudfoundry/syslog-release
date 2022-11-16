@@ -107,6 +107,9 @@ properties:
   syslog.tls_enabled:
     description: Set this to true to enable TLS / mTLS.
     default: false
+  syslog.tls_library:
+    description: Set this to use a different tls library. Supported options are ossl and gtls
+    default: gtls
   syslog.permitted_peer:
     description: >
       Accepted fingerprint (SHA1) or name of remote peer.

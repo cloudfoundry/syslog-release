@@ -39,12 +39,12 @@ global(
     defaultNetstreamDriverCAFile="/var/vcap/jobs/syslog_storer/config/ca.pem"
     defaultNetstreamDriverCertFile="/var/vcap/jobs/syslog_storer/config/syslog-storer.crt"
     defaultNetstreamDriverKeyFile="/var/vcap/jobs/syslog_storer/config/syslog-storer.key"
-    defaultNetstreamDriver="gtls"
+    defaultNetstreamDriver="<%= p('syslog.tls_library') %>"
 )
 
 module(
     load="imtcp"
-    StreamDriver.Name="gtls"
+    StreamDriver.Name="<%= p('syslog.tls_library') %>"
     StreamDriver.Mode="1"
     StreamDriver.AuthMode="<%= p('syslog.tls.authmode') %>"
 )

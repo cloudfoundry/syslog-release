@@ -41,6 +41,9 @@ properties:
     default: anon
     description: >
       Authentication mode that will be used to validate mTLS certificates.
+  syslog.tls_library:
+    description: Set this to use a different tls library. Supported options are ossl and gtls
+    default: gtls
 
   syslog.max_message_size:
     default: 8k
