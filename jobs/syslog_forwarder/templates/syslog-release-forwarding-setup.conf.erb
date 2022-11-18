@@ -76,7 +76,7 @@ $DefaultNetstreamDriverCAFile <%= ca_cert_path %>                 # trust these 
 $DefaultNetstreamDriverCertFile /var/vcap/jobs/syslog_forwarder/config/client.crt
 $DefaultNetstreamDriverKeyFile /var/vcap/jobs/syslog_forwarder/config/client.key
 <% end %>
-$ActionSendStreamDriver gtls                                      # use gtls netstream driver
+$ActionSendStreamDriver <%= p('syslog.tls_library') %>            # set tls library
 $ActionSendStreamDriverMode 1                                     # require TLS
 $ActionSendStreamDriverAuthMode x509/name                         # authenticate by hostname
 $ActionSendStreamDriverPermittedPeer <%= p('syslog.permitted_peer', syslog_address) %>
