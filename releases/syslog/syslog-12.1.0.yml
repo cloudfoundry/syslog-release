@@ -1,0 +1,32 @@
+name: syslog
+version: 12.1.0
+commit_hash: b5e0f39
+uncommitted_changes: false
+jobs:
+- name: syslog_forwarder
+  version: 9258001fc67d11a5612e93748bbb9bbbb4b8d133e68684aa7a7181794785e9b2
+  fingerprint: 9258001fc67d11a5612e93748bbb9bbbb4b8d133e68684aa7a7181794785e9b2
+  sha1: sha256:4c2abddbd22fa854cb5a40a8b5cf8836837cd8b429ea88272647109decfe47db
+  packages:
+  - blackbox
+- name: syslog_storer
+  version: 5477474cae4547ca2620659256944494c9da15ad5ddfab197ea44fbb0db03c12
+  fingerprint: 5477474cae4547ca2620659256944494c9da15ad5ddfab197ea44fbb0db03c12
+  sha1: sha256:a5fcbb20aabf3a301dc4a398e6e26cc8d2515f92b6f104cd49c556dc6960a358
+  packages: []
+packages:
+- name: blackbox
+  version: 1fc7e011d956699ac37ca5f00e7941e037136d159d179a41fdf50cc1675d19c4
+  fingerprint: 1fc7e011d956699ac37ca5f00e7941e037136d159d179a41fdf50cc1675d19c4
+  sha1: sha256:f1c811842dfc56b07ab2775bbee80a395f82224d4c3e61d38ba5892762e51b5e
+  dependencies:
+  - golang-1.19-linux
+- name: golang-1.19-linux
+  version: 3b157e9d492246f0a43d3a68327117efe1465b2883a1f1cc86bc76c0d85cf806
+  fingerprint: 3b157e9d492246f0a43d3a68327117efe1465b2883a1f1cc86bc76c0d85cf806
+  sha1: sha256:8ef5fdee43875176238fb42017aace683c16108adb2c5e33cc97403fdf16d7fc
+  dependencies: []
+license:
+  version: 8e4174f96e7d8edb37c82965f0c61222e80a5ea2992f55f1e7cc7f4ef800600c
+  fingerprint: 8e4174f96e7d8edb37c82965f0c61222e80a5ea2992f55f1e7cc7f4ef800600c
+  sha1: sha256:b39221693df0d2ca912c343570485ae27070755899ced4c7cca183f42d454299
