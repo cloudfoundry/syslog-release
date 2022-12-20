@@ -15,7 +15,7 @@ import (
 )
 
 func DeploymentName() string {
-	return fmt.Sprintf("syslog-tests-%d", GinkgoParallelNode())
+	return fmt.Sprintf("syslog-tests-%d", GinkgoParallelProcess())
 }
 
 func StemcellOS() string {
