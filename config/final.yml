@@ -1,6 +1,6 @@
 ---
 blobstore:
-  provider: s3
+  provider: gcs
   options:
     bucket_name: syslog-release-blobs
 final_name: syslog
