@@ -87,6 +87,8 @@ builds:
     version: 11.1.0
   fb128559-ad6f-487f-5737-1806b1e3d92b:
     version: 11.8.6
+  fb1d2cb3-ef04-49ef-451e-e9be7adb478a:
+    version: 11.8.8
   fe769086-3307-4964-52fc-f69059674536:
     version: 11.8.0
 format-version: "2"
