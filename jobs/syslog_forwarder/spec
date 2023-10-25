@@ -29,7 +29,9 @@ properties:
   syslog.director:
     description: "BOSH Director name"
     default: ""
-
+  syslog.environment:
+    description: "Optional environment identifier"
+    default: ""
   syslog.forward_files:
     description: If enabled, use BlackBox to forward logs.
     default: true
