@@ -166,6 +166,9 @@ contains the following fields:
 * instance group
 * instance ID
 
+The structured data may also contain an optional `environment` field if
+provided by the operator.
+
 The whole thing looks something like this:
 
 ```

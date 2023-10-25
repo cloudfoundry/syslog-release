@@ -18,6 +18,9 @@ end
 
 %>
 set $.director = "<%= p('syslog.director') %>";
+<% if p('syslog.environment') != '' -%>
+set $.environment = "<%= p('syslog.environment') %>";
+<% end -%>
 set $.deployment = "<%= spec.deployment %>";
 set $.instance = "<%= spec.name %>";
 set $.az = "<%= spec.az %>";
@@ -37,6 +40,10 @@ template(name="SyslogForwarderTemplate" type="list") {
   # 47450 is CFF in https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
   constant(value=" [instance@47450 director=\"")
   property(name="$.director")
+<% if p('syslog.environment') != '' -%>
+  constant(value="\" environment=\"")
+  property(name="$.environment")
+<% end -%>
   constant(value="\" deployment=\"")
   property(name="$.deployment")
   constant(value="\" group=\"")

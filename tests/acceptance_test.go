@@ -99,6 +99,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 						Expect(string(sdata.ID())).To(Equal("instance@47450"))
 						properties := sdata.Properties()
 						Expect(properties).To(ContainElement(logrfc.Property{Key: ("director"), Value: ("")}))
+						Expect(properties).ToNot(ContainElement(logrfc.Property{Key: ("environment"), Value: ("")}))
 						Expect(properties).To(ContainElement(logrfc.Property{Key: ("deployment"), Value: (DeploymentName())}))
 						Expect(properties).To(ContainElement(logrfc.Property{Key: ("group"), Value: ("forwarder")}))
 						break
@@ -243,6 +244,45 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		})
 
 		TestSharedBehavior()
+	})
+})
+
+var _ = Describe("Tagging logs with environment identifiers", func() {
+	AfterEach(func() {
+		Cleanup()
+	})
+
+	Context("when an environment identifier is specified", func() {
+		BeforeEach(func() {
+			Cleanup()
+			Deploy("manifests/environment-identifier.yml")
+		})
+		It("includes the environment identifier in the structured data", func() {
+			SendLogMessage("test-environment-identifier", DEFAULT_LOGGER_SIZE)
+			Eventually(func() string {
+				return ForwardedLogs()
+			}).Should(ContainSubstring("test-environment-identifier"))
+
+			logs := bytes.NewBufferString(ForwardedLogs())
+			reader := bufio.NewReader(logs)
+
+			for {
+				line, _, err := reader.ReadLine()
+				Expect(err).ToNot(HaveOccurred())
+				if len(line) == 0 {
+					break
+				}
+				logLine, _, err := logrfc.Parse(line)
+				Expect(err).ToNot(HaveOccurred())
+				if string(logLine.Message()) == "test-environment-identifier" {
+					sdata := logLine.StructureData()[0]
+					Expect(string(sdata.ID())).To(Equal("instance@47450"))
+					properties := sdata.Properties()
+					Expect(properties).To(ContainElement(logrfc.Property{Key: ("environment"), Value: ("some-environment-identifier")}))
+					break
+				}
+			}
+		})
 	})
 })
 
