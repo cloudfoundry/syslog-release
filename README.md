@@ -224,14 +224,8 @@ will need to [install Go][go-installation].
 Note that the `go.mod` and `go.sum` files in this repo are only for the test
 code.
 
-Before running tests, you'll need to create a bosh director. First, ensure the
-bosh cli is installed and the bosh-deployment repository is downloaded and
-located at `~/workspace/bosh-deployment`. You can then run
-`./scripts/setup-bosh-lite-for-tests.sh` to create the director. Afterwards
-execute `source export-bosh-lite-creds.sh` to target the bosh director.
-
-(Alternatively, if you wish to run the specs against the CI env, you can
-`source` the `.envrc` in your env-repo.)
+The tests expect that your local environment has the BOSH CLI installed and
+configured correctly to point to a BOSH Director.
 
 The tests can then be run from the top of the repo with `./scripts/test`.
 
