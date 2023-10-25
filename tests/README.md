@@ -3,24 +3,12 @@
 ## Development
 
 The following commands assume you are operating
-from the top level of the repo, have go inistalled,
+from the top level of the repo, have go installed,
 and have initialized and updated the blackbox submodule
 as described in the main [README](../README.md).
 
-First, you'll need to setup a bosh-lite and login to it.
-If you don't have a bosh-lite running
-and aliased as `vbox` already:
-
-```sh
-scripts/setup-bosh-lite-for-tests.sh
-```
-
-If you don't already have BOSH credential
-environment variables in your session:
-
-```sh
-source scripts/export-bosh-lite-creds.sh
-```
+Ensure that you have a BOSH Director deployed and your local environment is
+configured to point to the BOSH Director.
 
 To then run the tests locally:
 
