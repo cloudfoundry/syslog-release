@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/jtarchie/syslog v0.0.0-20230110145040-a84b72ae616b
-	github.com/onsi/gomega v1.29.0
+	github.com/onsi/gomega v1.30.0
 )
 
 require (
