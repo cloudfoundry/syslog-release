@@ -121,6 +121,8 @@ builds:
     version: 11.1.0
   f7e9ae03-bb13-47df-6f8f-e7aa17d71f4f:
     version: 12.1.6
+  f97929e1-7b4a-410f-70b9-12429d320fa0:
+    version: 12.2.1
   fe769086-3307-4964-52fc-f69059674536:
     version: 11.8.0
 format-version: "2"
