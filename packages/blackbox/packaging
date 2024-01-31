@@ -1,5 +1,5 @@
 set -e
-source /var/vcap/packages/golang-1.20-linux/bosh/compile.env
+source /var/vcap/packages/golang-1.21-linux/bosh/compile.env
 export GO111MODULE=auto
 
 cd blackbox/cmd/blackbox
