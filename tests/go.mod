@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/jtarchie/syslog v0.0.0-20200616043123-c6861be235b9
 	github.com/onsi/ginkgo/v2 v2.16.0
-	github.com/onsi/gomega v1.31.1
+	github.com/onsi/gomega v1.32.0
 )
 
 require (
