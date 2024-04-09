@@ -93,6 +93,8 @@ builds:
     version: "1"
   a4250503-d1de-406e-65c0-9c1fdd536fbd:
     version: 12.1.9
+  b0d69745-9ac1-4c9d-48dd-d2ded7becdbf:
+    version: 12.2.4
   be7a6ed8-4c42-46b4-b240-6ac7eb929158:
     version: "4"
   bf81896c-69bf-41e9-5429-ce48880bf127:
