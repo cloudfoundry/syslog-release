@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/jtarchie/syslog v0.0.0-20230110145040-a84b72ae616b
-	github.com/onsi/gomega v1.33.0
+	github.com/onsi/gomega v1.33.1
 )
 
 require (
@@ -18,6 +18,6 @@ require (
 require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/onsi/ginkgo v1.16.5
-	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/net v0.24.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
 )
