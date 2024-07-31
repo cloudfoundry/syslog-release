@@ -1,6 +1,6 @@
 module syslog_integration_tests
 
-go 1.21
+go 1.22
 
 require (
 	github.com/jtarchie/syslog v0.0.0-20200616043123-c6861be235b9
