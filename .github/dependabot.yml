@@ -5,12 +5,3 @@ updates:
     directory: "/tests"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "gomod"
-    directory: "/tests"
-    target-branch: "v11.x"
-    schedule:
-      interval: "weekly"
-    labels:
-    - "v11.x"
-    - "go"
-    - "dependencies"
