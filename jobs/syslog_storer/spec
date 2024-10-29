@@ -8,6 +8,7 @@ templates:
   ca.pem.erb: config/ca.pem
   syslog-storer.key.erb: config/syslog-storer.key
   syslog-storer.crt.erb: config/syslog-storer.crt
+  syslog.apparmor.erb: config/syslog.apparmor
 
 provides:
 - name: syslog_storer
