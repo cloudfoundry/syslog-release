@@ -8,4 +8,7 @@ chown -R syslog:adm /var/vcap/store/syslog_storer
 
 mkdir -p /etc/rsyslog.d
 cp $(dirname $0)/../config/rsyslog.conf /etc/rsyslog.d/rsyslog.conf
+if [ -d "/etc/apparmor.d/rsyslog.d/" ]; then
+  cp $(dirname $0)/../config/syslog.apparmor /etc/apparmor.d/rsyslog.d/syslog.apparmor
+fi
 service rsyslog restart
