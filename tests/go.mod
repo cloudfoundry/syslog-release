@@ -7,7 +7,7 @@ toolchain go1.22.8
 require (
 	github.com/jtarchie/syslog v0.0.0-20200616043123-c6861be235b9
 	github.com/onsi/ginkgo/v2 v2.22.0
-	github.com/onsi/gomega v1.35.1
+	github.com/onsi/gomega v1.36.1
 )
 
 require (
