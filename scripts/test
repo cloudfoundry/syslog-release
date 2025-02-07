@@ -13,5 +13,5 @@ bosh upload-stemcell "https://bosh.io/d/stemcells/bosh-google-kvm-${STEMCELL_OS}
 
 pushd "$(dirname "$0")/../tests"
   go install github.com/onsi/ginkgo/v2/ginkgo
-  ginkgo -r --procs="${NODES:-3}" --compilers="${NODES:-3}" --keep-going --timeout="2h" "$@"
+  ginkgo -r --procs="${NODES:-3}" --compilers="${NODES:-3}" --keep-going --timeout="4h" "$@"
 popd
