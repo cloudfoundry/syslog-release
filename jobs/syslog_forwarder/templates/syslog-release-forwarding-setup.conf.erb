@@ -25,6 +25,7 @@ set $.deployment = "<%= spec.deployment %>";
 set $.instance = "<%= spec.name %>";
 set $.az = "<%= spec.az %>";
 set $.id = "<%= spec.id %>";
+set $.index = "<%= spec.index %>";
 # following https://tools.ietf.org/html/rfc5424#section-6
 template(name="SyslogForwarderTemplate" type="list") {
   constant(value="<")
@@ -52,6 +53,8 @@ template(name="SyslogForwarderTemplate" type="list") {
   property(name="$.az")
   constant(value="\" id=\"")
   property(name="$.id")
+  constant(value="\" index=\"")
+  property(name="$.index")
   constant(value="\"]")
   property(name="msg" spifno1stsp="on" )
   property(name="msg")
