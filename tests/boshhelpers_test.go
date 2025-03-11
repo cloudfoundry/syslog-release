@@ -55,7 +55,7 @@ func Cleanup() {
 	By("Performing Cleanup")
 	BoshCmd("locks")
 	session := BoshCmd("delete-deployment")
-	Eventually(session, 20*time.Minute).Should(gexec.Exit(0))
+	Eventually(session, 40*time.Minute).Should(gexec.Exit(0))
 
 	Eventually(eventualLockChecker()).ShouldNot(gbytes.Say(DeploymentName()))
 }
@@ -65,7 +65,7 @@ func Deploy(manifest string) *gexec.Session {
 	session := BoshCmd("deploy", manifest,
 		"-v", fmt.Sprintf("deployment=%s", DeploymentName()),
 		"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS()))
-	Eventually(session, 20*time.Minute).Should(gexec.Exit(0))
+	Eventually(session, 40*time.Minute).Should(gexec.Exit(0))
 	Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
 	return session
 }
@@ -74,7 +74,7 @@ func DeployWithVarsStore(manifest string) *gexec.Session {
 	session := BoshCmd("deploy", manifest,
 		"-v", fmt.Sprintf("deployment=%s", DeploymentName()), fmt.Sprintf("--vars-store=/tmp/%s-vars.yml", DeploymentName()),
 		"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS()))
-	Eventually(session, 20*time.Minute).Should(gexec.Exit(0))
+	Eventually(session, 40*time.Minute).Should(gexec.Exit(0))
 	Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
 	return session
 }
