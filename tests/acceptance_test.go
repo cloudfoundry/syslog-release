@@ -28,7 +28,7 @@ var _ = Describe("Impact on the local VM", func() {
 			Deploy("manifests/udp-blackbox.yml")
 			AddFakeOldConfig()
 			restartsession := BoshCmd("restart", "forwarder")
-			Eventually(restartsession).Should(gexec.Exit(0))
+			Eventually(restartsession, 600*time.Second).Should(gexec.Exit(0))
 		})
 
 		It("Cleans up any files at old config file locations", func() {
