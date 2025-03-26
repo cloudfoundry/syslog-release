@@ -65,7 +65,7 @@ if ($app-name != "uaa") then {
 }
 ```
 
-#Forwarding to additional remotes
+# Forwarding to additional remotes
 
 If you want to forward logs to remotes in addition to the remote set in the manifest,
 you can use the custom rule field to do so. To send all logs to additional remotes, 
