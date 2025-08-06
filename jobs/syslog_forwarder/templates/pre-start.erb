@@ -15,6 +15,10 @@ mkdir -p /etc/rsyslog.d
 # This cleans up after legacy config locations and previous starts
 rm -f /etc/rsyslog.d/rsyslog.conf /etc/rsyslog.d/*-syslog-release*conf
 
+if [ -d "/etc/apparmor.d/rsyslog.d/" ]; then
+  cp $(dirname $0)/../config/syslog.apparmor /etc/apparmor.d/rsyslog.d/syslog.apparmor
+fi
+
 <% unless p('syslog.migration.disabled') %>
 
 cp $(dirname $0)/../config/syslog-release.conf /etc/rsyslog.d/20-syslog-release.conf
