@@ -16,6 +16,7 @@ templates:
   syslog-release-forwarding-rules.conf.erb: config/syslog-release-forwarding-rules.conf
   syslog-release-forwarding-setup.conf.erb: config/syslog-release-forwarding-setup.conf
   syslog-release-vcap-filter.conf.erb: config/syslog-release-vcap-filter.conf
+  syslog.apparmor.erb: config/syslog.apparmor
 
 packages:
   - blackbox
