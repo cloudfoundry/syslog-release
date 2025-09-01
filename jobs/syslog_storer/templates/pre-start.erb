@@ -10,5 +10,14 @@ mkdir -p /etc/rsyslog.d
 cp $(dirname $0)/../config/rsyslog.conf /etc/rsyslog.d/rsyslog.conf
 if [ -d "/etc/apparmor.d/rsyslog.d/" ]; then
   cp $(dirname $0)/../config/syslog.apparmor /etc/apparmor.d/rsyslog.d/syslog.apparmor
+
+  if command -v apparmor_parser &>/dev/null && [ -f "/etc/apparmor.d/usr.sbin.rsyslogd" ]; then
+    apparmor_parser -r /etc/apparmor.d/usr.sbin.rsyslogd
+  fi
 fi
-service rsyslog restart
+
+if command -v systemctl &>/dev/null; then
+  systemctl restart rsyslog
+else
+  service rsyslog restart
+fi
