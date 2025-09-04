@@ -16,7 +16,12 @@ if [ -d "/etc/apparmor.d/rsyslog.d/" ]; then
   fi
 fi
 
-if [ "$(cat /proc/1/comm 2>/dev/null)" = "systemd" ] && command -v systemctl &>/dev/null; then
+service_manager="$(cat /proc/1/comm 2>/dev/null)"
+if [ -f "/var/vcap/bosh/agent.json" ] && command -v jq &>/dev/null; then
+  service_manager=$(jq -r '.Platform.Linux.ServiceManager // empty' "/var/vcap/bosh/agent.json")
+fi
+
+if [ "${service_manager}" = "systemd" ] && command -v systemctl &>/dev/null; then
   systemctl restart rsyslog
 else
   service rsyslog restart
