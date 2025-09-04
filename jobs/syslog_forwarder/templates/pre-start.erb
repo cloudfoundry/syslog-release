@@ -53,7 +53,11 @@ chmod 0644 /etc/rsyslog.d/40-syslog-release-file-exclusion.conf
 
 service_manager="$(cat /proc/1/comm 2>/dev/null)"
 if [ -f "/var/vcap/bosh/agent.json" ] && command -v jq &>/dev/null; then
-  service_manager=$(jq -r '.Platform.Linux.ServiceManager // empty' "/var/vcap/bosh/agent.json")
+  if jq 'paths(scalars) as $p | getpath($p) == "systemd"' /var/vcap/bosh/agent.json | grep -q true; then
+    service_manager="systemd"
+  else
+    service_manager="init"
+  fi
 fi
 
 if [ "${service_manager}" = "systemd" ] && command -v systemctl &>/dev/null; then
