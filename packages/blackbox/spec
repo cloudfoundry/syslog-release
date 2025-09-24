@@ -1,7 +1,7 @@
 ---
 name: blackbox
 dependencies:
-- golang-1.23-linux
+- golang-1.25-linux
 files:
 - blackbox/**/*
 excluded_files:
