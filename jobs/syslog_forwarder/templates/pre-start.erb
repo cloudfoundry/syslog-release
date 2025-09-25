@@ -51,7 +51,14 @@ chmod 0644 /etc/rsyslog.d/40-syslog-release-file-exclusion.conf
 
 <% end %>
 
-if command -v systemctl &>/dev/null; then
+# if command -v systemctl &>/dev/null; then
+#   systemctl restart rsyslog
+# else
+#   service rsyslog restart
+# fi
+
+# Check if systemd is PID 1
+if [ "$(ps -p 1 -o comm=)" = "systemd" ] && command -v systemctl &>/dev/null; then
   systemctl restart rsyslog
 else
   service rsyslog restart
