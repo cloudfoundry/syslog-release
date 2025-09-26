@@ -16,6 +16,11 @@ if [ -d "/etc/apparmor.d/rsyslog.d/" ]; then
   fi
 fi
 
+# In BOSH Lite environments, deployments fail when the pre-start script
+# unconditionally restarts rsyslog with `systemctl`, because BOSH Lite
+# does not use systemd as PID 1. This logic detects whether systemd is
+# actually running as init (PID 1) before using `systemctl`; otherwise it
+# falls back to the traditional `service` command to restart rsyslog.
 if [ "$(ps -p 1 -o comm=)" = "systemd" ] && command -v systemctl &>/dev/null; then
   systemctl restart rsyslog
 else
