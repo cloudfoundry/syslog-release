@@ -1,0 +1,42 @@
+name: syslog
+version: 12.3.10
+commit_hash: "1102481"
+uncommitted_changes: false
+jobs:
+- name: syslog_forwarder
+  version: 52c043aff4aa91e7c24c3a19672bbb55646e7c14d3ae2f4a9a34bcbcf1b5782b
+  fingerprint: 52c043aff4aa91e7c24c3a19672bbb55646e7c14d3ae2f4a9a34bcbcf1b5782b
+  sha1: sha256:82f50c0457feaab7b0ac150534544e910cef7d83f62e4fa5afdd41f1a49686e6
+  packages:
+  - blackbox
+- name: syslog_storer
+  version: 60f2fe5c080a3bc9ec71e23bdf75bcf8bd1b20ce7760d099bcf7d3a2bbef7b1e
+  fingerprint: 60f2fe5c080a3bc9ec71e23bdf75bcf8bd1b20ce7760d099bcf7d3a2bbef7b1e
+  sha1: sha256:1cf6a077630bf0ae8b7b959da52b1ebb63ad90b29e7c0825c50144f647716801
+  packages: []
+packages:
+- name: blackbox
+  version: 12582a6f910646152a78285bf176530f6b4925bc673c74d120286ca173bcbdf2
+  fingerprint: 12582a6f910646152a78285bf176530f6b4925bc673c74d120286ca173bcbdf2
+  sha1: sha256:a097eb0082b1eebabf94fdcf89390cd9346700c3c4a27bff2a1f55adf9c48049
+  dependencies:
+  - golang-1.25-linux
+- name: golang-1.25-darwin
+  version: 69e244a5b0e933bcdc87360a980c6f7d3ff0f670ad3df0aa19394318dee1aea5
+  fingerprint: 69e244a5b0e933bcdc87360a980c6f7d3ff0f670ad3df0aa19394318dee1aea5
+  sha1: sha256:03ef506738fbae8d6b4ab5bb3eade0647ecbb44a7ce5bb271df1103df4448aea
+  dependencies: []
+- name: golang-1.25-linux
+  version: 8cbbeb9a25df0cd15038235e0504a02ae6a1badd0b923d46d99a9db1654704a9
+  fingerprint: 8cbbeb9a25df0cd15038235e0504a02ae6a1badd0b923d46d99a9db1654704a9
+  sha1: sha256:a0972c0bc2f11a8b9050fe647c3e4d5de152d900333b8373c5a925a2472dc2a1
+  dependencies: []
+- name: golang-1.25-windows
+  version: fdc6f89451567c145ae473d9dee3b4828cb3c741829125604e98d8e37bbfe51f
+  fingerprint: fdc6f89451567c145ae473d9dee3b4828cb3c741829125604e98d8e37bbfe51f
+  sha1: sha256:0883b34a87110310fd90dc6afd59085757699e7997a4bbe2bae12f0d8278cc21
+  dependencies: []
+license:
+  version: 8e4174f96e7d8edb37c82965f0c61222e80a5ea2992f55f1e7cc7f4ef800600c
+  fingerprint: 8e4174f96e7d8edb37c82965f0c61222e80a5ea2992f55f1e7cc7f4ef800600c
+  sha1: sha256:b39221693df0d2ca912c343570485ae27070755899ced4c7cca183f42d454299
