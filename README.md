@@ -1,7 +1,7 @@
 # Syslog BOSH Release
 
 This is a BOSH release to forward local syslog events in [RFC5424][RFC] format to a remote syslog endpoint. It currently uses [RSYSLOG][RSYSLOG], which is pre-installed by the stemcell, and [blackbox][blackbox].
-
+#
 There is a [separate release][windows-syslog] to accomplish this on Windows stemcells, which uses [blackbox][blackbox], but not [RSYSLOG][RSYSLOG].
 
 If you have any questions, or want to get attention for a PR or issue please reach out on the [#logging-and-metrics channel in the cloudfoundry slack](https://cloudfoundry.slack.com/archives/CUW93AF3M)
