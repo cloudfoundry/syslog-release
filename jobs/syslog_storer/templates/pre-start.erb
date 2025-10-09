@@ -21,8 +21,13 @@ fi
 # does not use systemd as PID 1. This logic detects whether systemd is
 # actually running as init (PID 1) before using `systemctl`; otherwise it
 # falls back to the traditional `service` command to restart rsyslog.
-if [ "$(ps -p 1 -o comm=)" = "systemd" ] && command -v systemctl &>/dev/null; then
-  systemctl restart rsyslog
+if command -v systemctl &>/dev/null && systemctl list-unit-files | grep -q '^rsyslog\.service'; then
+  echo "Restarting rsyslog via systemctl..."
+  systemctl restart rsyslog || {
+    echo "systemctl restart failed (exit $?), falling back to service"
+    service rsyslog restart || echo "fallback restart also failed."
+  }
 else
+  echo "Restarting rsyslog via service..."
   service rsyslog restart
 fi
