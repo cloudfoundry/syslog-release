@@ -1,4 +1,4 @@
-# Syslog BOSH Release TEST
+# Syslog BOSH Release
 
 This is a BOSH release to forward local syslog events in [RFC5424][RFC] format to a remote syslog endpoint. It currently uses [RSYSLOG][RSYSLOG], which is pre-installed by the stemcell, and [blackbox][blackbox].
 
