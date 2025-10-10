@@ -51,28 +51,10 @@ chmod 0644 /etc/rsyslog.d/40-syslog-release-file-exclusion.conf
 
 <% end %>
 
-# Updated pre-start logic for rsyslog:
-# In some environments (like BOSH Lite or VMs that are partially stopped),
-# systemd may exist but the rsyslog.service unit can fail to start.
-# Previously, we unconditionally tried `systemctl restart rsyslog`, which
-# could fail and cause the pre-start to fail.
-#
-# Now, we first check if `systemctl` exists **and** if the rsyslog service
-# unit is present. We attempt `systemctl restart` but fall back to
-# `service rsyslog restart` if it fails. This ensures rsyslog starts
-# reliably regardless of systemd state, VM state, or BOSH Lite limitations.
-
-# if command -v systemctl &>/dev/null && systemctl list-unit-files | grep -q '^rsyslog\.service'; then
-#   echo "Restarting rsyslog via systemctl..."
-#   systemctl restart rsyslog || {
-#     echo "systemctl restart failed (exit $?), falling back to service"
-#     service rsyslog restart || echo "fallback restart also failed."
-#   }
-# else
-#   echo "Restarting rsyslog via service..."
-#   service rsyslog restart
-# fi
-
+# Restart rsyslog: try systemctl first; if it fails (e.g., systemctl missing,
+# service not managed by systemd, or VM partially stopped), fall back to
+# the traditional service command. This ensures rsyslog starts reliably
+# across BOSH Lite, stopped VMs, or environments with partial systemd support.
 echo "Restarting rsyslog..."
 systemctl restart rsyslog 2>/dev/null || {
   echo "systemctl restart failed, falling back to service..."
