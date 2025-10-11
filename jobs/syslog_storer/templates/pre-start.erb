@@ -16,12 +16,11 @@ if [ -d "/etc/apparmor.d/rsyslog.d/" ]; then
   fi
 fi
 
-# Restart rsyslog: try systemctl first; if it fails (e.g., systemctl missing,
-# service not managed by systemd, or VM partially stopped), fall back to
-# the traditional service command. This ensures rsyslog starts reliably
+# Restart rsyslog: try service first; if it fails (e.g., service missing,
+# or VM partially stopped), fall back to systemctl. This ensures rsyslog starts reliably.
 # across BOSH Lite, stopped VMs, or environments with partial systemd support.
 echo "Restarting rsyslog..."
-systemctl restart rsyslog 2>/dev/null || {
-  echo "systemctl restart failed, falling back to service..."
-  service rsyslog restart || echo "fallback restart also failed."
+service rsyslog restart 2>/dev/null || {
+  echo "service restart failed, falling back to systemctl..."
+  systemctl restart rsyslog || echo "fallback restart also failed."
 }
