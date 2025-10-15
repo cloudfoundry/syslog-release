@@ -1,4 +1,6 @@
 builds:
+  083010df-abc1-4021-6899-47bda95b0463:
+    version: 12.3.12
   0c213068-d276-4529-7b4e-480bca29ed3a:
     version: 12.1.0
   1332df41-edb9-4654-4b56-16e21dd772a2:
