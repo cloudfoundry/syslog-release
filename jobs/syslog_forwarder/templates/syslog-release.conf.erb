@@ -15,7 +15,7 @@ $ActionResumeInterval          <%= p('syslog.resume_interval') %>            # W
 $ActionQueueSaveOnShutdown     <%= p('syslog.queue_save_on_shutdown') ? 'on' : 'off' %>   # Save in-memory data to disk if rsyslog shuts down (default: on)
 
 $ModLoad imudp
-$UDPServerAddress 127.0.0.1
+$UDPServerAddress localhost
 $UDPServerRun 514
 
 <% if p('syslog.use_tcp_for_file_forwarding_local_transport') %>
