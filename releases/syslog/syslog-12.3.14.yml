@@ -1,0 +1,42 @@
+name: syslog
+version: 12.3.14
+commit_hash: c9e50b3
+uncommitted_changes: false
+jobs:
+- name: syslog_forwarder
+  version: 2000f56fcc2d8725b4912a007865ecb4a4e203c87c08d287ccb932331f1632a8
+  fingerprint: 2000f56fcc2d8725b4912a007865ecb4a4e203c87c08d287ccb932331f1632a8
+  sha1: sha256:1bf1ec692eab17dc8741fa2cdb51857627c16436b41a55d81bb0db4a9d608b8f
+  packages:
+  - blackbox
+- name: syslog_storer
+  version: b2cb01dbeb52c8e627e737757526895480b5ce6622cf0bcf6f9a8a143eb801c2
+  fingerprint: b2cb01dbeb52c8e627e737757526895480b5ce6622cf0bcf6f9a8a143eb801c2
+  sha1: sha256:37cc11e0645c6cc6841630f8dd0b233354550752facbdc9dcc5941718cc05a34
+  packages: []
+packages:
+- name: blackbox
+  version: 2bbb141daebe6441f369f8836d11636ff0f64a378f02dcd200d5de19701f4223
+  fingerprint: 2bbb141daebe6441f369f8836d11636ff0f64a378f02dcd200d5de19701f4223
+  sha1: sha256:ff1e14b4112369eceb651dc205ebc1e765a4ef1a60251fbaf3343ade7efac3a5
+  dependencies:
+  - golang-1.25-linux
+- name: golang-1.25-darwin
+  version: 42a53f26530ff4810e952e0518cb6353d8ddbeebbeda52aa6efc652e274435b9
+  fingerprint: 42a53f26530ff4810e952e0518cb6353d8ddbeebbeda52aa6efc652e274435b9
+  sha1: sha256:5383764bba16625d2e9b71ea04466bc96d1d058160ecf699c6833ae10d7342f5
+  dependencies: []
+- name: golang-1.25-linux
+  version: 1e4dadb8a796a20044e177a108eec65780cd59c308da84f7fdbfdbc758cdf312
+  fingerprint: 1e4dadb8a796a20044e177a108eec65780cd59c308da84f7fdbfdbc758cdf312
+  sha1: sha256:1c0ded140111ca0d1256b8f20c29b41fcaed6384f5a9b12ef5362ed1783c974f
+  dependencies: []
+- name: golang-1.25-windows
+  version: fb4cf863311cceb62a13615813687871d16e7d71f93817ec7b533d6d569e7880
+  fingerprint: fb4cf863311cceb62a13615813687871d16e7d71f93817ec7b533d6d569e7880
+  sha1: sha256:c212dcb301799e26efb1d5d4ec900fbde6e3c4a269e9f08c06b96b8d39b1a520
+  dependencies: []
+license:
+  version: 8e4174f96e7d8edb37c82965f0c61222e80a5ea2992f55f1e7cc7f4ef800600c
+  fingerprint: 8e4174f96e7d8edb37c82965f0c61222e80a5ea2992f55f1e7cc7f4ef800600c
+  sha1: sha256:b39221693df0d2ca912c343570485ae27070755899ced4c7cca183f42d454299
