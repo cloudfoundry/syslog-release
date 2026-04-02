@@ -119,6 +119,54 @@ If you find yourself always configuring a certain parameter,
 please consider raising an issue to get it promoted to the spec,
 where we can test and document it.
 
+## Reading from Log Files with imfile
+
+By default, [blackbox][blackbox] tails all `.log` files under
+`/var/vcap/sys/log/` and forwards them to the primary syslog
+destination. rsyslog's [imfile module][imfile-docs] can be used via
+`custom_rule` for cases where you need more control over individual
+files.
+
+One example: blackbox tags messages with the subdirectory name
+(e.g. `cloud_controller_ng`) but not the filename, so you cannot
+target a single file within a job's log directory. With imfile and
+the `ruleset` parameter, you can bind a dedicated processing
+pipeline to a specific file — messages from that file never enter
+the default ruleset.
+
+The following example tails the Cloud Controller security event log,
+filters out routine GET/HEAD requests, and forwards the rest to a
+dedicated audit endpoint over TCP:
+
+```
+module(load="imfile")
+
+ruleset(name="cc_events") {
+  if $msg contains "requestMethod=HEAD" then stop
+  if $msg contains "requestMethod=GET" then stop
+
+  action(type="omfwd" Target="audit.example.com" Port="514" Protocol="tcp" template="SyslogForwarderTemplate")
+}
+
+input(type="imfile"
+      File="/var/vcap/sys/log/cloud_controller_ng/security_events.log"
+      Tag="cloud_controller_ng"
+      ruleset="cc_events"
+      reopenOnTruncate="on")
+```
+
+Because the `ruleset` parameter routes messages directly to
+`cc_events`, they bypass the default ruleset entirely. Blackbox
+will still tail the same file and forward it to the primary syslog
+destination — the two paths are independent.
+
+### AppArmor on Ubuntu Noble (24.04+)
+
+Starting with Ubuntu Noble, the rsyslog AppArmor profile runs in
+enforce mode. The syslog forwarder's AppArmor rules already grant
+read access to `/var/vcap/sys/log/**`, so imfile inputs for paths
+under that tree work out of the box.
+
 ## Further Notes
 In most of the above examples,
 the stop directive (`stop`)
@@ -131,7 +179,9 @@ You can find config docs for RSYSLOG [here][rsyslog-config-docs].
 
 Docs for rainerscript can be found [here][rainerscript-docs].
 
-[rainerscript-docs]: http://www.rsyslog.com/doc/v8-stable/rainerscript/index.html
-[rsyslog-config-docs]: http://www.rsyslog.com/doc/v8-stable/configuration/basic_structure.html
-[global-config-doc]: https://www.rsyslog.com/doc/v8-stable/configuration/global/index.html
+[rainerscript-docs]: https://docs.rsyslog.com/doc/rainerscript/index.html
+[rsyslog-config-docs]: https://docs.rsyslog.com/doc/configuration/basic_structure.html
+[global-config-doc]: https://docs.rsyslog.com/doc/configuration/global/index.html
 [blackbox-trunc-issue]: https://github.com/cloudfoundry/syslog-release/issues/37
+[blackbox]: https://github.com/cloudfoundry/blackbox
+[imfile-docs]: https://docs.rsyslog.com/doc/configuration/modules/imfile.html
