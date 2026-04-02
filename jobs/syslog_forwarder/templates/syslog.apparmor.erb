@@ -1,5 +1,17 @@
-# syslog_forwarder rules    
+# syslog_forwarder rules
     /var/vcap/data/jobs/syslog_forwarder/*/config/* r,
     /var/vcap/jobs/syslog_forwarder/config/* r,
     /var/vcap/data/syslog_forwarder/** rw,
     /var/vcap/sys/log/syslog_forwarder/** rw,
+
+    # /var/vcap/sys is a symlink to /var/vcap/data/sys. AppArmor resolves
+    # symlinks before matching, so rules must cover the real path.
+    # imfile needs read access on every parent directory to reach the
+    # log files, not just on the leaf path.
+    / r,
+    /var/ r,
+    /var/vcap/ r,
+    /var/vcap/data/ r,
+    /var/vcap/data/sys/ r,
+    /var/vcap/data/sys/log/ r,
+    /var/vcap/data/sys/log/** r,
