@@ -197,6 +197,25 @@ properties:
     default: 8k
     description: Sets the $MaxMessageSize configuration flag for rsyslog.
 
+  syslog.custom_apparmor_rules:
+    default: ""
+    description: |
+      Adds custom AppArmor rules at the end of syslog.apparmor.erb.
+      Starting from Ubuntu Noble, the AppArmor rules are enforced.
+      Because of that, some extra AppArmor read and write permissions might
+      be needed to get some Syslog parsing rules working, like for example
+      when using imfile or some extra paths to log files outside the "/var/vcap/sys/log" folder.
+      Please note that the following two things:
+      1. "/var/vcap/sys/log" is a symlink to "/var/vcap/data" and both paths
+      have to be added to the AppArmor rule.
+      2. As the files in "/var/vcap/sys/log" are tailed with blackbox, in case 
+      you use Syslog's imfile plugin, make sure that you are not duplicating logs.
+      Example:
+        syslog:
+          custom_apparmor_rules: |
+            /var/vcap/data/syslog_forwarder/** rw,
+            /var/vcap/sys/log/syslog_forwarder/** rw,
+
   logging.format.timestamp:
     description: "Format for timestamp in log file forwarder logs. Valid values are 'deprecated' and 'rfc3339'."
     default: "deprecated"
