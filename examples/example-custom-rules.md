@@ -131,6 +131,12 @@ You can find config docs for RSYSLOG [here][rsyslog-config-docs].
 
 Docs for rainerscript can be found [here][rainerscript-docs].
 
+**Note:** This file covers the `syslog.custom_rule` property (rsyslog
+configuration). For extending the **AppArmor** profile (e.g., granting rsyslog
+access to additional paths on Ubuntu Noble+), see the
+[Custom AppArmor Rules](../README.md#custom-apparmor-rules) section in the
+README.
+
 [rainerscript-docs]: http://www.rsyslog.com/doc/v8-stable/rainerscript/index.html
 [rsyslog-config-docs]: http://www.rsyslog.com/doc/v8-stable/configuration/basic_structure.html
 [global-config-doc]: https://www.rsyslog.com/doc/v8-stable/configuration/global/index.html
