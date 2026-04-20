@@ -12,6 +12,7 @@ If you have any questions, or want to get attention for a PR or issue please rea
     1. [Configure Forwarding](#configure-forwarding)
     1. [Message Size Limits](#message-size-limits)
     1. [Custom Rule](#custom-rule)
+    1. [Custom AppArmor Rules](#custom-apparmor-rules)
     1. [Test Store](#test-store)
 1. [Format](#format)
 1. [Tech Notes](#tech-notes)
@@ -119,6 +120,25 @@ We have some simple documentation with a few example rules in
 [`example-custom-rules.md`](examples/example-custom-rules.md).
 
 **Please note:** if your custom rule is invalid, the pre-start script will fail.
+
+### Custom AppArmor Rules
+
+Starting from Ubuntu Noble, the AppArmor profile for rsyslog is enforced. If you
+use plugins like `imfile` or need rsyslog to access log files outside of
+`/var/vcap/sys/log`, you may need to add extra AppArmor rules.
+
+Use the `syslog.custom_apparmor_rules` property to extend the AppArmor profile:
+
+```yml
+properties:
+  syslog:
+    custom_apparmor_rules: |
+      /var/vcap/data/syslog_forwarder/** rw,
+      /var/vcap/sys/log/syslog_forwarder/** rw,
+```
+
+**Note:** `/var/vcap/sys/log` is a symlink to `/var/vcap/data`, so both paths
+must be included in your rules.
 
 ### Test Store
 
