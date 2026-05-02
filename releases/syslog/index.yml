@@ -119,6 +119,8 @@ builds:
     version: 12.1.9
   b0d69745-9ac1-4c9d-48dd-d2ded7becdbf:
     version: 12.2.4
+  b0e39308-3aeb-4950-6275-8b25cc0556de:
+    version: 12.3.20
   bd6bb017-ed30-46cf-681d-05e030a387de:
     version: 12.3.2
   be7a6ed8-4c42-46b4-b240-6ac7eb929158:
