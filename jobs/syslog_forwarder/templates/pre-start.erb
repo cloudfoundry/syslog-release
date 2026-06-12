@@ -19,7 +19,7 @@ if [ -d "/etc/apparmor.d/rsyslog.d/" ]; then
   cp $(dirname $0)/../config/syslog.apparmor /etc/apparmor.d/rsyslog.d/syslog.apparmor
 
   if command -v apparmor_parser &>/dev/null && [ -f "/etc/apparmor.d/usr.sbin.rsyslogd" ]; then
-    apparmor_parser -r /etc/apparmor.d/usr.sbin.rsyslogd
+    apparmor_parser -r -T -W /etc/apparmor.d/usr.sbin.rsyslogd
   fi
 fi
 
