@@ -3,6 +3,8 @@ name: ((deployment))
 releases:
   - name: syslog
     version: latest
+  - name: bpm
+    version: latest
 stemcells:
   - alias: default
     os: ((stemcell-os))
@@ -17,6 +19,8 @@ instance_groups:
     azs:
       - z1
     jobs:
+      - name: bpm
+        release: bpm
       - name: syslog_forwarder
         release: syslog
   - name: storer

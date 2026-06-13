@@ -128,6 +128,14 @@ func WriteToTestFile(message string) func() *gexec.Session {
 	}
 }
 
+func WriteToOtherJobTestFile(message string) func() *gexec.Session {
+	return func() *gexec.Session {
+		session := ForwarderSshCmd(fmt.Sprintf("echo %s | sudo tee -a /var/vcap/sys/log/other-job/app.log", message))
+		Eventually(session).Should(gexec.Exit(0))
+		return ForwarderLog()
+	}
+}
+
 func WriteToPrivateTestFile(message string) func() *gexec.Session {
 	return func() *gexec.Session {
 		session := ForwarderSshCmd(fmt.Sprintf("sudo bash -c '"+
