@@ -51,6 +51,10 @@ chmod 0644 /etc/rsyslog.d/40-syslog-release-file-exclusion.conf
 
 <% end %>
 
+<% unless p('syslog.respect_file_permissions') %>
+setcap cap_dac_read_search+ep /var/vcap/packages/blackbox/bin/blackbox
+<% end %>
+
 # Restart rsyslog: try service first; if it fails (e.g., service missing,
 # or VM partially stopped), fall back to systemctl. This ensures rsyslog starts reliably.
 # across BOSH Lite, stopped VMs, or environments with partial systemd support.

@@ -9,6 +9,7 @@ pushd "$(dirname "$0")/.."
   bosh upload-release
 popd
 
+bosh upload-release https://bosh.io/d/github.com/cloudfoundry/bpm-release
 bosh upload-stemcell "https://bosh.io/d/stemcells/bosh-google-kvm-${STEMCELL_OS}-go_agent"
 
 pushd "$(dirname "$0")/../tests"

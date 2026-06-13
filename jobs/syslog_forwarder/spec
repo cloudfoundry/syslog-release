@@ -2,7 +2,7 @@
 name: syslog_forwarder
 
 templates:
-  blackbox_ctl.erb: bin/blackbox_ctl
+  bpm.yml.erb: config/bpm.yml
   blackbox_config.yml.erb: config/blackbox_config.yml
   ca_cert.pem.erb: config/ca_cert.pem
   client.crt.erb: config/client.crt
