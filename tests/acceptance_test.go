@@ -127,6 +127,17 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 			})
 		})
 
+		Context("when a file is created in a different job's log directory", func() {
+			BeforeEach(func() {
+				session := ForwarderSshCmd("sudo mkdir -p /var/vcap/sys/log/other-job && sudo chmod 777 /var/vcap/sys/log/other-job && sudo touch /var/vcap/sys/log/other-job/app.log")
+				Eventually(session).Should(gexec.Exit(0))
+			})
+
+			It("forwards new lines written to the file through syslog", func() {
+				Eventually(WriteToOtherJobTestFile("test-other-job-forwarding")).Should(gbytes.Say("test-other-job-forwarding"))
+			})
+		})
+
 		It("has a valid config", func() {
 			session := ForwarderSshCmd("sudo rsyslogd -N1")
 			Eventually(session).Should(gexec.Exit(0))

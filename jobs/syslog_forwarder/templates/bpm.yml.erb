@@ -1,0 +1,20 @@
+<% unless p('syslog.migration.disabled') || !p('syslog.forward_files') -%>
+processes:
+- name: blackbox
+  executable: /var/vcap/packages/blackbox/bin/blackbox
+  args:
+  - -config=/var/vcap/jobs/syslog_forwarder/config/blackbox_config.yml
+<% unless p('syslog.respect_file_permissions') -%>
+  capabilities:
+  - DAC_READ_SEARCH
+<% end -%>
+<% if p('syslog.blackbox.limit_cpu') -%>
+  env:
+    GOMAXPROCS: "1"
+<% end -%>
+  unsafe:
+    unrestricted_volumes:
+    - path: <%= p("syslog.blackbox.source_dir") %>
+      writable: false
+      mount_only: true
+<% end -%>
