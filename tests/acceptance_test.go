@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"code.cloudfoundry.org/go-loggregator/v9/rfc5424"
+	"code.cloudfoundry.org/go-loggregator/v10/rfc5424"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"

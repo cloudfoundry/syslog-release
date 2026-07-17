@@ -3,7 +3,7 @@ module syslog_integration_tests
 go 1.25.0
 
 require (
-	code.cloudfoundry.org/go-loggregator/v9 v9.2.1
+	code.cloudfoundry.org/go-loggregator/v10 v10.3.1
 	github.com/onsi/ginkgo/v2 v2.32.0
 	github.com/onsi/gomega v1.42.1
 )
@@ -21,4 +21,5 @@ require (
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
 	golang.org/x/tools v0.45.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
