@@ -69,7 +69,10 @@ $ActionQueueType LinkedList            # Allocate on-demand
 <% if p('syslog.tls_enabled') %>
   <%
     if syslog_transport == 'udp'
-      raise "TLS is not supported with UDP. Change transport to TCP or RELP, or disable TLS."
+      raise "TLS is not supported with UDP. Change transport to TCP, or disable TLS."
+    end
+    if syslog_transport == 'relp'
+      raise "TLS is not supported with RELP in this release. Change transport to TCP, or disable TLS."
     end
     ca_cert_path = '/etc/ssl/certs/ca-certificates.crt'
 
