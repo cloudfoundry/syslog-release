@@ -3,6 +3,7 @@ name: syslog_forwarder
 
 templates:
   bpm.yml.erb: config/bpm.yml
+  blackbox_ctl.erb: bin/blackbox_ctl
   blackbox_config.yml.erb: config/blackbox_config.yml
   ca_cert.pem.erb: config/ca_cert.pem
   client.crt.erb: config/client.crt
@@ -219,3 +220,10 @@ properties:
   logging.format.timestamp:
     description: "Format for timestamp in log file forwarder logs. Valid values are 'deprecated' and 'rfc3339'."
     default: "deprecated"
+
+  use_bpm:
+    description: >
+      When true, run this job under BPM. BPM is required on Resolute Raccoon
+      stemcells; support for running without BPM will be removed in a future
+      version.
+    default: false
