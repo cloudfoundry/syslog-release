@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	logrfc "github.com/jtarchie/syslog/pkg/log"
+	"code.cloudfoundry.org/go-loggregator/v10/rfc5424"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -92,16 +92,15 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 					if len(line) == 0 {
 						break
 					}
-					logLine, _, err := logrfc.Parse(line)
-					Expect(err).ToNot(HaveOccurred())
-					if string(logLine.Message()) == "test-rfc5424" {
-						sdata := logLine.StructureData()[0]
-						Expect(string(sdata.ID())).To(Equal("instance@47450"))
-						properties := sdata.Properties()
-						Expect(properties).To(ContainElement(logrfc.Property{Key: ("director"), Value: ("")}))
-						Expect(properties).ToNot(ContainElement(logrfc.Property{Key: ("environment"), Value: ("")}))
-						Expect(properties).To(ContainElement(logrfc.Property{Key: ("deployment"), Value: (DeploymentName())}))
-						Expect(properties).To(ContainElement(logrfc.Property{Key: ("group"), Value: ("forwarder")}))
+					msg := rfc5424.Message{}
+					Expect(msg.UnmarshalBinary(line)).To(Succeed())
+					if string(msg.Message) == "test-rfc5424" {
+						sdata := msg.StructuredData[0]
+						Expect(sdata.ID).To(Equal("instance@47450"))
+						Expect(sdata.Parameters).To(ContainElement(rfc5424.SDParam{Name: ("director"), Value: ("")}))
+						Expect(sdata.Parameters).ToNot(ContainElement(rfc5424.SDParam{Name: ("environment"), Value: (DeploymentName())}))
+						Expect(sdata.Parameters).To(ContainElement(rfc5424.SDParam{Name: ("deployment"), Value: ("")}))
+						Expect(sdata.Parameters).To(ContainElement(rfc5424.SDParam{Name: ("group"), Value: ("forwarder")}))
 						break
 					}
 				}
@@ -283,13 +282,12 @@ var _ = Describe("Tagging logs with environment identifiers", func() {
 				if len(line) == 0 {
 					break
 				}
-				logLine, _, err := logrfc.Parse(line)
-				Expect(err).ToNot(HaveOccurred())
-				if string(logLine.Message()) == "test-environment-identifier" {
-					sdata := logLine.StructureData()[0]
-					Expect(string(sdata.ID())).To(Equal("instance@47450"))
-					properties := sdata.Properties()
-					Expect(properties).To(ContainElement(logrfc.Property{Key: ("environment"), Value: ("some-environment-identifier")}))
+				msg := rfc5424.Message{}
+				Expect(msg.UnmarshalBinary(line)).To(Succeed())
+				if string(msg.Message) == "test-environment-identifier" {
+					sdata := msg.StructuredData[0]
+					Expect(sdata.ID).To(Equal("instance@47450"))
+					Expect(sdata.Parameters).To(ContainElement(rfc5424.SDParam{Name: ("environment"), Value: ("some-environment-identifier")}))
 					break
 				}
 			}
