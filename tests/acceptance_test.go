@@ -234,15 +234,20 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 	})
 
 	Context("when TLS is configured over relp", func() {
-		BeforeEach(func() {
-			Cleanup()
-			DeployWithVarsStore("manifests/relp-tls.yml")
-		})
 		AfterEach(func() {
 			Cleanup()
 		})
 
-		TestSharedBehavior()
+		It("will fail the deploy, since RELP does not support TLS in this release", func() {
+			By("Deploying")
+
+			session := BoshCmd("deploy", "manifests/relp-tls.yml",
+				"-v", fmt.Sprintf("deployment=%s", DeploymentName()),
+				fmt.Sprintf("--vars-store=/tmp/%s-vars.yml", DeploymentName()),
+				"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS()))
+			Eventually(session, 10*time.Minute).Should(gexec.Exit(1))
+			Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
+		})
 	})
 
 	Context("when TLS is configured and mTLS is enforced", func() {

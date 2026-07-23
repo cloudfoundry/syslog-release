@@ -25,6 +25,8 @@ instance_groups:
         release: syslog
         properties:
           syslog:
+            address: "storer.default.((deployment)).bosh"
+            port: 514
             transport: "relp"
             tls_enabled: true
             permitted_peer: "*.storer.default.((deployment)).bosh"
