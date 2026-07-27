@@ -57,7 +57,7 @@ func Cleanup() {
 	session := BoshCmd("delete-deployment")
 	Eventually(session, 40*time.Minute).Should(gexec.Exit(0))
 
-	Eventually(eventualLockChecker()).ShouldNot(gbytes.Say(DeploymentName()))
+	Eventually(eventualLockChecker(), 40*time.Minute).ShouldNot(gbytes.Say(DeploymentName()))
 }
 
 func Deploy(manifest string) *gexec.Session {

@@ -98,8 +98,8 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 						sdata := msg.StructuredData[0]
 						Expect(sdata.ID).To(Equal("instance@47450"))
 						Expect(sdata.Parameters).To(ContainElement(rfc5424.SDParam{Name: ("director"), Value: ("")}))
-						Expect(sdata.Parameters).ToNot(ContainElement(rfc5424.SDParam{Name: ("environment"), Value: (DeploymentName())}))
-						Expect(sdata.Parameters).To(ContainElement(rfc5424.SDParam{Name: ("deployment"), Value: ("")}))
+						Expect(sdata.Parameters).ToNot(ContainElement(rfc5424.SDParam{Name: ("environment"), Value: ("")}))
+						Expect(sdata.Parameters).To(ContainElement(rfc5424.SDParam{Name: ("deployment"), Value: (DeploymentName())}))
 						Expect(sdata.Parameters).To(ContainElement(rfc5424.SDParam{Name: ("group"), Value: ("forwarder")}))
 						break
 					}
