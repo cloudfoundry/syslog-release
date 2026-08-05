@@ -1,0 +1,43 @@
+name: syslog
+version: 12.3.27
+commit_hash: b5c2d1e
+uncommitted_changes: false
+jobs:
+- name: syslog_forwarder
+  version: dae3b272c9001573ada2fb503c639937fa41d63b44ddbaad64b9bb3958f64a2c
+  fingerprint: dae3b272c9001573ada2fb503c639937fa41d63b44ddbaad64b9bb3958f64a2c
+  sha1: sha256:106b5cb6f88e6a4ba07f23cf025871f216452d10f18006313558e55e071d1fff
+  packages:
+  - blackbox
+- name: syslog_storer
+  version: d7ca1e0c29963206d36bd671b04e155c5a9b94ca4ac56034cfcac8bf551e944d
+  fingerprint: d7ca1e0c29963206d36bd671b04e155c5a9b94ca4ac56034cfcac8bf551e944d
+  sha1: sha256:cade2a1f502606abe36cc6a0a7c39d1b573e53f40ecda67170fc5014eaf31f66
+  packages: []
+packages:
+- name: blackbox
+  version: 6c828f48b69304225bf9b1e01bbb6ca76718d625e9c5981432b06a922e931275
+  fingerprint: 6c828f48b69304225bf9b1e01bbb6ca76718d625e9c5981432b06a922e931275
+  sha1: sha256:7610c19423f160fb97572c2e860848006e2791f2a9685f9e7f6d1fefd67abc65
+  dependencies:
+  - golang-1.26-linux
+- name: golang-1.26-darwin
+  version: 08cde37f508e0ea33f62d266e187bff20dbbcd3ac4b64c8fce9494b74225e143
+  fingerprint: 08cde37f508e0ea33f62d266e187bff20dbbcd3ac4b64c8fce9494b74225e143
+  sha1: sha256:e9d95c0e46f011b285d79586158cb19aaa286afdc3d45c821a26d0402dfb34b9
+  dependencies: []
+- name: golang-1.26-linux
+  version: e4d69f7af0c1db2e350de220a8bf0e11302baec340212be6c34156ee39be4aca
+  fingerprint: e4d69f7af0c1db2e350de220a8bf0e11302baec340212be6c34156ee39be4aca
+  sha1: sha256:46bfabe8fa69276defd4e39a28f739f23c815c87c2943190f5e07684a2170ae3
+  dependencies: []
+- name: golang-1.26-windows
+  version: 2d66a3278bcd869bbdc95cc5f3fcad2fb7041a66a3383a6b28b8b245f161d32d
+  fingerprint: 2d66a3278bcd869bbdc95cc5f3fcad2fb7041a66a3383a6b28b8b245f161d32d
+  sha1: sha256:3ddd87e078f55708e2a8d102c40b433c00275592af797e791377c4c671ce96a6
+  dependencies: []
+license:
+  version: 8e4174f96e7d8edb37c82965f0c61222e80a5ea2992f55f1e7cc7f4ef800600c
+  fingerprint: 8e4174f96e7d8edb37c82965f0c61222e80a5ea2992f55f1e7cc7f4ef800600c
+  sha1: sha256:b39221693df0d2ca912c343570485ae27070755899ced4c7cca183f42d454299
+no_compression: false
