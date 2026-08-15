@@ -19,7 +19,18 @@ if [ -d "/etc/apparmor.d/rsyslog.d/" ]; then
   cp $(dirname $0)/../config/syslog.apparmor /etc/apparmor.d/rsyslog.d/syslog.apparmor
 
   if command -v apparmor_parser &>/dev/null && [ -f "/etc/apparmor.d/usr.sbin.rsyslogd" ]; then
-    apparmor_parser -r -T -W /etc/apparmor.d/usr.sbin.rsyslogd
+    # The Docker CPI's privileged containers ship the AppArmor userspace and profiles
+    # but leave securityfs unmounted, so apparmor_parser has no interface to load
+    # through and exits non-zero. Mount it ourselves when it is missing.
+    if [ ! -d "/sys/kernel/security/apparmor" ]; then
+      mount -t securityfs securityfs /sys/kernel/security || true
+    fi
+
+    # Still missing means AppArmor is genuinely unavailable here; skip the reload
+    # rather than failing pre-start.
+    if [ -d "/sys/kernel/security/apparmor" ]; then
+      apparmor_parser -r -T -W /etc/apparmor.d/usr.sbin.rsyslogd
+    fi
   fi
 fi
 
