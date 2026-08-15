@@ -23,9 +23,9 @@ instance_groups:
         release: bpm
       - name: syslog_forwarder
         release: syslog
-    properties:
-      syslog:
-        heuristically_filter_debug_messages: true
+        properties:
+          syslog:
+            heuristically_filter_debug_messages: true
   - name: storer
     instances: 1
     vm_type: default

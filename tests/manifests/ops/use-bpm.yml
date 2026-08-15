@@ -1,0 +1,4 @@
+---
+- type: replace
+  path: /instance_groups/name=forwarder/jobs/name=syslog_forwarder/properties?/use_bpm
+  value: true

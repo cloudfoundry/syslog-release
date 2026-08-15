@@ -23,10 +23,10 @@ instance_groups:
         release: bpm
       - name: syslog_forwarder
         release: syslog
-    properties:
-      syslog:
-        custom_rule: |
-          if :invalid-property-accessor then $nonsense
+        properties:
+          syslog:
+            custom_rule: |
+              if :invalid-property-accessor then $nonsense
   - name: storer
     instances: 1
     vm_type: default

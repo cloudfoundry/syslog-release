@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,7 +23,29 @@ func StemcellOS() string {
 	if stemcellOS, stemcellEnvSet := os.LookupEnv("STEMCELL_OS"); stemcellEnvSet {
 		return stemcellOS
 	}
-	return "ubuntu-bionic"
+	return "ubuntu-resolute"
+}
+
+// UseBPM reports whether the forwarder should run blackbox under BPM. scripts/test
+// derives USE_BPM from the stemcell; unset means the non-BPM path.
+func UseBPM() bool {
+	useBPM, err := strconv.ParseBool(os.Getenv("USE_BPM"))
+	return err == nil && useBPM
+}
+
+func DeployArgs(manifest string) []string {
+	args := []string{"deploy", manifest,
+		"-v", fmt.Sprintf("deployment=%s", DeploymentName()),
+		"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS())}
+	if UseBPM() {
+		args = append(args, "-o", "manifests/ops/use-bpm.yml")
+	}
+	return args
+}
+
+func DeployWithVarsStoreArgs(manifest string) []string {
+	return append(DeployArgs(manifest),
+		fmt.Sprintf("--vars-store=/tmp/%s-vars.yml", DeploymentName()))
 }
 
 func BoshCmd(args ...string) *gexec.Session {
@@ -62,18 +85,14 @@ func Cleanup() {
 
 func Deploy(manifest string) *gexec.Session {
 	By("Deploying")
-	session := BoshCmd("deploy", manifest,
-		"-v", fmt.Sprintf("deployment=%s", DeploymentName()),
-		"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS()))
+	session := BoshCmd(DeployArgs(manifest)...)
 	Eventually(session, 40*time.Minute).Should(gexec.Exit(0))
 	Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
 	return session
 }
 
 func DeployWithVarsStore(manifest string) *gexec.Session {
-	session := BoshCmd("deploy", manifest,
-		"-v", fmt.Sprintf("deployment=%s", DeploymentName()), fmt.Sprintf("--vars-store=/tmp/%s-vars.yml", DeploymentName()),
-		"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS()))
+	session := BoshCmd(DeployWithVarsStoreArgs(manifest)...)
 	Eventually(session, 40*time.Minute).Should(gexec.Exit(0))
 	Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
 	return session

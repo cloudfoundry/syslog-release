@@ -3,7 +3,6 @@ package syslog_acceptance_test
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -212,9 +211,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		It("will fail the pre-start script", func() {
 			By("Deploying")
 
-			session := BoshCmd("deploy", "manifests/broken-rules.yml",
-				"-v", fmt.Sprintf("deployment=%s", DeploymentName()),
-				"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS()))
+			session := BoshCmd(DeployArgs("manifests/broken-rules.yml")...)
 			Eventually(session, 10*time.Minute).Should(gexec.Exit(1))
 			Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
 		})
@@ -240,10 +237,7 @@ var _ = Describe("Forwarding loglines to a TCP syslog drain", func() {
 		It("will fail the deploy, since RELP does not support TLS in this release", func() {
 			By("Deploying")
 
-			session := BoshCmd("deploy", "manifests/relp-tls.yml",
-				"-v", fmt.Sprintf("deployment=%s", DeploymentName()),
-				fmt.Sprintf("--vars-store=/tmp/%s-vars.yml", DeploymentName()),
-				"-v", fmt.Sprintf("stemcell-os=%s", StemcellOS()))
+			session := BoshCmd(DeployWithVarsStoreArgs("manifests/relp-tls.yml")...)
 			Eventually(session, 10*time.Minute).Should(gexec.Exit(1))
 			Eventually(BoshCmd("locks")).ShouldNot(gbytes.Say(DeploymentName()))
 		})
