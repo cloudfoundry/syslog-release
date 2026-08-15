@@ -23,9 +23,9 @@ instance_groups:
         release: bpm
       - name: syslog_forwarder
         release: syslog
-    properties:
-      syslog:
-        filter_legacy_vcap_messages: true
+        properties:
+          syslog:
+            filter_legacy_vcap_messages: true
   - name: storer
     instances: 1
     vm_type: default

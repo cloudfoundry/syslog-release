@@ -23,9 +23,9 @@ instance_groups:
         release: bpm
       - name: syslog_forwarder
         release: syslog
-    properties:
-      syslog:
-        environment: "some-environment-identifier"
+        properties:
+          syslog:
+            environment: "some-environment-identifier"
   - name: storer
     instances: 1
     vm_type: default

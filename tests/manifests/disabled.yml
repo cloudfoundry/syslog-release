@@ -23,10 +23,10 @@ instance_groups:
         release: bpm
       - name: syslog_forwarder
         release: syslog
-    properties:
-      syslog:
-        migration:
-          disabled: true
+        properties:
+          syslog:
+            migration:
+              disabled: true
   - name: storer
     instances: 1
     vm_type: default

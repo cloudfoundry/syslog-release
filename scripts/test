@@ -2,7 +2,19 @@
 
 set -euxo pipefail
 
-STEMCELL_OS="${STEMCELL_OS:-ubuntu-xenial}"
+STEMCELL_OS="${STEMCELL_OS:-ubuntu-resolute}"
+INFRASTRUCTURE="${INFRASTRUCTURE:-google-kvm}"
+
+# BPM is required on Resolute Raccoon. Older stemcells still exercise the
+# non-BPM path, which exists for add-on deployments. Set USE_BPM explicitly to
+# override this.
+if [ -z "${USE_BPM:-}" ]; then
+  case "${STEMCELL_OS}" in
+    *resolute*) USE_BPM=true  ;;
+    *)          USE_BPM=false ;;
+  esac
+fi
+export USE_BPM
 
 pushd "$(dirname "$0")/.."
   bosh create-release --force --version="$(date "+%s")"
@@ -10,9 +22,8 @@ pushd "$(dirname "$0")/.."
 popd
 
 bosh upload-release https://bosh.io/d/github.com/cloudfoundry/bpm-release
-bosh upload-stemcell "https://bosh.io/d/stemcells/bosh-google-kvm-${STEMCELL_OS}-go_agent"
+bosh upload-stemcell "https://bosh.io/d/stemcells/bosh-${INFRASTRUCTURE}-${STEMCELL_OS}"
 
 pushd "$(dirname "$0")/../tests"
-  go install github.com/onsi/ginkgo/v2/ginkgo
-  ginkgo -r --procs="${NODES:-3}" --compilers="${NODES:-3}" --keep-going --timeout="4h" "$@"
+  go run github.com/onsi/ginkgo/v2/ginkgo  -r --procs="${NODES:-3}" --compilers="${NODES:-3}" --keep-going --timeout="4h" "$@"
 popd
