@@ -1,6 +1,6 @@
 module syslog_integration_tests
 
-go 1.25.0
+go 1.26
 
 require (
 	code.cloudfoundry.org/go-loggregator/v10 v10.3.1
