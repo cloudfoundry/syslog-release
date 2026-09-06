@@ -3,6 +3,8 @@ builds:
     version: 12.3.12
   0c213068-d276-4529-7b4e-480bca29ed3a:
     version: 12.1.0
+  0df2ec89-ec6c-4142-42e8-1a107f0f5152:
+    version: 12.3.29
   1332df41-edb9-4654-4b56-16e21dd772a2:
     version: 11.8.2
   14cd303c-a773-4c4a-7b83-2fdc539601c4:
