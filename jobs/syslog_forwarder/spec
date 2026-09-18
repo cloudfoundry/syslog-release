@@ -223,7 +223,6 @@ properties:
 
   use_bpm:
     description: >
-      When true, run this job under BPM. BPM is required on Resolute Raccoon
-      stemcells; support for running without BPM will be removed in a future
-      version.
+      When true, run this job under BPM. Support for running without BPM will be
+      removed in a future version.
     default: false

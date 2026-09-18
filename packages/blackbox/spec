@@ -4,5 +4,6 @@ dependencies:
 - golang-1.26-linux
 files:
 - blackbox/**/*
+- scripts/**/*
 excluded_files:
 - blackbox/.git
