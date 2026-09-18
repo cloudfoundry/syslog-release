@@ -11,6 +11,8 @@ CONFIG_FILE=/var/vcap/jobs/syslog_forwarder/config/blackbox_config.yml
 case $1 in
 
   start)
+    source /var/vcap/packages/blackbox/scripts/privdrop_utils.sh
+
     mkdir -p $RUN_DIR
     chown -R vcap:vcap $RUN_DIR
 
@@ -26,7 +28,7 @@ case $1 in
       export GOMAXPROCS=1
     <% end %>
 
-    exec chpst -u syslog:vcap /var/vcap/packages/blackbox/bin/blackbox \
+    run_as_syslog /var/vcap/packages/blackbox/bin/blackbox \
       -config=$CONFIG_FILE \
       1>>$LOG_DIR/blackbox.stdout.log \
       2>>$LOG_DIR/blackbox.stderr.log

@@ -2,5 +2,9 @@ set -e
 source /var/vcap/packages/golang-1.26-linux/bosh/compile.env
 export GO111MODULE=auto
 
+mkdir -p ${BOSH_INSTALL_TARGET}/scripts
+cp scripts/privdrop_utils.sh ${BOSH_INSTALL_TARGET}/scripts/privdrop_utils.sh
+chmod +x ${BOSH_INSTALL_TARGET}/scripts/privdrop_utils.sh
+
 cd blackbox/cmd/blackbox
 go build -mod=vendor -o $BOSH_INSTALL_TARGET/bin/blackbox .
