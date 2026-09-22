@@ -1,5 +1,5 @@
 set -e
-source /var/vcap/packages/golang-1.26-linux/bosh/compile.env
+source /var/vcap/packages/golang-1.27-linux/bosh/compile.env
 export GO111MODULE=auto
 
 mkdir -p ${BOSH_INSTALL_TARGET}/scripts
