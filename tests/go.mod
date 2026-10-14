@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	code.cloudfoundry.org/go-loggregator/v10 v10.3.1
-	github.com/onsi/ginkgo/v2 v2.33.0
+	github.com/onsi/ginkgo/v2 v2.33.1
 	github.com/onsi/gomega v1.44.0
 )
 
