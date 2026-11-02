@@ -54,6 +54,7 @@ properties:
       Does not affect forwarding to remote addresses.
       This prevents truncation of log lines over 1KB,
       but may have undesirable performance impact.
+      The local rsyslog TCP listener binds to 127.0.0.1 only.
     default: false
   syslog.address:
     description: IP or DNS address of the syslog server.
