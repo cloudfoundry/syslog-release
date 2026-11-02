@@ -49,4 +49,50 @@ describe 'syslog_forwarder' do
       end
     end
   end
+
+  describe 'syslog-release.conf' do
+    let(:template) { job.template('config/syslog-release.conf') }
+
+    context 'when syslog.use_tcp_for_file_forwarding_local_transport is false (default)' do
+      let(:rendered) { template.render({}) }
+
+      it 'does not configure a TCP listener' do
+        expect(rendered).not_to include('imtcp')
+        expect(rendered).not_to include('$InputTCPServerRun')
+      end
+
+      it 'keeps the localhost UDP listener' do
+        expect(rendered).to include('$ModLoad imudp')
+        expect(rendered).to include('$UDPServerAddress localhost')
+        expect(rendered).to include('$UDPServerRun 514')
+      end
+    end
+
+    context 'when syslog.use_tcp_for_file_forwarding_local_transport is true' do
+      let(:rendered) { template.render({ 'syslog' => { 'use_tcp_for_file_forwarding_local_transport' => true } }) }
+
+      it 'binds the TCP listener to 127.0.0.1 only' do
+        expect(rendered).to match(/^input\(type="imtcp" port="514" address="127\.0\.0\.1"\)$/)
+        expect(rendered).to include('module(load="imtcp")')
+        expect(rendered).not_to include('$ModLoad imtcp')
+        expect(rendered).not_to include('$InputTCPServerRun')
+      end
+
+      it 'keeps the localhost UDP listener' do
+        expect(rendered).to include('$ModLoad imudp')
+        expect(rendered).to include('$UDPServerAddress localhost')
+        expect(rendered).to include('$UDPServerRun 514')
+      end
+    end
+
+    context 'when syslog.migration.disabled is true' do
+      let(:rendered) do
+        template.render({ 'syslog' => { 'migration' => { 'disabled' => true }, 'use_tcp_for_file_forwarding_local_transport' => true } })
+      end
+
+      it 'renders nothing' do
+        expect(rendered.strip).to be_empty
+      end
+    end
+  end
 end

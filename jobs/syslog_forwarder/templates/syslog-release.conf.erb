@@ -19,7 +19,7 @@ $UDPServerAddress localhost
 $UDPServerRun 514
 
 <% if p('syslog.use_tcp_for_file_forwarding_local_transport') %>
-$ModLoad imtcp
-$InputTCPServerRun 514
+module(load="imtcp")
+input(type="imtcp" port="514" address="127.0.0.1")
 <% end %>
 <% end %>
